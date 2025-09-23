@@ -1,0 +1,8 @@
+{
+	"target":"terminus_exec",
+	"cancel":"terminus_cancel_build",
+	"shell_cmd": "javac $file && java -cp $file_path $file_base_name && rm -rf $file_path/*.class",
+	"file_regex": "^(...*?):([0-9]*):?([0-9]*)",
+	"selector": "source.java"
+}
+

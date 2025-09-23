@@ -1,0 +1,7 @@
+{
+"auto_refresh_sidebar": true,
+"rename_default": "<filename>",
+"alias": {
+        "Desktop": "~/Desktop/"
+    }
+}

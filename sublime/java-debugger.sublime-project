@@ -1,0 +1,48 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+		}
+	],
+	"debugger_configurations":
+	[
+		{
+			"type": "java",
+			"name": "cns-gateway",
+			"request": "launch",
+			"console": "externalTerminal",
+			"mainClass": "com.shubham.cns.gateway.CnsGateway",
+    		"projectName": "cns-gateway"
+    	},
+		{
+			"type": "java",
+			"name": "Debug Gateway",
+			"request": "attach",
+			"hostName": "localhost",
+            "port": 5005,
+            "mainClass": "com.shubham.cns.gateway.CnsGateway",
+    		"projectName": "cns-gateway",
+            // "pre_debug_task": "run_cns_gateway"
+		},
+	],
+	"debugger_tasks":
+	[
+		{
+			"name" : "run_cns_gateway",
+        	"shell_cmd": "./gradlew bootRun -p cns-gateway --debug-jvm",
+            // java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 -jar my-app.jar
+        	// "cmd" : [
+      		// "./gradlew", "bootRun",  "-p", "cns-gateway", "--debug-jvm"
+      		// "bash",
+      		// "-c",
+      		// "echo 'shubham'"
+        	// ],
+            "env": {},
+            // "background": true,
+            "working_dir": "$folder",
+            // "ready_signal_pattern": "Listening for transport dt_socket at address: 5005",
+        	// "ready_signal_timeout": 60
+		}
+	]
+}

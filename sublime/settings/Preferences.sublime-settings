@@ -1,0 +1,47 @@
+{
+	"font_face": "UbuntuSansMono-Medium",
+	"font_size": 16.5,
+	"font_options":[""],
+	"ignored_packages":
+	[
+		"Vintage",
+	],
+	// Only trigger auto complete on specific characters, not every keystroke
+    "auto_complete": true,
+    "auto_complete_delay": 300,
+    "draw_white_space": ["selection"],
+
+    // disable general autocompletion for go and java
+    "auto_complete_selector": "source - source.go - source.java - source.js",
+
+    // ONLY trigger on dot for Go/Java
+    "auto_complete_triggers": [
+        {"selector": "source.go", "characters": ".",},
+        {"selector": "source.java", "characters": ".",},
+        {"selector": "source.js", "characters": ".",}
+	],
+
+    // Disable word completions to reduce noise
+    "auto_complete_with_fields": false,
+    "auto_complete_cycle": false,
+
+    // This should NOT include everything - be specific
+    "auto_complete_include_snippets": false,
+    "auto_complete_include_snippets_when_typing": false,
+
+	"line_padding_bottom": 7,
+	"line_padding_top": 7,
+	"find_selected_text": true,
+	"close_find_after_find_all": false,
+	"close_find_after_replace_all": false,
+	"binary_file_patterns":
+	[
+		"*.jpg", "*.jpeg", "*.png", "*.gif", "*.ttf", "*.tga", "*.dds", "*.ico", "*.eot", "*.pdf", "*.swf", "*.jar", "*.zip",
+		// "node_modules/**",
+		"bower_components/**",
+		"tmp/**"
+	],
+	"theme": "Adaptive.sublime-theme",
+	"index_files": true,
+	"color_scheme": "vitesse-light.sublime-color-scheme",
+}

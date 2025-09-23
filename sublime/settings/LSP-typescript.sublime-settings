@@ -1,0 +1,12 @@
+// Settings in here override those in "LSP-typescript/LSP-typescript.sublime-settings"
+
+{
+	"initializationOptions": {
+		"tsserver": {
+			"logVerbosity": "on",
+			"logDirectory": "/tmp/typescript",
+			"maxTsServerMemory": 8192
+		},
+		"maxTsServerMemory": 8192
+	}
+}

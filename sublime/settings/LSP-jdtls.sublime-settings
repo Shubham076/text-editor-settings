@@ -1,0 +1,9 @@
+// Settings in here override those in "LSP-jdtls/LSP-jdtls.sublime-settings"
+{
+    // version can be found here: https://download.eclipse.org/jdtls/milestones
+    "version": "1.12.0",
+    "settings": {
+		"java.referencesCodeLens.enabled": false,
+        "java.jdt.ls.java.home": "/Users/shubham.dogra/Library/Java/JavaVirtualMachines/corretto-17.0.10/Contents/Home"
+    }
+}

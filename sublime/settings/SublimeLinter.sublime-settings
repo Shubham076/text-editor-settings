@@ -1,0 +1,37 @@
+{
+    "lint_mode": "save",
+    "debug": true,
+    "show_panel_on_save": "view",
+    "styles": [
+        {
+            "mark_style": "squiggly_underline",
+            "priority": 1,
+            "scope": "sublimelinter.mark.warning",
+            "icon": "dot",
+            "types": [
+                "warning"
+            ]
+        },
+        {
+            "mark_style": "squiggly_underline",
+            "priority": 2,
+            "scope": "sublimelinter.mark.error",
+            "icon": "diamond",
+            "types": [
+                "error"
+            ]
+        }
+    ],
+    "linters": {
+        "golangcilint": {
+            "executable": "/opt/homebrew/bin/golangci-lint",
+            "args": [
+                "--concurrency=10"
+                // "--output.text.print-issued-lines=false",
+                // "--output.text.colors=false"
+            ],
+            "working_dir": "${project_path}",
+            "selector": "source.go",
+        }
+    }
+}

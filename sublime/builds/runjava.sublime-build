@@ -1,0 +1,3 @@
+{
+	"shell_cmd": "javac $file_name && java $file_base_name < input.txt > output.txt 2> error.txt && rm -rf *.class"
+}

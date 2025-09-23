@@ -1,0 +1,151 @@
+/*
+make sure in to disabled popup_shadow in adaptive theme to below
+{
+           "class": "popup_shadow",
+           "settings": ["popup_shadows"],
+           "platforms": ["osx"],
+           "layer0.texture": "Theme - Default/common/mac_shadow.png",
+           "layer0.inner_margin": [0, 0, 0, 0],
+           "layer0.draw_center": false,
+           "layer0.opacity": 0.0,
+           "content_margin": [0, 0, 0, 0]
+       },
+       {
+           "class": "popup_control",
+           "layer0.tint": "white",
+           "layer0.opacity": 0.0
+       },
+*/
+
+html {
+    margin: 0;
+    padding: 0;
+    border-radius: 0.5rem;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    border-radius: 0.5rem;
+}
+
+.lsp_popup {
+    font-family: system;
+    /*border: 2px solid red;*/
+    border-radius: 0.5rem;
+}
+
+.mdpopups {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.lsp_popup--spacer {
+    margin-top: 0rem;
+}
+
+.highlight {
+    border-width: 0;
+    border-radius: 0.5rem;
+}
+
+.mdpopups .highlight {
+    border-radius: 0.5rem;
+}
+
+.color-muted {
+    color: var(--foreground);
+}
+
+.diagnostics {
+    margin-bottom: 0rem;
+    font-family: var(--mdpopups-font-mono);
+}
+.errors {
+    border-width: 0;
+    background-color: color(var(--redish) alpha(0.25));
+    color: var(--foreground);
+    padding: 0.5rem;
+    white-space: pre-wrap;
+    /*border: 2px solid #212121;*/
+}
+
+.warnings {
+    border-width: 0;
+    background-color: color(var(--yellowish) alpha(0.25));
+    color: var(--foreground);
+    padding: 0.5rem;
+}
+
+.info {
+    border-width: 0;
+    background-color: color(var(--bluish) alpha(0.25));
+    color: var(--foreground);
+    padding: 0.5rem;
+}
+
+.hints {
+    border-width: 0;
+    background-color: color(var(--bluish) alpha(0.25));
+    color: var(--foreground);
+    padding: 0.5rem;
+}
+.actions {
+    font-family: system;
+    border-width: 0;
+    background-color: color(var(--foreground) alpha(0.1));
+    color: var(--foreground);
+    padding: 0.5rem;
+}
+
+.lsp_popup p {
+    padding: 0.5rem 0.5rem 0 0.5rem;
+}
+
+.lsp_popup h1,
+.lsp_popup h2,
+.lsp_popup h3,
+.lsp_popup h4,
+.lsp_popup h5,
+.lsp_popup h6 {
+    padding: 0.5rem 0.5rem 0 0.5rem;
+}
+
+.actions a.icon {
+    text-decoration: none;
+    /*border: 2px solid black;*/
+}
+
+.lsp_popup a {
+    display: block;
+    padding: 1rem;
+}
+
+.link.with-padding {
+    /*padding: 1rem;*/
+}
+
+.lsp_popup div {
+}
+
+.lsp_popup .highlight {
+}
+
+.lsp_popup div.highlight,
+.lsp_popup code.highlight,
+.lsp_popup pre.highlight {
+}
+
+/*.lsp_popup .admonition {
+    border: 2px solid green;
+}*/
+
+.lsp_popup .admonition.panel-error .admonition-title {
+    /*background-color: #212121;*/
+}
+
+pre.related_info {
+    border-top: 1px solid color(var(--background) alpha(0.25));
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+}

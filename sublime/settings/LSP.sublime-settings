@@ -1,0 +1,48 @@
+// Settings in here override those in "LSP/LSP.sublime-settings"
+//https://microsoft.github.io/language-server-protocol/specifications/specification-3-17/#clientCapabilities
+{
+	 "log_debug": true,
+	 "show_code_actions": "",
+	 "show_diagnostics_panel_on_save": 1,
+	 "document_highlight_style": "fill",
+	 "show_diagnostics_severity_level": 0,
+	 "diagnostics_delay_ms": 2000,
+	 "show_symbol_action_links": false,
+	 "inhibit_snippet_completions": false,
+	 "show_diagnostics_in_view_status": false,
+	 "show_diagnostics_severity_level": 1,
+
+	 // Disable Sublime's built-in completions to reduce noise
+	 "inhibit_word_completions": true,
+	 "inhibit_snippet_completions": true,
+
+	 "clients": {
+	 	"jdtls": {
+	 		"enabled": true,
+	 		"selector": "source.java",
+	 		"settings": {
+	 			"java.completion.enabled": true,
+	 			"java.completion.maxResults": 50,
+	 			"java.completion.guessMethodArguments": true
+	 		},
+	 		"disabled_capabilities": {
+	 			"signatureHelpProvider": true,  // Disable parameter hints popup
+	 			// "referencesProvider": true,
+	 			// "implementationProvider": true,
+	 			// "declarationProvider": true,
+	 		}
+	 	},
+	 	"gopls": {
+	 		"enabled": true,
+	 		"selector": "source.go",
+	 		"disabled_capabilities": {
+	 			"signatureHelpProvider": true  // Disable parameter hints for Go too
+	 		},
+	 		"settings": {
+	 			"gopls": {
+	 				"completeUnimported": false
+	 			}
+	 		}
+	 	}
+	}
+}
