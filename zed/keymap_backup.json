@@ -1,0 +1,141 @@
+[
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-x": "editor::Cut",
+      "ctrl-c": "editor::Copy",
+      "ctrl-v": "editor::Paste",
+      "ctrl-z": "editor::Undo",
+      "ctrl-y": "editor::Redo",
+      "ctrl-s": "workspace::Save",
+      "ctrl-n": "workspace::NewFile",
+
+      "ctrl-k": "workspace::ToggleLeftDock",
+      // forward and backword
+      "cmd-[": "pane::GoBack",
+      "cmd-]": "pane::GoForward",
+
+      // indent and unindent
+      "ctrl-[": "editor::Outdent",
+      "ctrl-]": "editor::Indent",
+
+      // add cursors
+      "cmd-shift-up": "editor::AddSelectionAbove",
+      "cmd-shift-down": "editor::AddSelectionBelow",
+
+      //expand selection
+      "cmd-e": "editor::SelectLargerSyntaxNode",
+
+      // switch panes
+      "ctrl-.": ["workspace::ActivatePaneInDirection", "Right"],
+      "ctrl-,": ["workspace::ActivatePaneInDirection", "Left"],
+
+      // go to
+      "cmd-i": "editor::GoToDefinition",
+      "alt-f": "editor::FindAllReferences",
+
+      //delete line
+      "ctrl-l": "editor::DeleteLine",
+      "cmd-l": "editor::DeleteLine",
+
+      "cmd-r": ["task::Spawn", { "task_name": "Run java" }],
+
+      //find and replace
+      "ctrl-f": "buffer_search::Deploy",
+      "cmd-h": [
+        "buffer_search::Deploy",
+        {
+          "replace_enabled": true
+        }
+      ],
+      "ctrl-h": [
+        "buffer_search::Deploy",
+        {
+          "replace_enabled": true
+        }
+      ],
+
+      // move shorcuts
+      "cmd-up": "editor::MoveLineUp",
+      "cmd-down": "editor::MoveLineDown",
+      "ctrl-shift-up": "editor::DuplicateLineUp",
+      "ctrl-shift-down": "editor::DuplicateLineDown",
+
+      "ctrl-p": "file_finder::Toggle",
+      "ctrl-shift-p": "command_palette::Toggle",
+      "ctrl-shift-f": "pane::DeploySearch",
+
+      // quick switch theme
+      "ctrl-t": "theme_selector::Toggle",
+
+      "cmd-right": [
+        "editor::SelectToEndOfLine",
+        {
+          "stop_at_soft_wraps": true
+        }
+      ],
+      "cmd-left": [
+        "editor::SelectToBeginningOfLine",
+        {
+          "stop_at_soft_wraps": true
+        }
+      ],
+
+      "cmd-shift-l": "editor::SplitSelectionIntoLines",
+
+      // split panes
+      "cmd-k up": "pane::SplitUp",
+      "cmd-k down": "pane::SplitDown",
+      "cmd-k left": "pane::SplitLeft",
+      "cmd-k right": "pane::SplitRight"
+    }
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "ctrl-cmd-space": "terminal::ShowCharacterPalette",
+      "ctrl-c": "terminal::Copy",
+      "ctrl-v": "terminal::Paste",
+      "cmd-k up": "pane::SplitUp",
+      "cmd-k down": "pane::SplitDown",
+      "cmd-k left": "pane::SplitLeft",
+      "cmd-k right": "pane::SplitRight"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-n": "workspace::NewTerminal",
+      "ctrl-shift-h": [
+        "pane::DeploySearch",
+        {
+          "replace_enabled": true
+        }
+      ],
+      "ctrl-`": "workspace::ToggleBottomDock",
+      "ctrl-k": "workspace::ToggleLeftDock",
+      "ctrl-,": ["workspace::ActivatePaneInDirection", "Left"],
+      "ctrl-.": ["workspace::ActivatePaneInDirection", "Right"]
+    }
+  },
+  {
+    "context": "ProjectSearchBar && !in_replace",
+    "bindings": {
+      "enter": "search::ReplaceNext",
+      "cmd-enter": "search::ReplaceAll"
+    }
+  },
+  {
+    "context": "ProjectPanel",
+    "bindings": {
+      "alt-r": "project_panel::Rename",
+      "cmd-delete": "project_panel::Delete"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "cmd-k cmd-left": "workspace::ActivatePaneLeft"
+    }
+  }
+]

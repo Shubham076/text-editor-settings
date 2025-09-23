@@ -1,0 +1,37 @@
+Fonts
+
+1: Cascadia Code
+2: Hack
+3: Cartograph
+4: Codelia
+6: Iosevka
+7: Jetbrains Mono
+8: Matter mono
+12: Simlon Mono
+13: Comic Code
+14: Fira Code
+15: Azo mono
+16: Geist Mono
+18: Input Mono
+19 Monolisa
+20 Droid Sans Mono
+21 Dank Mono
+22 Fantasque Mono
+23 Hasklig
+24 Julia Mono
+25 Berkeley Mono
+26 agave
+27 Victor Mono
+28 Mononoki
+29 Monoid
+31 Maple Mono
+32 NkDuy Mono
+33 Kode Mono
+34 Commit Mono
+35 Inconsolata
+36 Reddit Mono
+37 Slice Mono
+38: Iosvmata
+
+
+https://github.com/saifulapm/my-fonts
