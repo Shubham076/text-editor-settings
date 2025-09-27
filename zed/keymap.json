@@ -27,7 +27,7 @@
       "alt-f": "editor::FindAllReferences",
 
       //delete line
-      "cmd-l": "editor::DeleteLine",
+      "cmd-backspace": "editor::DeleteLine",
 
       "cmd-b": ["task::Spawn", { "task_name": "Run java" }],
 
