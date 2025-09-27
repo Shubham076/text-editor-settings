@@ -49,7 +49,7 @@
 
     // Custom line deletion with selection
     {
-        "keys": ["super+l"],
+        "keys": ["super+backspace"],
         "command": "chain",
         "args": {
             "commands": [
