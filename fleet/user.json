@@ -1,0 +1,260 @@
+{
+  "keymap": [
+    {
+      "key": "cmd-backslash",
+      "action": "toggle-left-panel"
+    },
+    {
+      "key": "cmd-shift-l",
+      "action": "editor/add-carets-to-ends-of-selected-lines"
+    },
+    {
+      "key": "cmd-shift-right",
+      "action": "-shift-end"
+    },
+    {
+      "key": "cmd-right",
+      "action": "shift-end"
+    },
+    {
+      "key": "cmd-shift-left",
+      "action": "-shift-home"
+    },
+    {
+      "key": "cmd-left",
+      "action": "shift-home"
+    },
+    {
+      "key": "cmd-left",
+      "action": "-home"
+    },
+    {
+      "key": "cmd-right",
+      "action": "-end"
+    },
+    {
+      "key": "cmd-shift-down",
+      "action": "-move-line-down"
+    },
+    {
+      "key": "cmd-down",
+      "action": "move-line-down"
+    },
+    {
+      "key": "cmd-down",
+      "action": "-navigate/edit"
+    },
+    {
+      "key": "cmd-shift-up",
+      "action": "-move-line-up"
+    },
+    {
+      "key": "cmd-up",
+      "action": "move-line-up"
+    },
+    {
+      "key": "cmd-shift-down",
+      "action": "editor/add-caret-below"
+    },
+    {
+      "key": "cmd-d",
+      "action": "-editor/duplicate-line"
+    },
+    {
+      "key": "ctrl-shift-down",
+      "action": "editor/duplicate-line"
+    },
+    {
+      "key": "ctrl-shift-down",
+      "action": "-editor/move-caret-to-next-symbol"
+    },
+    {
+      "key": "cmd-alt-left",
+      "action": "-back"
+    },
+    {
+      "key": "cmd-alt-right",
+      "action": "-forward"
+    },
+    {
+      "key": "shift-alt-left",
+      "action": "-editor/move-caret-to-previous-word-with-selection"
+    },
+    {
+      "key": "cmd-alt-left",
+      "action": "editor/move-caret-to-previous-word-with-selection"
+    },
+    {
+      "key": "shift-alt-right",
+      "action": "-editor/move-caret-to-next-word-with-selection"
+    },
+    {
+      "key": "cmd-alt-right",
+      "action": "editor/move-caret-to-next-word-with-selection"
+    },
+    {
+      "key": "alt-cmd-l",
+      "action": "-reformat-code"
+    },
+    {
+      "key": "ctrl-shift-f",
+      "action": "reformat-code"
+    },
+    {
+      "key": "ctrl-shift-f",
+      "action": "editor/reformat-code"
+    },
+    {
+      "key": "shift-f6",
+      "action": "-files/rename"
+    },
+    {
+      "key": "alt-r",
+      "action": "files/rename"
+    },
+    {
+      "key": "shift-f6",
+      "action": "-rename"
+    },
+    {
+      "key": "shift-alt-r",
+      "action": "rename"
+    },
+    {
+      "key": "shift-alt-r",
+      "action": "editor/rename"
+    },
+    {
+      "key": "alt-r",
+      "action": "files/rename-cancel"
+    },
+    {
+      "key": "alt-r",
+      "action": "rename-workspace"
+    },
+    {
+      "key": "ctrl-rightbracket",
+      "action": "editor/increase-indentation"
+    },
+    {
+      "key": "ctrl-leftbracket",
+      "action": "editor/decrease-indentation"
+    },
+    {
+      "key": "cmd-i",
+      "action": "-markdown/toggle-italic"
+    },
+    {
+      "key": "cmd-b",
+      "action": "-go-to-declaration"
+    },
+    {
+      "key": "cmd-i",
+      "action": "go-to-declaration"
+    },
+    {
+      "key": "cmd-shift-b",
+      "action": "-go-to-type-declaration"
+    },
+    {
+      "key": "shift-ctrl-b",
+      "action": "-go-to-type-declaration"
+    },
+    {
+      "key": "cmd-i",
+      "action": "editor/go-to-definition"
+    },
+    {
+      "key": "alt-f",
+      "action": "editor/find-usages"
+    },
+    {
+      "key": "cmd-k",
+      "action": "-git/commit/jump-to-tool"
+    },
+    {
+      "key": "alt-g",
+      "action": "git/commit/jump-to-tool"
+    },
+    {
+      "key": "ctrl-graveaccent",
+      "action": "-select-theme"
+    },
+    {
+      "key": "cmd-k cmd-t",
+      "action": "select-theme"
+    },
+    {
+      "key": "alt-f12",
+      "action": "-terminal/toggle"
+    },
+    {
+      "key": "ctrl-graveaccent",
+      "action": "terminal/toggle"
+    },
+    {
+      "key": "cmd-n",
+      "action": "terminal/new-tool"
+    },
+    {
+      "key": "cmd-l",
+      "action": "-terminal/clear"
+    },
+    {
+      "key": "ctrl-tab",
+      "action": "tabs/next-tab"
+    },
+    {
+      "key": "alt-tab",
+      "action": "prev-tab"
+    },
+    {
+      "key": "ctrl-tab",
+      "action": "-switch-to-next-file"
+    },
+    {
+      "key": "ctrl-tab",
+      "action": "next-tab"
+    },
+    {
+      "key": "cmd-p",
+      "action": "goto/file"
+    },
+    {
+      "key": "cmd-p",
+      "action": "-show-parameter-info"
+    },
+    {
+      "key": "alt-return",
+      "action": "select-all"
+    },
+    {
+      "key": "alt-return",
+      "action": "select-all-occurrences"
+    },
+    {
+      "key": "alt-return",
+      "action": "-quick-fixes"
+    },
+    {
+      "key": "cmd-d",
+      "action": "editor/add-next-occurrence-to-selection"
+    },
+    {
+      "key": "cmd-d",
+      "action": "-run/test/show-comparison-failure"
+    },
+    {
+      "key": "cmd-k right",
+      "action": "split-right"
+    },
+    {
+      "key": "cmd-k down",
+      "action": "split-down"
+    },
+    {
+      "key": "cmd-shift-p",
+      "action": "goto/action"
+    }
+  ]
+}

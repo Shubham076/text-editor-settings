@@ -93,16 +93,16 @@
     },
 
     // formatting
-    { "keys": ["ctrl+f"], "command": "astyleformat" },
+    { "keys": ["alt+f"], "command": "astyleformat" },
     {
-        "keys": ["ctrl+f"],
+        "keys": ["alt+f"],
         "command": "pretty_json",
         "context": [
             {"key": "selector", "operator": "equal", "operand": "source.json"}
         ]
     },
     {
-        "keys": ["ctrl+f"],
+        "keys": ["alt+f"],
         "command": "lsp_format_document",
         "context": [{"key": "lsp.session_with_capability", "operand": "documentFormattingProvider | documentRangeFormattingProvider"}]
     },
@@ -279,5 +279,21 @@
     },
 
     // Compare view
-    { "keys": ["alt+shift+c"], "command": "toggle_compare_view" }
+    { "keys": ["alt+c"], "command": "toggle_compare_view" },
+    {"keys": ["alt+d"],"command": "toggle_debugger_panel"},
+
+    // { "keys": ["ctrl+n"], "command": "terminus_open", "args": {"show_in_panel": true} },
+    // { "keys": ["alt+right"], "command": "toggle_terminus_panel", "args": {"cycle": true} }
+
+
+    // Create new terminal (only when in terminus panel)
+    { "keys": ["super+n"], "command": "terminus_open", "args": {"show_in_panel": true}, "context": [{"key": "terminus_view"}] },
+
+    // Cycle between terminus panels (only when in terminus panel)
+    // { "keys": ["alt+right"], "command": "toggle_terminus_panel", "args": {"cycle": true}, "context": [{"key": "terminus_view"}] },
+
+    // Navigate between terminus panels (forward and backward)
+    { "keys": ["ctrl+tab"], "command": "toggle_terminus_panel", "args": {"cycle": true}, "context": [{"key": "terminus_view"}] },
+    { "keys": ["ctrl+shift+tab"], "command": "toggle_terminus_panel", "args": {"cycle": true, "reverse": true}, "context": [{"key": "terminus_view"}] },
+    { "keys": ["super+w"], "command": "terminus_close", "context": [{"key": "terminus_view"}] }
 ]
