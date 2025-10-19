@@ -55,6 +55,24 @@ config.plugins.lsp = {
     diagnostics_delay = 500,
 }
 
+-- Use system Node.js and yaml-language-server from Homebrew
+lspconfig.yamlls.setup(common.merge({
+    command = {
+        "/opt/homebrew/bin/node",
+        "/opt/homebrew/lib/node_modules/yaml-language-server/bin/yaml-language-server",
+        "--stdio"
+    },
+}, config.plugins.lsp_yaml or {}))
+
+-- Use system Node.js and yaml-language-server from Homebrew
+lspconfig.jsonls.setup(common.merge({
+    command = {
+        "/opt/homebrew/bin/node",
+        "/opt/homebrew/bin/vscode-json-languageserver",
+        "--stdio"
+    },
+}, config.plugins.lsp_json or {}))
+
 lspconfig.gopls.setup {
     command = {
         "/Users/shubham.dogra/go/bin/gopls"

@@ -74,7 +74,25 @@
     { "keys": ["ctrl+`"], "command": "toggle_terminus_panel" },
     { "keys": ["super+backquote"], "command": "show_panel", "args": {"panel": "console", "toggle": true} },
 
-    // File operations in sidebar
+    // File operations in sidebar-enhancements package
+    { "keys": ["ctrl+n"], "command": "side_bar_new_file", "args": {"paths": []} },
+    { "keys": ["super+alt+n"], "command": "side_bar_new_directory" },
+    { "keys": ["alt+r"],
+     "command": "side_bar_rename",
+     "context": [
+            {"key": "control", "operator": "equal", "operand": "sidebar_tree"}
+        ]
+    },
+    {
+        "keys": ["super+backspace"],
+        "command": "side_bar_delete",
+        "args": {"paths": []},
+        "context": [
+            {"key": "control", "operator": "equal", "operand": "sidebar_tree"}
+        ]
+    },
+
+
     { "keys": ["ctrl+n"], "command": "side_bar_new_file", "args": {"paths": []} },
     { "keys": ["super+alt+n"], "command": "side_bar_new_directory" },
     { "keys": ["alt+r"],
@@ -93,16 +111,16 @@
     },
 
     // formatting
-    { "keys": ["alt+f"], "command": "astyleformat" },
+    { "keys": ["ctrl+shift+f"], "command": "astyleformat" },
     {
-        "keys": ["alt+f"],
+        "keys": ["ctrl+shift+f"],
         "command": "pretty_json",
         "context": [
             {"key": "selector", "operator": "equal", "operand": "source.json"}
         ]
     },
     {
-        "keys": ["alt+f"],
+        "keys": ["ctrl+shift+f"],
         "command": "lsp_format_document",
         "context": [{"key": "lsp.session_with_capability", "operand": "documentFormattingProvider | documentRangeFormattingProvider"}]
     },
@@ -236,7 +254,7 @@
 
     // Git integration
     {
-        "keys": ["alt+shift+d"],
+        "keys": ["alt+d"],
         "command": "gs_diff",
         // "args": { "in_cached_mode": true },
         "context": [
@@ -244,7 +262,7 @@
         ]
     },
     {
-        "keys": ["alt+shift+i"],
+        "keys": ["alt+i"],
         "command": "gs_inline_diff",
         "context": [
             {"key": "setting.command_mode", "operator": "equal", "operand": false}
@@ -280,7 +298,7 @@
 
     // Compare view
     { "keys": ["alt+c"], "command": "toggle_compare_view" },
-    {"keys": ["alt+d"],"command": "toggle_debugger_panel"},
+    {"keys": ["ctrl+d"],"command": "toggle_debugger_panel"},
 
     // { "keys": ["ctrl+n"], "command": "terminus_open", "args": {"show_in_panel": true} },
     // { "keys": ["alt+right"], "command": "toggle_terminus_panel", "args": {"cycle": true} }
@@ -294,6 +312,6 @@
 
     // Navigate between terminus panels (forward and backward)
     { "keys": ["ctrl+tab"], "command": "toggle_terminus_panel", "args": {"cycle": true}, "context": [{"key": "terminus_view"}] },
-    { "keys": ["ctrl+shift+tab"], "command": "toggle_terminus_panel", "args": {"cycle": true, "reverse": true}, "context": [{"key": "terminus_view"}] },
+    { "keys": ["alt+tab"], "command": "toggle_terminus_panel", "args": {"cycle": true, "reverse": true}, "context": [{"key": "terminus_view"}] },
     { "keys": ["super+w"], "command": "terminus_close", "context": [{"key": "terminus_view"}] }
 ]

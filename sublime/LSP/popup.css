@@ -31,7 +31,6 @@ body {
 
 .lsp_popup {
     font-family: system;
-    /*border: 2px solid red;*/
     border-radius: 0.5rem;
 }
 
@@ -117,8 +116,8 @@ body {
 }
 
 .lsp_popup a {
-    display: block;
-    padding: 1rem;
+    /*display: block;*/
+    padding: 0.5rem;
 }
 
 .link.with-padding {
