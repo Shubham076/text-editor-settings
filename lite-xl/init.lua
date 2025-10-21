@@ -1,6 +1,11 @@
 -- put user settings here
 -- this module will be loaded after everything else when the application starts
 -- it will be automatically reloaded when saved
+--
+-- for terminal background add below line to match theme background color
+-- function TerminalView:new(options)
+-- options.background = style.terminal_background or style.background
+--
 
 local core = require "core"
 local keymap = require "core.keymap"
