@@ -1,0 +1,375 @@
+{
+  "meta": {
+    "theme.name": "Vitesse Light Soft",
+    "theme.kind": "Light",
+    "theme.version": 8
+  },
+  "colors": {
+    "editor.text": "Text",
+    "editor.caret.background": "Text",
+    "editor.whitespace.text": "Comment",
+    "editor.currentLine.background.default": "LineHighlight",
+    "editor.currentLine.background.focused": "LineHighlight",
+    "editor.lineNumber.default": "GutterFg",
+    "editor.lineNumber.current": "Keyword",
+    "editor.foldedMark.background": "Mantle",
+    "editor.foldedMark.text": "Text",
+    "editor.foldIndicator.icon.default": "GutterFg",
+    "editor.foldIndicator.icon.hovered": "Keyword",
+    "editor.foldIndicator.background.hovered": "Mantle",
+    "editor.interline.background": "Base",
+    "editor.interline.match.background": "Yellow",
+    "editor.interline.match.background.secondary": "Yellow",
+    "editor.interline.match.text": "Text",
+    "editor.interline.match.text.secondary": "Text",
+    "editor.interline.preview.background": "Base",
+    "editor.interline.preview.border": "Transparent",
+    "background.primary": "Selection",
+    "background.secondary": "Base",
+    "island.background": "Base",
+    "background.hovered": "LineHighlight",
+    "background.selected": "Selection",
+    "border": "Base",
+    "border.focused": "Keyword",
+    "shadow.border": "Mantle",
+    "text.default": "Text",
+    "text.primary": "Text",
+    "text.secondary": "Comment",
+    "text.tertiary": "GutterFg",
+    "text.disabled": "Comment",
+    "text.bright": "Text",
+    "text.dangerous": "Red",
+    "editor.gitDiff.background.added": "DiffInserted",
+    "editor.gitDiff.text.added": "DiffInserted",
+    "editor.gitDiff.background.deleted": "DiffDeleted",
+    "editor.gitDiff.text.deleted": "DiffDeleted",
+    "editor.gitDiff.background.modified": "DiffModified",
+    "editor.gitDiff.text.modified": "DiffModified",
+    "editor.gitDiff.background.conflict": "DiffDeleted",
+    "editor.gitDiff.text.conflict": "DiffDeleted",
+    "link.focusOutline": "Blue",
+    "link.text": "Blue",
+    "completion.match.background": "Transparent",
+    "completion.match.text": "Orange",
+    "search.match.background": "Yellow",
+    "search.match.text": "Base",
+    "popup.background": "Mantle",
+    "popup.editor.background": "Base",
+    "popup.goto.background": "Mantle",
+    "popup.text": "Text",
+    "popup.foreground": "Text",
+    "tooltip.background": "Mantle",
+    "tooltip.border": "Transparent",
+    "tooltip.text.primary": "Text",
+    "tooltip.text": "Text",
+    "tooltip.text.secondary": "Text",
+    "tooltip.text.tertiary": "Text",
+    "notification.background.default": "Base",
+    "notification.background.unread": "Selection",
+    "notification.separator": "Mantle",
+    "notification.text": "Text",
+    "notification.timestamp": "Text",
+    "ai.snippet.border": "Transparent",
+    "ai.snippet.header.background": "Mantle",
+    "ai.snippet.editor.background": "Base",
+    "ai.icon.background": "Purple",
+    "ai.icon.background.secondary": "Selection",
+    "ai.user.icon.text": "Blue",
+    "ai.user.icon.background": "Blue",
+    "ai.user.icon.background.secondary": "Selection",
+    "ai.error.border": "Red",
+    "listItem.text.default": "Text",
+    "listItem.text.hovered": "Text",
+    "listItem.text.focused": "Text",
+    "listItem.text.selected": "Text",
+    "listItem.text.secondary": "Comment",
+    "listItem.border.default": "Transparent",
+    "listItem.border.hovered": "Transparent",
+    "listItem.border.focused": "Transparent",
+    "listItem.border.selected": "Transparent",
+    "listItem.background.default": "Transparent",
+    "listItem.background.hovered": "LineHighlight",
+    "listItem.background.focused": "Selection",
+    "listItem.background.selected": "Selection",
+    "listItem.background.dnd": "Selection",
+    "tree.focusBorder": "Keyword",
+    "tree.compactFolder.selector.default": "Text",
+    "tree.compactFolder.selector.focused": "Text",
+    "tree.compactFolder.separator": "Comment",
+    "tab.background.default": "Transparent",
+    "tab.background.selected": "Selection",
+    "tab.background.hovered": "LineHighlight",
+    "tab.background.selectedFocused": "Selection",
+    "tab.border.default": "Transparent",
+    "tab.border.hovered": "Transparent",
+    "tab.border.selected": "Transparent",
+    "tab.border.selectedFocused": "Transparent",
+    "tab.text": "Text",
+    "terminal.background": "Base",
+    "terminal.foreground": "Text",
+    "terminal.ansiColors.background.ansiBlack": "Base",
+    "terminal.ansiColors.foreground.ansiBlack": "Text",
+    "terminal.ansiColors.background.ansiRed": "Red",
+    "terminal.ansiColors.foreground.ansiRed": "Red",
+    "terminal.ansiColors.background.ansiGreen": "Green",
+    "terminal.ansiColors.foreground.ansiGreen": "Green",
+    "terminal.ansiColors.background.ansiYellow": "Yellow",
+    "terminal.ansiColors.foreground.ansiYellow": "Yellow",
+    "terminal.ansiColors.background.ansiBlue": "Blue",
+    "terminal.ansiColors.foreground.ansiBlue": "Blue",
+    "terminal.ansiColors.background.ansiMagenta": "Purple",
+    "terminal.ansiColors.foreground.ansiMagenta": "Purple",
+    "terminal.ansiColors.background.ansiCyan": "Cyan",
+    "terminal.ansiColors.foreground.ansiCyan": "Cyan",
+    "terminal.ansiColors.background.ansiWhite": "Text",
+    "terminal.ansiColors.foreground.ansiWhite": "Text",
+    "terminal.ansiColors.background.ansiBrightBlack": "LineHighlight",
+    "terminal.ansiColors.foreground.ansiBrightBlack": "Comment",
+    "terminal.ansiColors.background.ansiBrightRed": "Red",
+    "terminal.ansiColors.foreground.ansiBrightRed": "Red",
+    "terminal.ansiColors.background.ansiBrightGreen": "Green",
+    "terminal.ansiColors.foreground.ansiBrightGreen": "Green",
+    "terminal.ansiColors.background.ansiBrightYellow": "Yellow",
+    "terminal.ansiColors.foreground.ansiBrightYellow": "Yellow",
+    "terminal.ansiColors.background.ansiBrightBlue": "Blue",
+    "terminal.ansiColors.foreground.ansiBrightBlue": "Blue",
+    "terminal.ansiColors.background.ansiBrightMagenta": "Purple",
+    "terminal.ansiColors.foreground.ansiBrightMagenta": "Purple",
+    "terminal.ansiColors.background.ansiBrightCyan": "Cyan",
+    "terminal.ansiColors.foreground.ansiBrightCyan": "Cyan",
+    "terminal.ansiColors.background.ansiBrightWhite": "Base",
+    "terminal.ansiColors.foreground.ansiBrightWhite": "Text",
+    "button.background.default": "LineHighlight",
+    "button.background.hovered": "Selection",
+    "button.text.default": "Text",
+    "button.text.hovered": "Text",
+    "button.border.default": "Selection",
+    "button.focusBorder": "Transparent",
+    "button.focusOutline": "Transparent",
+    "button.secondary.background.default": "LineHighlight",
+    "button.secondary.background.hovered": "Selection",
+    "button.secondary.text.default": "Text",
+    "button.secondary.text.hovered": "Text",
+    "button.secondary.border.default": "Transparent",
+    "button.tile.background.default": "Mantle",
+    "button.tile.background.hovered": "LineHighlight",
+    "button.tile.text.default": "Text",
+    "button.tile.text.hovered": "Text",
+    "button.tile.border.default": "Transparent",
+    "disabled": "Transparent",
+    "focusOutline": "Keyword"
+  },
+  "textAttributes": {
+    "comment": {
+      "foregroundColor": "Comment",
+      "fontModifier": {
+        "italic": true
+      }
+    },
+    "comment.doc": {
+      "foregroundColor": "Documentation"
+    },
+    "comment.doc.tag": {
+      "foregroundColor": "Annotation"
+    },
+    "keyword": {
+      "foregroundColor": "Keyword"
+    },
+    "keyword.control": {
+      "foregroundColor": "Keyword"
+    },
+    "keyword.typeModifier": {
+      "foregroundColor": "Storage"
+    },
+    "string": {
+      "foregroundColor": "String"
+    },
+    "string.regexp": {
+      "foregroundColor": "String"
+    },
+    "number": {
+      "foregroundColor": "Constant"
+    },
+    "boolean": {
+      "foregroundColor": "Keyword"
+    },
+    "identifier": {
+      "foregroundColor": "Variable"
+    },
+    "identifier.function.call": {
+      "foregroundColor": "Function"
+    },
+    "identifier.function.declaration": {
+      "foregroundColor": "Function"
+    },
+    "identifier.type": {
+      "foregroundColor": "Storage"
+    },
+    "identifier.type.class": {
+      "foregroundColor": "Storage"
+    },
+    "identifier.type.enum": {
+      "foregroundColor": "Storage"
+    },
+    "identifier.type.struct": {
+      "foregroundColor": "Storage"
+    },
+    "identifier.interface": {
+      "foregroundColor": "Storage"
+    },
+    "identifier.typeReference": {
+      "foregroundColor": "Storage"
+    },
+    "identifier.constant": {
+      "foregroundColor": "Constant"
+    },
+    "identifier.parameter": {
+      "foregroundColor": "Variable"
+    },
+    "identifier.variable": {
+      "foregroundColor": "Variable"
+    },
+    "identifier.field": {
+      "foregroundColor": "Variable"
+    },
+    "punctuation": {
+      "foregroundColor": "Operator"
+    },
+    "punctuation.operator": {
+      "foregroundColor": "Operator"
+    },
+    "tagName.html": {
+      "foregroundColor": "Tag"
+    },
+    "tag.html": {
+      "foregroundColor": "Tag",
+      "backgroundColor": "Base"
+    },
+    "attributeName.html": {
+      "foregroundColor": "Annotation"
+    },
+    "json.keys": {
+      "foregroundColor": "Text"
+    },
+    "markup.bold": {
+      "fontModifier": {
+        "bold": true
+      }
+    },
+    "markup.italic": {
+      "fontModifier": {
+        "italic": true
+      }
+    },
+    "markup.heading": {
+      "foregroundColor": "Keyword",
+      "fontModifier": {
+        "bold": true
+      }
+    },
+    "link": {
+      "foregroundColor": "Blue"
+    },
+    "region.red.color": {
+      "backgroundColor": "Base"
+    },
+    "region.blue.color": {
+      "backgroundColor": "Base"
+    },
+    "region.orange.color": {
+      "backgroundColor": "Base"
+    },
+    "region.yellow.color": {
+      "backgroundColor": "Base"
+    },
+    "region.green.color": {
+      "backgroundColor": "Base"
+    },
+    "region.purple.color": {
+      "backgroundColor": "Base"
+    },
+    "region.pink.color": {
+      "backgroundColor": "Base"
+    },
+    "lsp.info.color": {
+      "foregroundColor": "Blue",
+      "backgroundColor": "Base"
+    },
+    "lsp.hint.color": {
+      "foregroundColor": "Green",
+      "backgroundColor": "Base"
+    },
+    "lsp.warning.color": {
+      "foregroundColor": "Yellow",
+      "backgroundColor": "Base"
+    },
+    "lsp.error.color": {
+      "foregroundColor": "Red",
+      "backgroundColor": "Base"
+    },
+    "editor.selection": {
+      "backgroundColor": "Selection"
+    },
+    "editor.selection.focused": {
+      "backgroundColor": "Selection"
+    },
+    "editor.indentGuide": {
+      "foregroundColor": "Selection"
+    },
+    "editor.indentGuide.current": {
+      "foregroundColor": "Selection"
+    },
+    "diff.added": {
+      "backgroundColor": "DiffInserted"
+    },
+    "diff.added.word": {
+      "backgroundColor": "DiffInserted"
+    },
+    "diff.deleted": {
+      "backgroundColor": "DiffDeleted"
+    },
+    "diff.deleted.word": {
+      "backgroundColor": "DiffDeleted"
+    },
+    "diff.modified": {
+      "backgroundColor": "DiffModified"
+    },
+    "diff.modified.word": {
+      "backgroundColor": "DiffModified"
+    }
+  },
+  "palette": {
+    "Text": "#606060",
+    "Base": "#F1F0E9",
+    "Mantle": "#E0DFD8",
+    "Selection": "#D3D3D3",
+    "LineHighlight": "#E7E5DB",
+    "GutterFg": "#393A3450",
+    "Comment": "#808080",
+    "Keyword": "#B56959",
+    "String": "#B07D48",
+    "Function": "#5A6AA6",
+    "Constant": "#B07D48",
+    "Operator": "#AB5959",
+    "Variable": "#606060",
+    "Storage": "#5A6AA6",
+    "Annotation": "#BD8F8F",
+    "Documentation": "#1C6B48",
+    "Tag": "#6A737D",
+    "CssSelector": "#B07D48",
+    "JsonKey": "#606060",
+    "YamlKey": "#606060",
+    "Red": "#9B362B",
+    "Green": "#388E3C",
+    "Blue": "#343E5E",
+    "Yellow": "#B28C00",
+    "Cyan": "#316A6A",
+    "Orange": "#F78D8C",
+    "Pink": "#D3859A",
+    "Purple": "#E5BB00",
+    "DiffInserted": "#BEE6BE",
+    "DiffDeleted": "#E4BBB2",
+    "DiffModified": "#C2D8F2",
+    "Transparent": "#FFFFFF00"
+  }
+}
