@@ -231,6 +231,14 @@
         ]
     },
     {
+        "keys": ["enter"],
+        "command": "replace_next",
+          "context": [
+            {"key": "panel", "operand": "replace"},
+            {"key": "panel_has_focus"}
+        ]
+      },
+    {
         "keys": ["super+enter"],
         "command": "replace_all",
         "args": {"close_panel": false},
@@ -239,6 +247,14 @@
             {"key": "panel_has_focus"}
         ]
     },
+       {
+        "keys": ["enter"],
+        "command": "replace_next",
+          "context": [
+            {"key": "panel", "operand": "find_in_files"},
+            {"key": "panel_has_focus"}
+        ]
+      },
 
     // Auto-complete for Java
     {

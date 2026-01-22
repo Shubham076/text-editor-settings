@@ -5,6 +5,7 @@
       "cmd-y": "editor::Redo",
       "ctrl-n": "workspace::NewFile",
 
+      "ctrl-k": "workspace::ToggleLeftDock",
       // forward and backword
       "cmd-[": "pane::GoBack",
       "cmd-]": "pane::GoForward",
