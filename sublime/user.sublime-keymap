@@ -21,10 +21,10 @@
     { "keys": ["super+\\"], "command": "toggle_side_bar" },
 
     // Line manipulation
-    { "keys": ["ctrl+shift+down"], "command": "duplicate_line" },
-    { "keys": ["ctrl+shift+up"], "command": "duplicate_line", "args": {"forward": false} },
-    { "keys": ["super+up"], "command": "swap_line_up" },
-    { "keys": ["super+down"], "command": "swap_line_down" },
+    { "keys": ["alt+shift+down"], "command": "duplicate_line" },
+    { "keys": ["alt+shift+up"], "command": "duplicate_line", "args": {"forward": false} },
+    { "keys": ["alt+up"], "command": "swap_line_up" },
+    { "keys": ["alt+down"], "command": "swap_line_down" },
     { "keys": ["super+shift+up"], "command": "select_lines", "args": {"forward": false} },
     { "keys": ["super+shift+down"], "command": "select_lines", "args": {"forward": true} },
 
@@ -33,12 +33,12 @@
     { "keys": ["super+b"], "command": "expand_selection", "args": {"to": "brackets"} },
 
     // Indentation
-    { "keys": ["ctrl+]"], "command": "indent" },
-    { "keys": ["ctrl+["], "command": "unindent" },
+    // { "keys": ["super+]"], "command": "indent" },
+    // { "keys": ["super+["], "command": "unindent" },
 
     // Navigation
-    { "keys": ["super+["], "command": "jump_back" },
-    { "keys": ["super+]"], "command": "jump_forward" },
+    { "keys": ["ctrl+["], "command": "jump_back" },
+    { "keys": ["ctrl+]"], "command": "jump_forward" },
 
     // Build system
     { "keys": ["alt+c"], "command": "cancel_build" },
@@ -314,7 +314,7 @@
 
     // Compare view
     { "keys": ["alt+c"], "command": "toggle_compare_view" },
-    {"keys": ["ctrl+d"],"command": "toggle_debugger_panel"},
+    {"keys": ["alt+d"],"command": "toggle_debugger_panel"},
 
     // { "keys": ["ctrl+n"], "command": "terminus_open", "args": {"show_in_panel": true} },
     // { "keys": ["alt+right"], "command": "toggle_terminus_panel", "args": {"cycle": true} }
