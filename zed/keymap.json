@@ -15,8 +15,8 @@
       // "cmd-]": "editor::Indent",
 
       // add cursors
-      "cmd-shift-up": "editor::AddSelectionAbove",
-      "cmd-shift-down": "editor::AddSelectionBelow",
+      // "cmd-shift-up": "editor::AddSelectionAbove",
+      // "cmd-shift-down": "editor::AddSelectionBelow",
 
       //expand selection
       "cmd-e": "editor::SelectLargerSyntaxNode",
@@ -180,6 +180,18 @@
     "context": "Workspace && Terminal",
     "bindings": {
       "cmd-n": "workspace::NewTerminal",
+    },
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-up": "editor::SelectToStartOfLargerSyntaxNode",
+    },
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-down": "editor::SelectToEndOfLargerSyntaxNode",
     },
   },
 ]
