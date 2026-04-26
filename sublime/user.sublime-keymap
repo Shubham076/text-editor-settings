@@ -34,12 +34,12 @@
     { "keys": ["super+b"], "command": "expand_selection", "args": {"to": "brackets"} },
 
     // Indentation
-    // { "keys": ["super+]"], "command": "indent" },
-    // { "keys": ["super+["], "command": "unindent" },
+    { "keys": ["tab"], "command": "indent" },
+    { "keys": ["shift+tab"], "command": "unindent" },
 
     // Navigation
-    { "keys": ["ctrl+["], "command": "jump_back" },
-    { "keys": ["ctrl+]"], "command": "jump_forward" },
+    { "keys": ["super+["], "command": "jump_back" },
+    { "keys": ["super+]"], "command": "jump_forward" },
 
     // Build system
     { "keys": ["alt+c"], "command": "cancel_build" },

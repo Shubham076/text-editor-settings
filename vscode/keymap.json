@@ -98,7 +98,7 @@
 
   //added new commands
   {
-    "key": "ctrl+[",
+    "key": "cmd+[",
     "command": "workbench.action.navigateBack",
     "when": "canNavigateBack"
   },
@@ -108,7 +108,7 @@
     "when": "canNavigateBack"
   },
   {
-    "key": "ctrl+]",
+    "key": "cmd+]",
     "command": "workbench.action.navigateForward",
     "when": "canNavigateForward"
   },
@@ -339,19 +339,9 @@
     "when": "!terminalFocus && !windsurf.deepwikiPanel.focused"
   },
   {
-    "key": "-",
-    "command": "workbench.action.chat.startVoiceChat",
-    "when": "chatIsEnabled && hasSpeechProvider && inChatInput && !editorFocus && !notebookEditorFocused && !scopedVoiceChatGettingReady && !speechToTextInProgress || chatIsEnabled && hasSpeechProvider && inlineChatFocused && !editorFocus && !notebookEditorFocused && !scopedVoiceChatGettingReady && !speechToTextInProgress"
-  },
-  {
     "key": "cmd+i",
     "command": "-workbench.action.chat.startVoiceChat",
     "when": "chatIsEnabled && hasSpeechProvider && inChatInput && !editorFocus && !notebookEditorFocused && !scopedVoiceChatGettingReady && !speechToTextInProgress || chatIsEnabled && hasSpeechProvider && inlineChatFocused && !editorFocus && !notebookEditorFocused && !scopedVoiceChatGettingReady && !speechToTextInProgress"
-  },
-  {
-    "key": "-",
-    "command": "workbench.action.chat.stopListeningAndSubmit",
-    "when": "inChatInput && voiceChatInProgress && scopedVoiceChatInProgress == 'editor' || inChatInput && voiceChatInProgress && scopedVoiceChatInProgress == 'inline' || inChatInput && voiceChatInProgress && scopedVoiceChatInProgress == 'quick' || inChatInput && voiceChatInProgress && scopedVoiceChatInProgress == 'view' || inlineChatFocused && voiceChatInProgress && scopedVoiceChatInProgress == 'editor' || inlineChatFocused && voiceChatInProgress && scopedVoiceChatInProgress == 'inline' || inlineChatFocused && voiceChatInProgress && scopedVoiceChatInProgress == 'quick' || inlineChatFocused && voiceChatInProgress && scopedVoiceChatInProgress == 'view'"
   },
   {
     "key": "cmd+i",
@@ -359,19 +349,9 @@
     "when": "inChatInput && voiceChatInProgress && scopedVoiceChatInProgress == 'editor' || inChatInput && voiceChatInProgress && scopedVoiceChatInProgress == 'inline' || inChatInput && voiceChatInProgress && scopedVoiceChatInProgress == 'quick' || inChatInput && voiceChatInProgress && scopedVoiceChatInProgress == 'view' || inlineChatFocused && voiceChatInProgress && scopedVoiceChatInProgress == 'editor' || inlineChatFocused && voiceChatInProgress && scopedVoiceChatInProgress == 'inline' || inlineChatFocused && voiceChatInProgress && scopedVoiceChatInProgress == 'quick' || inlineChatFocused && voiceChatInProgress && scopedVoiceChatInProgress == 'view'"
   },
   {
-    "key": "-",
-    "command": "inlineChat.askInChat",
-    "when": "editorFocus && inlineChatFileBelongsToChat && inlineChatHasEditsAgent && inlineChatPossible && !editorReadonly && !editorSimpleInput || editorFocus && inlineChatFileBelongsToChat && inlineChatHasNotebookAgent && inlineChatPossible && !editorReadonly && !editorSimpleInput && activeEditor == 'workbench.editor.notebook' || editorFocus && inlineChatFileBelongsToChat && inlineChatHasNotebookInline && inlineChatPossible && !editorReadonly && !editorSimpleInput && activeEditor == 'workbench.editor.notebook'"
-  },
-  {
     "key": "cmd+i",
     "command": "-inlineChat.askInChat",
     "when": "editorFocus && inlineChatFileBelongsToChat && inlineChatHasEditsAgent && inlineChatPossible && !editorReadonly && !editorSimpleInput || editorFocus && inlineChatFileBelongsToChat && inlineChatHasNotebookAgent && inlineChatPossible && !editorReadonly && !editorSimpleInput && activeEditor == 'workbench.editor.notebook' || editorFocus && inlineChatFileBelongsToChat && inlineChatHasNotebookInline && inlineChatPossible && !editorReadonly && !editorSimpleInput && activeEditor == 'workbench.editor.notebook'"
-  },
-  {
-    "key": "-",
-    "command": "inlineChat.start",
-    "when": "editorFocus && inlineChatHasEditsAgent && inlineChatPossible && !editorReadonly && !editorSimpleInput && !inlineChatFileBelongsToChat || editorFocus && inlineChatHasNotebookAgent && inlineChatPossible && !editorReadonly && !editorSimpleInput && !inlineChatFileBelongsToChat && activeEditor == 'workbench.editor.notebook' || editorFocus && inlineChatHasNotebookInline && inlineChatPossible && !editorReadonly && !editorSimpleInput && !inlineChatFileBelongsToChat && activeEditor == 'workbench.editor.notebook'"
   },
   {
     "key": "cmd+i",
@@ -379,19 +359,9 @@
     "when": "editorFocus && inlineChatHasEditsAgent && inlineChatPossible && !editorReadonly && !editorSimpleInput && !inlineChatFileBelongsToChat || editorFocus && inlineChatHasNotebookAgent && inlineChatPossible && !editorReadonly && !editorSimpleInput && !inlineChatFileBelongsToChat && activeEditor == 'workbench.editor.notebook' || editorFocus && inlineChatHasNotebookInline && inlineChatPossible && !editorReadonly && !editorSimpleInput && !inlineChatFileBelongsToChat && activeEditor == 'workbench.editor.notebook'"
   },
   {
-    "key": "-",
-    "command": "settings.action.toggleAiSearch",
-    "when": "aiSettingResultsAvailable && inSettingsEditor"
-  },
-  {
     "key": "cmd+i",
     "command": "-settings.action.toggleAiSearch",
     "when": "aiSettingResultsAvailable && inSettingsEditor"
-  },
-  {
-    "key": "-",
-    "command": "search.action.searchWithAI",
-    "when": "hasAIResultProviderKey && searchViewletFocus"
   },
   {
     "key": "cmd+i",
@@ -399,19 +369,9 @@
     "when": "hasAIResultProviderKey && searchViewletFocus"
   },
   {
-    "key": "-",
-    "command": "inlineChat.holdForSpeech",
-    "when": "hasSpeechProvider && inlineChatVisible && textInputFocus"
-  },
-  {
     "key": "cmd+i",
     "command": "-inlineChat.holdForSpeech",
     "when": "hasSpeechProvider && inlineChatVisible && textInputFocus"
-  },
-  {
-    "key": "-",
-    "command": "notebook.cell.chat.start",
-    "when": "config.notebook.experimental.cellChat && notebookChatAgentRegistered && notebookEditable && notebookEditorFocused && !inputFocus || config.notebook.experimental.generate && notebookChatAgentRegistered && notebookEditable && notebookEditorFocused && !inputFocus"
   },
   {
     "key": "cmd+i",
@@ -419,29 +379,14 @@
     "when": "config.notebook.experimental.cellChat && notebookChatAgentRegistered && notebookEditable && notebookEditorFocused && !inputFocus || config.notebook.experimental.generate && notebookChatAgentRegistered && notebookEditable && notebookEditorFocused && !inputFocus"
   },
   {
-    "key": "-",
-    "command": "windsurf.prioritized.command.open",
-    "when": "editorTextFocus"
-  },
-  {
     "key": "cmd+i",
     "command": "-windsurf.prioritized.command.open",
     "when": "editorTextFocus"
   },
   {
-    "key": "-",
-    "command": "windsurf.prioritized.command.open",
-    "when": "editorTextFocus && !windsurf.isAgentModeInputBoxFocused"
-  },
-  {
     "key": "cmd+i",
     "command": "-windsurf.prioritized.command.open",
     "when": "editorTextFocus && !windsurf.isAgentModeInputBoxFocused"
-  },
-  {
-    "key": "-",
-    "command": "windsurf.prioritized.terminalCommand.open",
-    "when": "terminalFocus && !cascadeManagedTerminalFocus && !cascadeUiTerminalFocus"
   },
   {
     "key": "cmd+i",
@@ -449,19 +394,9 @@
     "when": "terminalFocus && !cascadeManagedTerminalFocus && !cascadeUiTerminalFocus"
   },
   {
-    "key": "-",
-    "command": "workbench.action.chat.holdToVoiceChatInChatView",
-    "when": "chatIsEnabled && hasSpeechProvider && !chatSessionRequestInProgress && !editorFocus && !inChatInput && !inSettingsEditor && !inlineChatFocused && !notebookEditorFocused && !searchViewletFocus"
-  },
-  {
     "key": "cmd+i",
     "command": "-workbench.action.chat.holdToVoiceChatInChatView",
     "when": "chatIsEnabled && hasSpeechProvider && !chatSessionRequestInProgress && !editorFocus && !inChatInput && !inSettingsEditor && !inlineChatFocused && !notebookEditorFocused && !searchViewletFocus"
-  },
-  {
-    "key": "-",
-    "command": "workbench.action.terminal.suggestToggleDetails",
-    "when": "simpleSuggestWidgetHasFocusedSuggestion && terminalFocus && terminalHasBeenCreated && terminalIsOpen && terminalSuggestWidgetVisible || simpleSuggestWidgetHasFocusedSuggestion && terminalFocus && terminalIsOpen && terminalProcessSupported && terminalSuggestWidgetVisible"
   },
   {
     "key": "cmd+i",
@@ -477,5 +412,25 @@
     "key": "cmd+i",
     "command": "-workbench.action.terminal.chat.start",
     "when": "chatIsEnabled && terminalChatAgentRegistered && terminalFocusInAny && terminalHasBeenCreated || chatIsEnabled && terminalChatAgentRegistered && terminalFocusInAny && terminalProcessSupported"
+  },
+  {
+    "key": "shift+tab",
+    "command": "editor.action.outdentLines",
+    "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "cmd+[",
+    "command": "-editor.action.outdentLines",
+    "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "tab",
+    "command": "editor.action.indentLines",
+    "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "cmd+]",
+    "command": "-editor.action.indentLines",
+    "when": "editorTextFocus && !editorReadonly"
   }
 ]

@@ -7,12 +7,12 @@
       "cmd-k": "workspace::ToggleLeftDock",
 
       // forward and backword
-      "ctrl-[": "pane::GoBack",
-      "ctrl-]": "pane::GoForward",
+      "cmd-[": "pane::GoBack",
+      "cmd-]": "pane::GoForward",
 
-      // // indent and unindent
-      // "cmd-[": "editor::Outdent",
-      // "cmd-]": "editor::Indent",
+      // indent and unindent
+      "tab": "editor::Indent",
+      "shift+tab": "editor::Outdent",
 
       // add cursors
       // "cmd-shift-up": "editor::AddSelectionAbove",
