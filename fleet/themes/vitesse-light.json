@@ -2,7 +2,7 @@
   "meta": {
     "theme.name": "Vitesse Light Soft",
     "theme.kind": "Light",
-    "theme.version": 8
+    "theme.version": 1
   },
   "colors": {
     "editor.text": "Text",
@@ -40,13 +40,13 @@
     "text.bright": "Text",
     "text.dangerous": "Red",
     "editor.gitDiff.background.added": "DiffInserted",
-    "editor.gitDiff.text.added": "DiffInserted",
+    "editor.gitDiff.text.added": "Green",
     "editor.gitDiff.background.deleted": "DiffDeleted",
-    "editor.gitDiff.text.deleted": "DiffDeleted",
+    "editor.gitDiff.text.deleted": "Red",
     "editor.gitDiff.background.modified": "DiffModified",
-    "editor.gitDiff.text.modified": "DiffModified",
+    "editor.gitDiff.text.modified": "Blue",
     "editor.gitDiff.background.conflict": "DiffDeleted",
-    "editor.gitDiff.text.conflict": "DiffDeleted",
+    "editor.gitDiff.text.conflict": "Red",
     "link.focusOutline": "Blue",
     "link.text": "Blue",
     "completion.match.background": "Transparent",

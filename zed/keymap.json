@@ -11,7 +11,8 @@
       "cmd-]": "pane::GoForward",
 
       // indent and unindent
-      "tab": "editor::Indent",
+      "ctrl-]": "editor::Indent",
+      "ctrl-[": "editor::Outdent",
       "shift+tab": "editor::Outdent",
 
       // add cursors

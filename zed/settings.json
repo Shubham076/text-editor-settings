@@ -7,20 +7,164 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
-  "agent": {
-    "default_model": {
-      "provider": "openai",
-      "model": "gpt-4o"
+  "diff_view_style": "unified",
+  "cli_default_open_behavior": "existing_window",
+  "project_panel": {
+    "dock": "left",
+  },
+  "outline_panel": {
+    "dock": "left",
+  },
+  "collaboration_panel": {
+    "default_width": 500.0,
+    "dock": "left",
+  },
+  "agent_servers": {
+    "gemini": {
+      "type": "registry",
     },
+    "claude-acp": {
+      "type": "registry",
+    },
+  },
+  "git_panel": {
+    "dock": "left",
+    "sort_by_path": true,
+  },
+  "context_servers": {
+    "github-mcp-server": {
+      "enabled": true,
+      "remote": false,
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "-e",
+        "GITHUB_HOST",
+        "ghcr.io/github/github-mcp-server",
+      ],
+      "env": {
+        "GITHUB_HOST": "https://ghe.eng.sentinelone.tech",
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "",
+      },
+    },
+    "mcp-server-context7": {
+      "settings": {},
+
+      "enabled": true,
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "",
+      },
+    },
+    "atlassian-oss": {
+      "args": ["mcp-atlassian"],
+      "enabled": true,
+      "command": "/Users/shubham.dogra/.local/bin/uvx",
+      "env": {
+        "CONFLUENCE_API_TOKEN": "",
+        "CONFLUENCE_URL": "https://sentinelone.atlassian.net/wiki",
+        "CONFLUENCE_USERNAME": "shubham.dogra@sentinelone.com",
+        "JIRA_API_TOKEN": "",
+        "JIRA_URL": "https://sentinelone.atlassian.net",
+        "JIRA_USERNAME": "shubham.dogra@sentinelone.com",
+      },
+    },
+  },
+  "agent_buffer_font_size": 16.0,
+  "agent_ui_font_size": 20.0,
+  "edit_predictions": {
+    "provider": "ollama",
+  },
+  "language_models": {
+    "openai_compatible": {},
+  },
+  "agent": {
+    "dock": "right",
+    "profiles": {
+      "write": {
+        "name": "Write",
+        "tools": {
+          "search_web": true,
+          "copy_path": true,
+          "create_directory": true,
+          "delete_path": true,
+          "diagnostics": true,
+          "edit_file": true,
+          "fetch": true,
+          "list_directory": true,
+          "project_notifications": false,
+          "move_path": true,
+          "now": true,
+          "find_path": true,
+          "read_file": true,
+          "restore_file_from_disk": true,
+          "save_file": true,
+          "open": true,
+          "grep": true,
+          "spawn_agent": true,
+          "terminal": true,
+          "thinking": true,
+          "update_plan": true,
+        },
+        "enable_all_context_servers": true,
+        "context_servers": {
+          "mcp-server-context7": {
+            "tools": {
+              "resolve-library-id": true,
+              "query-docs": true,
+            },
+          },
+        },
+      },
+      "ask": {
+        "name": "Ask",
+        "tools": {
+          "search_web": true,
+          "diagnostics": true,
+          "fetch": true,
+          "list_directory": true,
+          "project_notifications": false,
+          "now": true,
+          "find_path": true,
+          "read_file": true,
+          "open": true,
+          "grep": true,
+          "spawn_agent": true,
+          "thinking": true,
+          "update_plan": true,
+        },
+        "enable_all_context_servers": false,
+        "context_servers": {
+          "mcp-server-context7": {
+            "tools": {
+              "resolve-library-id": true,
+              "query-docs": true,
+            },
+          },
+        },
+      },
+    },
+    "tool_permissions": {
+      "default": "allow",
+    },
+    "default_profile": "write",
   },
   "theme": "Vitesse Light Soft",
   "telemetry": {
-    "metrics": false
+    "metrics": false,
   },
-  "ui_font_size": 16,
+  "ui_font_size": 17.0,
   "buffer_font_size": 16,
   "buffer_font_family": "Cascadia Mono",
   "buffer_line_height": {
-    "custom": 2
-  }
+    "custom": 2,
+  },
+  "debugger": {
+    "dock": "bottom",
+  },
+  "bottom_dock_layout": "left_aligned",
 }

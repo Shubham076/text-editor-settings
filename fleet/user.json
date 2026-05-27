@@ -53,7 +53,7 @@
       "action": "move-line-up"
     },
     {
-      "key": "cmd-shift-down",
+      "key": "cmd-alt-down",
       "action": "editor/add-caret-below"
     },
     {
@@ -61,7 +61,7 @@
       "action": "-editor/duplicate-line"
     },
     {
-      "key": "ctrl-shift-down",
+      "key": "alt-shift-down",
       "action": "editor/duplicate-line"
     },
     {
@@ -255,6 +255,78 @@
     {
       "key": "cmd-shift-p",
       "action": "goto/action"
+    },
+    {
+      "key": "cmd-y",
+      "action": "redo"
+    },
+    {
+      "key": "cmd-leftbracket",
+      "action": "back"
+    },
+    {
+      "key": "cmd-rightbracket",
+      "action": "forward"
+    },
+    {
+      "key": "cmd-e",
+      "action": "editor/extend-selection"
+    },
+    {
+      "key": "cmd-backspace",
+      "action": "editor/delete-line"
+    },
+    {
+      "key": "cmd-f",
+      "action": "find"
+    },
+    {
+      "key": "cmd-r",
+      "action": "replace"
+    },
+    {
+      "key": "cmd-shift-r",
+      "action": "replace-in-files"
+    },
+    {
+      "key": "cmd-k up",
+      "action": "split-up"
+    },
+    {
+      "key": "cmd-k left",
+      "action": "split-left"
+    },
+    {
+      "key": "cmd-delete",
+      "action": "files/delete"
+    },
+    {
+      "key": "alt-shift-d",
+      "action": "-editor/duplicate-line"
+    },
+    {
+      "key": "alt-shift-numlock alt-shift-down",
+      "action": "editor/duplicate-line"
+    },
+    {
+      "key": "ctrl-graveaccent",
+      "action": "toggle-terminal-tool"
+    },
+    {
+      "key": "cmd-shift-r",
+      "action": "search/replace"
+    },
+    {
+      "key": "cmd-e",
+      "action": "expand-selection"
+    },
+    {
+      "key": "ctrl-backslash",
+      "action": "focus-and-toggle-tool-panel"
+    },
+    {
+      "key": "ctrl-shift-t",
+      "action": "focus-and-toggle-tasks-panel"
     }
   ]
 }
