@@ -430,6 +430,7 @@ class SublimeToFleetConverter:
         colors["ai.icon.background.secondary"] = get_palette_color(
             ["Selection", "LineHighlight"]
         )
+
         colors["ai.user.icon.text"] = get_palette_color(["Blue", "Cyan", "Function"])
         colors["ai.user.icon.background"] = get_palette_color(
             ["Blue", "Cyan", "Function"]
@@ -437,6 +438,13 @@ class SublimeToFleetConverter:
         colors["ai.user.icon.background.secondary"] = get_palette_color(
             ["Selection", "LineHighlight"]
         )
+
+        colors["ai.chat.input.background.default"] = bg
+        colors["inputField.ai.background.default"] = get_palette_color(
+            ["LineHighlight"]
+        )
+        colors["inputField.ai.border.default"] = get_palette_color(["LineHighlight"])
+
         colors["ai.error.border"] = get_palette_color(["Red", "Operator"])
 
         # === List Items (for popup menus) ===
@@ -678,6 +686,14 @@ class SublimeToFleetConverter:
 
         # Add all common text attributes directly (based on Fleet.json structure)
         # No need to process rules - just define what we need
+
+        text_attributes["editor.text.scheme"] = {
+            "foregroundColor": get_palette_color(["Text"])
+        }
+
+        text_attributes["editor.brace.match"] = {
+            "backgroundColor": get_palette_color(["LineHighlight"])
+        }
 
         # Comments
         text_attributes["comment"] = {

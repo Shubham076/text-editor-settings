@@ -7,9 +7,9 @@
       "name": "Vitesse Light Soft",
       "appearance": "light",
       "style": {
-        "editor.background": "#F1F0E9",
-        "editor.gutter.background": "#F1F0E9",
         "toolbar.background": "#F1F0E9",
+        "editor.gutter.background": "#f8f7f0",
+        "editor.background": "#f8f7f0",
         "editor.foreground": "#606060",
         "editor.selection.foreground": "#606060",
         "elevated_surface.foreground": "#606060",
@@ -36,10 +36,10 @@
         "version_control.word_deleted": "#E1B6AC",
         "version_control.modified": "#828CA2",
         "hint": "#606060",
-        "background": "#F1F0E9",
+        "background": "#ECEBE4",
         "surface.background": "#ECEBE4",
         "panel.background": "#ECEBE4",
-        "element.background": "#ECEBE4",
+        "element.background": "#D3D3D3",
         "tab_bar.background": "#ECEBE4",
         "tab.inactive_background": "#ECEBE4",
         "status_bar.background": "#ECEBE4",
@@ -62,7 +62,7 @@
         "predictive.border": "#74b9ff",
         "link_text.hover": "#606060",
         "drop_target.background": "#D3D3D3",
-        "editor.document_highlight.write_background": "#D3D3D3",
+        "editor.document_highlight.write_background": "#ECEBE4",
         "title_bar.background": "#ECEBE4",
         "info": "#606060",
         "warning": "#606060",
@@ -102,8 +102,7 @@
         "players": [
           {
             "cursor": "#566ddaff",
-            "background": "#566ddaff",
-            "selection": "#566dda3d"
+            "selection": "#8A80704D"
           },
           {
             "cursor": "#bf41bfff",
@@ -199,11 +198,6 @@
           },
           "constant.macro": {
             "color": "#B07D48",
-            "font_style": null,
-            "font_weight": null
-          },
-          "comment.doc": {
-            "color": "#808080",
             "font_style": null,
             "font_weight": null
           },
@@ -347,14 +341,15 @@
             "font_style": null,
             "font_weight": null
           },
+
           "comment": {
             "color": "#808080",
-            "font_style": null,
+            "font_style": "italic",
             "font_weight": null
           },
-          "comment.documentation": {
+          "comment.doc": {
             "color": "#808080",
-            "font_style": null,
+            "font_style": "italic",
             "font_weight": null
           },
           "string.documentation": {
@@ -444,11 +439,6 @@
           },
           "property": {
             "color": "#606060",
-            "font_style": null,
-            "font_weight": null
-          },
-          "comment.error": {
-            "color": "#D73A49",
             "font_style": null,
             "font_weight": null
           },

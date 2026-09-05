@@ -33,7 +33,7 @@
         "background": "#FAF4F2",
         "surface.background": "#F5EFED",
         "panel.background": "#F5EFED",
-        "element.background": "#F5EFED",
+        "element.background": "#D3CDCC",
         "tab_bar.background": "#F5EFED",
         "tab.inactive_background": "#F5EFED",
         "status_bar.background": "#F5EFED",
