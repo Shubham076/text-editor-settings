@@ -1,0 +1,73 @@
+{
+    // Show the "▦ Grid" button on the first line of a CSV/TSV file.
+    "show_grid_button": true,
+
+    // Show a "CsvGrid" indicator in the status bar while the grid is open.
+    "show_status_indicator": true,
+
+    // Hide line numbers, gutter, and margins while the grid is open.
+    "hide_line_numbers": true,
+
+    // Field delimiter. null sniffs it from the extension and contents.
+    // Accepts a single character or one of: "tab", "comma", "semicolon", "pipe".
+    "delimiter": null,
+
+    // Treat the first record as the column-name row.
+    "has_header": true,
+
+    // Clicking a cell opens an input panel and writes the new value back to
+    // the buffer, re-quoting only that record. Set false for a read-only grid.
+    "editable": true,
+
+    // Grid width in characters. 0 fits the grid to the viewport.
+    "grid_max_width": 0,
+
+    // Rows drawn per page, capped at 50000. Set 0 to fit a page to the
+    // viewport height instead, which keeps a column-name row on screen at the
+    // top of every page. Large pages take longer to render.
+    "rows_per_page": 10000,
+
+    // Draw the column-name row again every N rows within a page. 0 disables it.
+    // With large pages this is what keeps column names reachable while you
+    // scroll, since a phantom cannot pin a real sticky header.
+    "repeat_header_every": 25,
+
+    // How columns are sized when the grid is wider than the viewport.
+    //   "all"     draws every column at its content width and lets the view
+    //             scroll sideways. Only rows paginate.
+    //   "content" keeps content widths but pages through columns horizontally.
+    //   "even"    shrinks every column so they all fit on screen at once.
+    "column_fit": "all",
+
+    // Column width bounds, in characters. Wider values are clipped with "…".
+    // Raise max_column_width for wide free-text columns; per-column widths
+    // pinned via "CSV Grid: Column Width…" override both bounds.
+    "min_column_width": 8,
+    "max_column_width": 60,
+
+    // Draw "◂ ▸" nudge links in each column name to widen/narrow by 4 chars.
+    "show_column_resize_handles": false,
+
+    // Stop parsing after this many records. 0 reads the whole file.
+    "max_rows": 50000,
+
+    // Text drawn in an empty cell, for example "" or "<empty>".
+    "empty_placeholder": "",
+
+    // Tint alternating rows.
+    "zebra_stripes": true,
+
+    // Vertical rhythm. line_height and row_padding are in rem; raise either
+    // one to give rows more breathing room.
+    "line_height": 1.6,
+    "row_padding": 0.15,
+
+    // Hairline between rows.
+    "row_separators": true,
+
+    // Grid font size, in rem, relative to the editor font.
+    "font_size": 1.0,
+
+    // Spaces between a column separator and its value, on each side.
+    "cell_padding": 1
+}

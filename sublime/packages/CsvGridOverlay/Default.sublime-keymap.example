@@ -1,0 +1,38 @@
+[
+    {
+        "keys": ["primary+alt+g"],
+        "command": "csv_grid_overlay_toggle"
+    },
+    {
+        "keys": ["alt+right"],
+        "command": "csv_grid_overlay_page",
+        "args": {"delta": 1},
+        "context": [
+            {"key": "setting.csv_grid_overlay.grid_mode", "operator": "equal", "operand": true}
+        ]
+    },
+    {
+        "keys": ["alt+left"],
+        "command": "csv_grid_overlay_page",
+        "args": {"delta": -1},
+        "context": [
+            {"key": "setting.csv_grid_overlay.grid_mode", "operator": "equal", "operand": true}
+        ]
+    },
+    {
+        "keys": ["shift+alt+right"],
+        "command": "csv_grid_overlay_scroll_columns",
+        "args": {"delta": 1},
+        "context": [
+            {"key": "setting.csv_grid_overlay.grid_mode", "operator": "equal", "operand": true}
+        ]
+    },
+    {
+        "keys": ["shift+alt+left"],
+        "command": "csv_grid_overlay_scroll_columns",
+        "args": {"delta": -1},
+        "context": [
+            {"key": "setting.csv_grid_overlay.grid_mode", "operator": "equal", "operand": true}
+        ]
+    }
+]

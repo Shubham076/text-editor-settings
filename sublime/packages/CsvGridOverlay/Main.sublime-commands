@@ -1,0 +1,54 @@
+[
+    {
+        "caption": "CSV Grid: Toggle",
+        "command": "csv_grid_overlay_toggle"
+    },
+    {
+        "caption": "CSV Grid: Grid Mode",
+        "command": "csv_grid_overlay_show"
+    },
+    {
+        "caption": "CSV Grid: Edit Mode",
+        "command": "csv_grid_overlay_hide"
+    },
+    {
+        "caption": "CSV Grid: Refresh",
+        "command": "csv_grid_overlay_refresh"
+    },
+    {
+        "caption": "CSV Grid: Sort By Column…",
+        "command": "csv_grid_overlay_sort"
+    },
+    {
+        "caption": "CSV Grid: Edit Cell…",
+        "command": "csv_grid_overlay_edit_cell"
+    },
+    {
+        "caption": "CSV Grid: Column Width…",
+        "command": "csv_grid_overlay_column_width"
+    },
+    {
+        "caption": "CSV Grid: Reset Column Widths",
+        "command": "csv_grid_overlay_reset_column_widths"
+    },
+    {
+        "caption": "CSV Grid: Next Page",
+        "command": "csv_grid_overlay_page",
+        "args": {"delta": 1}
+    },
+    {
+        "caption": "CSV Grid: Previous Page",
+        "command": "csv_grid_overlay_page",
+        "args": {"delta": -1}
+    },
+    {
+        "caption": "CSV Grid: Scroll Columns Right",
+        "command": "csv_grid_overlay_scroll_columns",
+        "args": {"delta": 1}
+    },
+    {
+        "caption": "CSV Grid: Scroll Columns Left",
+        "command": "csv_grid_overlay_scroll_columns",
+        "args": {"delta": -1}
+    }
+]

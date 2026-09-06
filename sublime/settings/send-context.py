@@ -6,10 +6,19 @@ import sublime_plugin
 
 
 class SendSelectionContextCommand(sublime_plugin.TextCommand):
-    """Build `@path:start-end` references for the current selection(s)
-    and copy them (or send them to a terminal running Claude Code)."""
+    """Build a context reference for the current selection(s) and copy it
+    (or send it to a terminal running Claude Code).
 
-    def run(self, edit, target="clipboard", tmux_target="claude"):
+    format:
+      "mention"  -> @path lines 58-60        (Claude attaches the whole file)
+      "snippet"  -> path lines 58-60: ```...``` (only the selected code, no file read)
+      "ref"      -> @path:58-60              (plain text; Claude reads via Bash)
+    target:
+      "clipboard" | "tmux" | "terminus"
+    """
+
+    def run(self, edit, target="clipboard", format="mention",
+            tmux_target="claude"):
         view = self.view
         path = view.file_name()
         if not path:
@@ -31,12 +40,23 @@ class SendSelectionContextCommand(sublime_plugin.TextCommand):
             if not region.empty() and end_col == 0 and end_row > start_row:
                 end_row -= 1
             start, end = start_row + 1, end_row + 1
-            if start == end:
-                refs.append("@%s:%d" % (path, start))
-            else:
-                refs.append("@%s:%d-%d" % (path, start, end))
+            rng = "line %d" % start if start == end else "lines %d-%d" % (start, end)
 
-        text = " ".join(refs) + " "
+            if format == "snippet":
+                if region.empty():
+                    region = view.line(region)
+                snippet = view.substr(region).rstrip("\n")
+                refs.append("%s %s:\n```\n%s\n```" % (path, rng, snippet))
+            elif format == "ref":
+                if start == end:
+                    refs.append("@%s:%d" % (path, start))
+                else:
+                    refs.append("@%s:%d-%d" % (path, start, end))
+            else:  # mention
+                refs.append("@%s %s" % (path, rng))
+
+        sep = "\n\n" if format == "snippet" else " "
+        text = sep.join(refs) + ("\n" if format == "snippet" else " ")
 
         if target == "tmux":
             # Assumes Claude Code runs in a tmux window/session named `tmux_target`
@@ -56,7 +76,7 @@ class SendSelectionContextCommand(sublime_plugin.TextCommand):
         else:
             sublime.set_clipboard(text)
 
-        sublime.status_message("Context: " + text.strip())
+        sublime.status_message("Context: " + text.strip().splitlines()[0])
 
 
 def focus_terminus(window):
@@ -64,7 +84,6 @@ def focus_terminus(window):
     open panel over a tab."""
     if not window:
         return
-
     active = window.active_panel()
     names = ([active] if active else []) + list(window.panels())
     seen = set()
@@ -76,7 +95,6 @@ def focus_terminus(window):
         if view and view.settings().get("terminus_view"):
             window.focus_view(view)
             return
-
     for view in window.views():
         if view.settings().get("terminus_view"):
             window.focus_view(view)

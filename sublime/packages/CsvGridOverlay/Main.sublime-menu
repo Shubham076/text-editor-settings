@@ -1,0 +1,41 @@
+[
+    {
+        "caption": "Preferences",
+        "mnemonic": "n",
+        "id": "preferences",
+        "children": [
+            {
+                "caption": "Package Settings",
+                "mnemonic": "P",
+                "id": "package-settings",
+                "children": [
+                    {
+                        "caption": "CsvGridOverlay",
+                        "children": [
+                            {
+                                "caption": "Settings",
+                                "command": "edit_settings",
+                                "args": {
+                                    "base_file": "${packages}/CsvGridOverlay/CsvGridOverlay.sublime-settings",
+                                    "default": "{\n\t\"show_grid_button\": true\n}\n"
+                                }
+                            },
+                            {
+                                "caption": "-"
+                            },
+                            {
+                                "caption": "Key Bindings",
+                                "command": "edit_settings",
+                                "args": {
+                                    "base_file": "${packages}/CsvGridOverlay/Default.sublime-keymap.example",
+                                    "user_file": "${packages}/User/Default (${platform}).sublime-keymap",
+                                    "default": "[\n\t{\n\t\t\"keys\": [\"primary+alt+g\"],\n\t\t\"command\": \"csv_grid_overlay_toggle\"\n\t}\n]\n"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
