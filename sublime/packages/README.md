@@ -39,6 +39,9 @@ personal customization that is a tracked file upstream and must stay out of any 
 `Debugger/contributes/Syntax/Memory.sublime-syntax` is a fix for a missing upstream file that wants
 its own issue.
 
+[notes](notes) holds the write-ups that go with the work in them, kept here rather than inside the
+clones so they cannot end up in a pull request by accident.
+
 This repo currently records neither of them. Adding them would make a gitlink without a `.gitmodules`
 entry, the way `MarkdownPreviewOverlay` is recorded, which clones as an empty directory. Either add
 them as real submodules or leave them out; leaving them out is what is happening now.
