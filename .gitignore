@@ -1,0 +1,4 @@
+# clones of upstream with their own git and their own remotes, see sublime/packages/README.md
+# recording them here would make a gitlink with no .gitmodules, which clones as an empty directory
+sublime/packages/LSP/
+sublime/packages/Debugger/

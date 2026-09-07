@@ -16,10 +16,32 @@ editing the installed package:
 | [CsvGridOverlay](CsvGridOverlay) | Sortable, editable grid drawn over the folded source of a delimited file. | `.csv`, `.tsv`, `.tab`, `.psv`, plus any view scoped `text.csv` / `text.tsv` / `text.delimited` |
 | [MarkdownPreviewOverlay](MarkdownPreviewOverlay) | Rendered Markdown reading mode drawn over the folded source. | `.md`, `.markdown`, `.mdown`, `.mkd`, plus any view scoped `text.html.markdown` |
 | [Terminus](Terminus) | Terminal emulator in a Sublime view or panel. | No file types — opened by command, not by extension |
+| [LSP](LSP) | `sublimelsp/LSP` with an API for other packages to contribute hover popup content. | Any language with a server configured |
+| [Debugger](Debugger) | `daveleroy/SublimeDebugger` with the hover popup merged into LSP's, value summaries, per-configuration consoles and run icons in the project file. | Any adapter, currently exercised with Go and delve |
 
 Both overlay packages work the same way: fold the buffer, draw a `minihtml` phantom over
 it, restore selections, scroll, folds, and read-only state on the way out. Neither one
 rewrites the file behind your back.
+
+### LSP and Debugger
+
+Unlike the overlays these are **clones of upstream**, not packages written here, each on a branch of
+work that is meant to go back upstream as a pull request:
+
+| Package | Upstream | Branch |
+| :--- | :--- | :--- |
+| LSP | `git@github.com:sublimelsp/LSP.git` | `feat/hover-content-providers` |
+| Debugger | `git@github.com:daveleroy/SublimeDebugger.git` | `feat/lsp-hover-integration` |
+
+So the git that tracks future updates is theirs, not this repo's: `git fetch origin && git rebase
+origin/main` inside the package. Two files are deliberately left uncommitted, `LSP/popups.css` is a
+personal customization that is a tracked file upstream and must stay out of any PR, and
+`Debugger/contributes/Syntax/Memory.sublime-syntax` is a fix for a missing upstream file that wants
+its own issue.
+
+This repo currently records neither of them. Adding them would make a gitlink without a `.gitmodules`
+entry, the way `MarkdownPreviewOverlay` is recorded, which clones as an empty directory. Either add
+them as real submodules or leave them out; leaving them out is what is happening now.
 
 ### CsvGridOverlay
 
