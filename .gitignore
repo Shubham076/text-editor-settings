@@ -2,3 +2,4 @@
 # recording them here would make a gitlink with no .gitmodules, which clones as an empty directory
 sublime/packages/LSP/
 sublime/packages/Debugger/
+sublime/packages/Debugger2/

@@ -33,6 +33,10 @@ work that is meant to go back upstream as a pull request:
 | :--- | :--- | :--- |
 | LSP | `git@github.com:sublimelsp/LSP.git` | `feat/hover-content-providers` |
 | Debugger | `git@github.com:daveleroy/SublimeDebugger.git` | `feat/lsp-hover-integration` |
+| Debugger2 | the local `Debugger` clone above (its `origin`) | `feat/new-ui` |
+
+`Debugger2` is the same upstream code carried on as a separate package (its own settings, menus
+and command names) so it can be installed beside `Debugger`; it holds the new live UI.
 
 So the git that tracks future updates is theirs, not this repo's: `git fetch origin && git rebase
 origin/main` inside the package. Two files are deliberately left uncommitted, `LSP/popups.css` is a
@@ -43,9 +47,10 @@ its own issue.
 [notes](notes) holds the write-ups that go with the work in them, kept here rather than inside the
 clones so they cannot end up in a pull request by accident.
 
-This repo currently records neither of them. Adding them would make a gitlink without a `.gitmodules`
-entry, the way `MarkdownPreviewOverlay` is recorded, which clones as an empty directory. Either add
-them as real submodules or leave them out; leaving them out is what is happening now.
+This repo currently records none of them (all three are in `.gitignore`). Adding them would make a
+gitlink without a `.gitmodules` entry, the way `MarkdownPreviewOverlay` is recorded, which clones as
+an empty directory. Either add them as real submodules or leave them out; leaving them out is what
+is happening now.
 
 ### CsvGridOverlay
 
