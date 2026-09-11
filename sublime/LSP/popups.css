@@ -52,6 +52,19 @@ body {
     border-radius: 0.5rem;
 }
 
+.lsp_popup .wrapper {
+    padding: 0.5rem;
+    padding-bottom: 0;
+}
+
+.lsp_popup .wrapper--spacer {
+    margin-top: 0.5rem;
+}
+
+.lsp_popup .m-0 {
+    margin: 0;
+}
+
 .color-muted {
     color: var(--foreground);
 }
@@ -60,7 +73,7 @@ body {
     margin-bottom: 0rem;
     font-family: var(--mdpopups-font-mono);
 }
-.errors {
+.error {
     border-width: 0;
     background-color: color(var(--redish) alpha(0.25));
     color: var(--foreground);
@@ -69,21 +82,21 @@ body {
     /*border: 2px solid #212121;*/
 }
 
-.warnings {
+.warning {
     border-width: 0;
     background-color: color(var(--yellowish) alpha(0.25));
     color: var(--foreground);
     padding: 0.5rem;
 }
 
-.info {
+.information {
     border-width: 0;
     background-color: color(var(--bluish) alpha(0.25));
     color: var(--foreground);
     padding: 0.5rem;
 }
 
-.hints {
+.hint {
     border-width: 0;
     background-color: color(var(--bluish) alpha(0.25));
     color: var(--foreground);

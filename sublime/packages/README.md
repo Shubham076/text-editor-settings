@@ -13,6 +13,7 @@ editing the installed package:
 
 | Package | Purpose | Handles |
 | :--- | :--- | :--- |
+| [UIElements](UIElements/README.md) | Importable floating and anchored dropdowns, plus themed buttons with Python click callbacks. | Any text view — attached by another package or the UIElements demo commands |
 | [CsvGridOverlay](CsvGridOverlay) | Sortable, editable grid drawn over the folded source of a delimited file. | `.csv`, `.tsv`, `.tab`, `.psv`, plus any view scoped `text.csv` / `text.tsv` / `text.delimited` |
 | [MarkdownPreviewOverlay](MarkdownPreviewOverlay) | Rendered Markdown reading mode drawn over the folded source. | `.md`, `.markdown`, `.mdown`, `.mkd`, plus any view scoped `text.html.markdown` |
 | [Terminus](Terminus) | Terminal emulator in a Sublime view or panel. | No file types — opened by command, not by extension |

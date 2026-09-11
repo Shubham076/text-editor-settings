@@ -34,8 +34,40 @@
     { "keys": ["super+b"], "command": "expand_selection", "args": {"to": "brackets"} },
 
     // Indentation
-    { "keys": ["tab"], "command": "indent" },
-    { "keys": ["shift+tab"], "command": "unindent" },
+    {
+        "keys": ["tab"],
+        "command": "indent",
+        // Stand down in every GitSavvy view that binds tab itself.
+        "context": [
+            { "key": "setting.git_savvy.inline_diff_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.status_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.commit_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.diff_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.blame_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.tags_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.branch_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.remotes_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.log_graph_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.rebase_view", "operator": "equal", "operand": false }
+        ]
+    },
+    {
+        "keys": ["shift+tab"],
+        "command": "unindent",
+        // Stand down in every GitSavvy view that binds shift+tab itself.
+        "context": [
+            { "key": "setting.git_savvy.inline_diff_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.status_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.commit_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.diff_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.blame_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.tags_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.branch_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.remotes_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.log_graph_view", "operator": "equal", "operand": false },
+            { "key": "setting.git_savvy.rebase_view", "operator": "equal", "operand": false }
+        ]
+    },
 
     // Navigation
     { "keys": ["super+["], "command": "jump_back" },
@@ -333,6 +365,8 @@
     { "keys": ["super+w"], "command": "terminus_close", "context": [{"key": "terminus_view"}] },
 
     // Claude Code context refs (@path:start-end)
-    { "keys": ["super+shift+c"], "command": "send_selection_context", "args": {"target": "clipboard"} },
-    { "keys": ["super+shift+k"], "command": "send_selection_context", "args": {"target": "terminus"} }
+    // { "keys": ["super+."], "command": "send_selection_context", "args": { "target": "clipboard", "format": "mention" } },
+    // { "keys": ["super+shift+."], "command": "send_selection_context","args": { "target": "clipboard", "format": "snippet" } },
+    { "keys": ["super+shift+c"], "command": "send_selection_context", "args": {"target": "clipboard", "format": "mention"} },
+    { "keys": ["super+shift+k"], "command": "send_selection_context", "args": {"target": "terminus", "format": "mention" } }
 ]

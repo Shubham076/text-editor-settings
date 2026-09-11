@@ -1,0 +1,4 @@
+[
+    { "caption": "UIElements: Open Demo", "command": "ui_elements_demo" },
+    { "caption": "UIElements: Draw in Current Editor", "command": "ui_elements_draw" }
+]

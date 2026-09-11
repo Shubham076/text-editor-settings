@@ -496,7 +496,7 @@ class IntelliJToSublimeJSONConverter:
         html, body {{--background: var(--popups_background); border-radius: 2px;}}
         .mdpopups {{--mdpopups-bg: var(--mdpopups_background); --mdpopups-hl-bg: var(--mdpopups_background); --mdpopups-hl-border: none; --mdpopups-link: var(--popup_cyanish);}}
         a {{text-decoration: none; color: var(--popup_cyanish);}}
-        .mdpopups .lsp_popup {{--redish: var(--popup_redish); --yellowish: var(--popup_redish); --greenish: var(--popup_greenish); }}
+        .mdpopups .lsp_popup {{--redish: var(--popup_redish); --yellowish: var(--popup_yellowish); --greenish: var(--popup_greenish); }}
         .mdpopups .lsp_popup a {{color: var(--popup_cyanish);}}
         .mdpopups .bracket-highlighter .admonition.panel-error {{--mdpopups-admon-error-accent: var(--mdpopups_background); --mdpopups-admon-info-accent: var(--mdpopups_background); --mdpopups-admon-warning-accent: var(--mdpopups_background); --mdpopups-admon-success-accent: var(--mdpopups_background);}}
         .mdpopups .bracket-highlighter .admonition.panel-error .admonition-title {{--mdpopups-admon-error-accent: color(var(--popup_redish) alpha(0.25)); --mdpopups-admon-info-accent: color(var(--popup_cyanish) alpha(0.25)); --mdpopups-admon-warning-accent: color(var(--popup_yellowish) alpha(0.25)); --mdpopups-admon-success-accent: color(var(--popup_greenish) alpha(0.25));}}
@@ -558,10 +558,6 @@ class IntelliJToSublimeJSONConverter:
                 "background": "var(background)"
             },
             {
-                "scope": "debugger.selection",
-                "background": "var(selection_background)"
-            },
-            {
                 "name": "region orange color",
                 "scope": "region.orangish",
                 # "foreground": "var(--orangish)",
@@ -592,6 +588,56 @@ class IntelliJToSublimeJSONConverter:
                 "background": "var(background)"
             }
         ]
+
+         # debugger light/dark themes
+        debugger_rules = [
+             {
+                 "name": "region red color for debugger",
+                 "scope": "region.redish.debugger",
+                 "foreground": "var(--redish)",
+                 "background": "var(background)"
+             },
+             {
+                 "name": "region blue color for debugger",
+                 "scope": "region.bluish.debugger",
+                 "foreground": "var(--bluish)",
+                 "background": "var(background)"
+             },
+             {
+                 "scope": "debugger.selection",
+                 "background": "var(selection_background)"
+             },
+             {
+                 "name": "region orange color for debugger",
+                 "scope": "region.orangish.debugger",
+                 "foreground": "var(--orangish)",
+                 "background": "var(background)"
+             },
+             {
+                 "name": "region yellow color for debugger",
+                 "scope": "region.yellowish.debugger",
+                 "foreground": "var(--yellowish)",
+                 "background": "var(background)"
+             },
+             {
+                 "name": "region green color for debugger",
+                 "scope": "region.greenish.debugger",
+                 "foreground":"var(--greenish)",
+                 "background": "var(background)"
+             },
+             {
+                 "name": "region purple color debugger",
+                 "scope": "region.purplish.debugger",
+                 "foreground": "var(--purplish)",
+                 "background": "var(background)"
+             },
+             {
+                 "name": "region pink color for debugger",
+                 "scope": "region.pinkish.debuggers",
+                 "foreground": "var(--pinkish)",
+                 "background": "var(background)"
+             }
+         ]
 
         git_diff_rules = [
             {
@@ -695,6 +741,7 @@ class IntelliJToSublimeJSONConverter:
 
         # Add region rules to the main rules list
         rules.extend(region_rules)
+        rules.extend(debugger_rules)
         rules.extend(git_diff_rules)
         rules.extend(lsp_markup_colors)
         rules.extend(side_by_side_compare_colors)

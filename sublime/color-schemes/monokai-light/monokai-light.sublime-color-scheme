@@ -5,7 +5,7 @@
         "popup_bg": "#e9e3e1",
         "--bluish": "#343e5e",
         "--cyanish": "#316a6a",
-        "--greenish": "#22863a",
+        "--greenish": "#388E3C",
         "--orangish": "#F78D8C",
         "--pinkish": "#D3859A",
         "--purplish": "#e5bb00",
@@ -54,7 +54,7 @@
         "line_diff_added": "var(--greenish)",
         "line_diff_modified": "var(selection_background)",
         "line_diff_deleted": "var(--redish)",
-        "popup_css": "\n         html {\n  --popup_redish: #e4bbb2;\n  --popup_yellowish: #B28C00;\n  --popup_greenish: #BEE6BE;\n  --popup_bluish: #C2D8F2;\n  --popup_cyanish: #316a6a;\n  --mdpopups_background: #e9e3e1;\n  --popups_background: #fff1cc;\n}\n        html, body {--background: var(--popups_background); border-radius: 2px;}\n        .mdpopups {--mdpopups-bg: var(--mdpopups_background); --mdpopups-hl-bg: var(--mdpopups_background); --mdpopups-hl-border: none; --mdpopups-link: var(--popup_cyanish);}\n        a {text-decoration: none; color: var(--popup_cyanish);}\n        .mdpopups .lsp_popup {--redish: var(--popup_redish); --yellowish: var(--popup_redish); --greenish: var(--popup_greenish); }\n        .mdpopups .lsp_popup a {color: var(--popup_cyanish);}\n        .mdpopups .bracket-highlighter .admonition.panel-error {--mdpopups-admon-error-accent: var(--mdpopups_background); --mdpopups-admon-info-accent: var(--mdpopups_background); --mdpopups-admon-warning-accent: var(--mdpopups_background); --mdpopups-admon-success-accent: var(--mdpopups_background);}\n        .mdpopups .bracket-highlighter .admonition.panel-error .admonition-title {--mdpopups-admon-error-accent: color(var(--popup_redish) alpha(0.25)); --mdpopups-admon-info-accent: color(var(--popup_cyanish) alpha(0.25)); --mdpopups-admon-warning-accent: color(var(--popup_yellowish) alpha(0.25)); --mdpopups-admon-success-accent: color(var(--popup_greenish) alpha(0.25));}\n        .mdpopups .bracket-highlighter { --mdpopups-admon-info-bg: var(--mdpopups_background); --mdpopups-admon-warning-bg: var(--mdpopups_background); --mdpopups-admon-warning-bg: var(--mdpopups_background); --mdpopups-admon-success-bg: var(--mdpopups_background);  --mdpopups-admon-error-bg: var(--mdpopups_background); --mdpopups-link: var(--cyanish);}\n        "
+        "popup_css": "\n         html {\n  --popup_redish: #cc6b61;\n  --popup_yellowish: #B28C00;\n  --popup_greenish: #BEE6BE;\n  --popup_bluish: #C2D8F2;\n  --popup_cyanish: #316a6a;\n  --mdpopups_background: #e9e3e1;\n  --popups_background: #fff1cc;\n}\n        html, body {--background: var(--popups_background); border-radius: 2px;}\n        .mdpopups {--mdpopups-bg: var(--mdpopups_background); --mdpopups-hl-bg: var(--mdpopups_background); --mdpopups-hl-border: none; --mdpopups-link: var(--popup_cyanish);}\n        a {text-decoration: none; color: var(--popup_cyanish);}\n        .mdpopups .lsp_popup {--redish: var(--popup_redish); --yellowish: var(--popup_yellowish); --greenish: var(--popup_greenish); }\n        .mdpopups .lsp_popup a {color: var(--popup_cyanish);}\n        .mdpopups .bracket-highlighter .admonition.panel-error {--mdpopups-admon-error-accent: var(--mdpopups_background); --mdpopups-admon-info-accent: var(--mdpopups_background); --mdpopups-admon-warning-accent: var(--mdpopups_background); --mdpopups-admon-success-accent: var(--mdpopups_background);}\n        .mdpopups .bracket-highlighter .admonition.panel-error .admonition-title {--mdpopups-admon-error-accent: color(var(--popup_redish) alpha(0.25)); --mdpopups-admon-info-accent: color(var(--popup_cyanish) alpha(0.25)); --mdpopups-admon-warning-accent: color(var(--popup_yellowish) alpha(0.25)); --mdpopups-admon-success-accent: color(var(--popup_greenish) alpha(0.25));}\n        .mdpopups .bracket-highlighter { --mdpopups-admon-info-bg: var(--mdpopups_background); --mdpopups-admon-warning-bg: var(--mdpopups_background); --mdpopups-admon-warning-bg: var(--mdpopups_background); --mdpopups-admon-success-bg: var(--mdpopups_background);  --mdpopups-admon-error-bg: var(--mdpopups_background); --mdpopups-link: var(--cyanish);}\n        "
     },
     "rules": [
         {
@@ -114,7 +114,7 @@
         },
         {
             "name": "Strings",
-            "scope": "string, string.quoted, string.quoted.single, string.quoted.double, string.quoted.triple, string.unquoted, string.template, string.regexp, string.other.link",
+            "scope": "string, string.quoted, string.quoted.single, string.quoted.double, string.quoted.triple, string.unquoted, string.template, string.regexp, string.other.link, variable.annotation",
             "foreground": "var(string_color)"
         },
         {
@@ -157,10 +157,6 @@
             "background": "var(background)"
         },
         {
-            "scope": "debugger.selection",
-            "background": "var(selection_background)"
-        },
-        {
             "name": "region orange color",
             "scope": "region.orangish",
             "background": "var(background)"
@@ -183,6 +179,52 @@
         {
             "name": "region pink color",
             "scope": "region.pinkish",
+            "background": "var(background)"
+        },
+        {
+            "name": "region red color for debugger",
+            "scope": "region.redish.debugger",
+            "foreground": "var(--redish)",
+            "background": "var(background)"
+        },
+        {
+            "name": "region blue color for debugger",
+            "scope": "region.bluish.debugger",
+            "foreground": "var(--bluish)",
+            "background": "var(background)"
+        },
+        {
+            "scope": "debugger.selection",
+            "background": "var(selection_background)"
+        },
+        {
+            "name": "region orange color for debugger",
+            "scope": "region.orangish.debugger",
+            "foreground": "var(--orangish)",
+            "background": "var(background)"
+        },
+        {
+            "name": "region yellow color for debugger",
+            "scope": "region.yellowish.debugger",
+            "foreground": "var(--yellowish)",
+            "background": "var(background)"
+        },
+        {
+            "name": "region green color for debugger",
+            "scope": "region.greenish.debugger",
+            "foreground": "var(--greenish)",
+            "background": "var(background)"
+        },
+        {
+            "name": "region purple color debugger",
+            "scope": "region.purplish.debugger",
+            "foreground": "var(--purplish)",
+            "background": "var(background)"
+        },
+        {
+            "name": "region pink color for debugger",
+            "scope": "region.pinkish.debuggers",
+            "foreground": "var(--pinkish)",
             "background": "var(background)"
         },
         {
@@ -250,6 +292,30 @@
             "scope": "markup.error.lsp",
             "foreground": "var(--redish)",
             "background": "var(background)"
+        },
+        {
+            "name": "Sbs compare diff deleted",
+            "scope": "diff.deleted.sbs-compare",
+            "foreground": "var(textcolor)",
+            "background": "var(deleted)"
+        },
+        {
+            "name": "Sbs compare diff char deleted",
+            "scope": "diff.deleted.char.sbs-compare",
+            "foreground": "var(textcolor)",
+            "background": "var(modified)"
+        },
+        {
+            "name": "Sbs compare diff inserted",
+            "scope": "diff.inserted.sbs-compare",
+            "foreground": "var(textcolor)",
+            "background": "var(inserted)"
+        },
+        {
+            "name": "Sbs compare diff inserted char",
+            "scope": "diff.inserted.char.sbs-compare",
+            "foreground": "var(textcolor)",
+            "background": "var(modified)"
         }
     ]
 }
