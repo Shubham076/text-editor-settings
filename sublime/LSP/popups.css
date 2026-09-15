@@ -161,3 +161,25 @@ pre.related_info {
     margin-top: 0.5rem;
     padding-top: 0.5rem;
 }
+
+/*
+LSP-tsgo prepends its hover verbosity controls as <kbd>-</kbd> <kbd>+</kbd> (the + and - are links
+when the type can be expanded or collapsed). mdpopups draws kbd as a dark key cap, foreground on
+background, which reads as two black blocks on a light scheme; make them quiet chips instead and
+undo the link padding above so both boxes are the same size.
+*/
+.lsp_popup kbd {
+    font-family: system;
+    font-size: 0.9rem;
+    color: color(var(--foreground) alpha(0.7));
+    background-color: color(var(--foreground) alpha(0.08));
+    border-width: 0;
+    border-radius: 0.25rem;
+    padding: 0.05rem 0.45rem;
+}
+
+.lsp_popup kbd a {
+    color: var(--foreground);
+    text-decoration: none;
+    padding: 0;
+}

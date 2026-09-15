@@ -142,10 +142,10 @@
             {"key": "control", "operator": "equal", "operand": "sidebar_tree"}
         ]
     },
-
+    
     // formatting
     { "keys": ["ctrl+shift+f"], "command": "astyleformat" },
-    {
+    { 
         "keys": ["ctrl+shift+f"],
         "command": "pretty_json",
         "context": [
@@ -183,17 +183,55 @@
 
     // Go to definition - generic
     { "keys": ["super+i"], "command": "goto_definition" },
-
-    // Go to definition - TypeScript/JavaScript
+    
+    // Go to definition - Python
     {
         "keys": ["super+i"],
-        "command": "lsp_typescript_goto_source_definition",
-        "args": {
-            "command_name": "_typescript.goToSourceDefinition",
-            "command_args": ["$file_uri", "$position"]
-        },
+        "command": "lsp_symbol_definition",
+        "args": {"side_by_side": false, "force_group": true, "fallback": false, "group": -1},
         "context": [
-            {"key": "selector", "operator": "equal", "operand": "source.js"}
+            {"key": "lsp.session_with_capability", "operand": "definitionProvider"},
+            {"key": "auto_complete_visible", "operand": false},
+            {"key": "selector", "operator": "equal", "operand": "source.python"}
+        ]
+    },
+
+    // Go to definition - TypeScript/JavaScript (tsgo or LSP-typescript, whichever is running).
+    // Context entries are AND-ed, so the selector has to be one expression, not two entries.
+    {
+        "keys": ["super+i"],
+        "command": "lsp_symbol_definition",
+        "args": {"side_by_side": false, "force_group": true, "fallback": false, "group": -1},
+        "context": [
+            {"key": "lsp.session_with_capability", "operand": "definitionProvider"},
+            {"key": "auto_complete_visible", "operand": false},
+            {"key": "selector", "operator": "equal", "operand": "source.js, source.jsx, source.ts, source.tsx"}
+        ]
+    },
+
+    // {
+    //     "keys": ["super+i"],
+    //     "command": "lsp_typescript_goto_source_definition",
+    //     "args": {
+    //         "command_name": "_typescript.goToSourceDefinition",
+    //         "command_args": ["$file_uri", "$position"]
+    //     },
+    //     "context": [
+    //         {"key": "selector", "operator": "equal", "operand": "source.js"},
+    //         {"key": "selector", "operator": "equal", "operand": "source.ts"}
+    //     ]
+    // },
+
+    // Go to source definition - TypeScript/JavaScript: the .js behind a .d.ts (LSP-tsgo's own
+    // command), falling back to the plain definition when there is nothing to map.
+    {
+        "keys": ["ctrl+i"],
+        "command": "lsp_tsgo_goto_source_definition",
+        "args": {"side_by_side": false, "force_group": true, "group": -1, "fallback": true},
+        "context": [
+            {"key": "lsp.session_with_capability", "operand": "definitionProvider"},
+            {"key": "auto_complete_visible", "operand": false},
+            {"key": "selector", "operator": "equal", "operand": "source.js, source.jsx, source.ts, source.tsx"}
         ]
     },
 
@@ -263,7 +301,7 @@
             {"key": "panel_has_focus"}
         ]
     },
-    {
+    { 
         "keys": ["enter"],
         "command": "replace_next",
           "context": [
@@ -280,7 +318,7 @@
             {"key": "panel_has_focus"}
         ]
     },
-       {
+       { 
         "keys": ["enter"],
         "command": "replace_next",
           "context": [
@@ -348,17 +386,17 @@
     // Compare view
     { "keys": ["alt+c"], "command": "toggle_compare_view" },
     {"keys": ["alt+d"],"command": "toggle_debugger_panel"},
-
+    
     // { "keys": ["ctrl+n"], "command": "terminus_open", "args": {"show_in_panel": true} },
     // { "keys": ["alt+right"], "command": "toggle_terminus_panel", "args": {"cycle": true} }
 
 
     // Create new terminal (only when in terminus panel)
     { "keys": ["super+n"], "command": "terminus_open", "args": {"show_in_panel": true}, "context": [{"key": "terminus_view"}] },
-
+    
     // Cycle between terminus panels (only when in terminus panel)
     // { "keys": ["alt+right"], "command": "toggle_terminus_panel", "args": {"cycle": true}, "context": [{"key": "terminus_view"}] },
-
+    
     // Navigate between terminus panels (forward and backward)
     { "keys": ["ctrl+tab"], "command": "toggle_terminus_panel", "args": {"cycle": true}, "context": [{"key": "terminus_view"}] },
     { "keys": ["alt+tab"], "command": "toggle_terminus_panel", "args": {"cycle": true, "reverse": true}, "context": [{"key": "terminus_view"}] },

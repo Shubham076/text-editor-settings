@@ -486,6 +486,37 @@ class TerminusCleanupCommand(sublime_plugin.TextCommand):
 
         # process might became orphan, make sure the process is terminated
         terminal.kill()
+        process = terminal.process
+
+        if terminal.auto_close is True or terminal.auto_close == "always" or \
+                (process.exitstatus == 0 and terminal.auto_close == "on_success"):
+            view.run_command("terminus_close")
+
+        # Upstream ends every terminal with a status line; other packages (the debugger's tasks)
+        # read the last line of the view to learn how the process ended, so keep it exact.
+        view.run_command("terminus_trim_trailing_lines")
+
+        if by_user:
+            view.run_command("append", {"characters": "[Cancelled]"})
+
+        elif terminal.timeit:
+            if process.exitstatus == 0:
+                view.run_command(
+                    "append",
+                    {"characters": "[Finished in {:0.2f}s]".format(
+                        time.time() - terminal.start_time)})
+            else:
+                view.run_command(
+                    "append",
+                    {"characters": "[Finished in {:0.2f}s with exit code {}]".format(
+                        time.time() - terminal.start_time, process.exitstatus)})
+        elif process.exitstatus is not None:
+            view.run_command(
+                "append",
+                {"characters": "process is terminated with return code {}.".format(
+                    process.exitstatus)})
+
+        view.sel().clear()
 
         # the terminal is gone, drop its status bar label
         clear_terminus_status(view.window() or sublime.active_window())

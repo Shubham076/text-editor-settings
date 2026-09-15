@@ -165,6 +165,28 @@ class TerminusGenerateThemeCommand(sublime_plugin.WindowCommand):
             sublime.status_message("Theme generated")
 
 
+class TerminusColorSchemeSavedListener(sublime_plugin.EventListener):
+    """Rebuild the adaptive theme when the colour scheme it mirrors is saved."""
+
+    def on_post_save_async(self, view):
+        file_name = view.file_name() or ""
+        if not file_name.endswith((".sublime-color-scheme", ".tmTheme")):
+            return
+
+        settings = sublime.load_settings("Terminus.sublime-settings")
+        if settings.get("theme", "default") != "adaptive":
+            return
+
+        current = sublime.load_settings("Preferences.sublime-settings").get("color_scheme", "")
+        # `color_scheme` is either a bare file name or a Packages/ resource path; match on the name
+        if os.path.basename(current) != os.path.basename(file_name):
+            return
+
+        window = view.window() or sublime.active_window()
+        # give Sublime a moment to reload the scheme before reading its palette
+        sublime.set_timeout(lambda: window.run_command("terminus_generate_theme"), 200)
+
+
 def plugin_loaded():
     # this is a hack to remove the deprecated sublime-color-scheme files
     deprecated_paths = [
@@ -193,7 +215,11 @@ def plugin_loaded():
         "Terminus.hidden-color-scheme"
     )
 
+    # The adaptive theme is a snapshot of the colour scheme's palette, so it goes stale whenever
+    # the scheme file is edited in place (the `color_scheme` preference never changes then).
+    # Regenerating it at startup is cheap (the 256 colour file is only rebuilt when missing).
     if (not os.path.isfile(path) or
+            settings.get("theme", "default") == "adaptive" or
             (settings.get("256color", False) and not os.path.isfile(path256))):
         sublime.set_timeout(
             lambda: sublime.active_window().run_command("terminus_generate_theme"),

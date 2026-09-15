@@ -1,0 +1,5 @@
+[
+	{ "caption": "UI Probe: Open fixed header + scrollable body", "command": "ui_probe_open" },
+	{ "caption": "UI Probe: Close", "command": "ui_probe_close" },
+	{ "caption": "Preferences: UI Probe Settings", "command": "edit_settings", "args": { "base_file": "${packages}/UiProbe/UiProbe.sublime-settings" } },
+]

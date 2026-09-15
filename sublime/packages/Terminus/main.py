@@ -52,6 +52,7 @@ from .terminus.render import (  # noqa: E402
     TerminusShowCursorCommand
 )
 from .terminus.theme import (  # noqa: E402
+    TerminusColorSchemeSavedListener,
     TerminusGenerateThemeCommand,
     TerminusSelectThemeCommand,
     plugin_loaded as theme_plugin_loaded,

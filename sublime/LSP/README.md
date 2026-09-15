@@ -1,17 +1,22 @@
 # LSP `popups.css`
 
-Personal restyling of the LSP popups. `popups.css` here is the copy this repo tracks; the file
-Sublime actually loads is the same file inside the upstream clone, which is deliberately left
-uncommitted so it stays out of any pull request:
+Personal restyling of the LSP popups. `popups.css` here is the one real file; the copy inside the
+upstream clone is a symlink to it, so the file Sublime loads and the file this repo tracks are the
+same bytes. In the clone the path is a tracked upstream file, so git there shows it as a typechange
+that is deliberately left uncommitted to stay out of any pull request:
 
 ```
 ~/Library/Application Support/Sublime Text/Packages/LSP   -> sublime/packages/LSP   (clone, gitignored)
-sublime/LSP/popups.css                                    == sublime/packages/LSP/popups.css
+sublime/packages/LSP/popups.css                           -> ../../LSP/popups.css   (symlink)
 ```
 
-Edit both, or the editor and the repo drift apart.
+Edit it here. If the clone is ever re-cloned, recreate the link:
 
-Last updated: 2026-09-08
+```
+ln -s ../../LSP/popups.css sublime/packages/LSP/popups.css
+```
+
+Last updated: 2026-09-12
 
 ## The wrapper chain, once
 

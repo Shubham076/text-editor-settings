@@ -17,7 +17,9 @@ editing the installed package:
 | [CsvGridOverlay](CsvGridOverlay) | Sortable, editable grid drawn over the folded source of a delimited file. | `.csv`, `.tsv`, `.tab`, `.psv`, plus any view scoped `text.csv` / `text.tsv` / `text.delimited` |
 | [MarkdownPreviewOverlay](MarkdownPreviewOverlay) | Rendered Markdown reading mode drawn over the folded source. | `.md`, `.markdown`, `.mdown`, `.mkd`, plus any view scoped `text.html.markdown` |
 | [Terminus](Terminus) | Terminal emulator in a Sublime view or panel. | No file types — opened by command, not by extension |
+| [UiProbe](UiProbe/README.md) | Throwaway probe: a fixed header view over a scrollable body view via a two-group row layout, with the findings on tabs and minihtml limits. | No file types — `UI Probe: Open` / `UI Probe: Close` commands |
 | [LSP](LSP) | `sublimelsp/LSP` with an API for other packages to contribute hover popup content. | Any language with a server configured |
+| [LSP-tsgo](LSP-tsgo) | `sublimelsp/LSP-tsgo` with a Goto Source Definition command (the `.js` behind a `.d.ts`). | `.js`, `.jsx`, `.ts`, `.tsx` |
 | [Debugger](Debugger) | `daveleroy/SublimeDebugger` with the hover popup merged into LSP's, value summaries, per-configuration consoles and run icons in the project file. | Any adapter, currently exercised with Go and delve |
 
 Both overlay packages work the same way: fold the buffer, draw a `minihtml` phantom over
@@ -32,6 +34,7 @@ work that is meant to go back upstream as a pull request:
 | Package | Upstream | Branch |
 | :--- | :--- | :--- |
 | LSP | `git@github.com:sublimelsp/LSP.git` | `feat/hover-content-providers` |
+| LSP-tsgo | `https://github.com/sublimelsp/LSP-tsgo.git` (cloned at the installed release, 1.1.7) | `feat/goto-source-definition`, open as [sublimelsp/LSP-tsgo#15](https://github.com/sublimelsp/LSP-tsgo/pull/15) from the `shubham-dogra-s1` fork (remote `fork`) |
 | Debugger | `git@github.com:daveleroy/SublimeDebugger.git` | `feat/lsp-hover-integration` |
 | Debugger2 | the local `Debugger` clone above (its `origin`) | `feat/new-ui` |
 
