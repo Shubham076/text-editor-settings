@@ -51,7 +51,7 @@ class IntelliJToSublimeJSONConverter:
                 'variable': 'storage_color'
             },
             'Strings': {
-                'scopes': 'string, string.quoted, string.quoted.single, string.quoted.double, string.quoted.triple, string.unquoted, string.template, string.regexp, string.other.link, variable.annotation',
+                'scopes': 'string, string.quoted, string.quoted.single, string.quoted.double, string.quoted.triple, string.unquoted, string.template, string.regexp, string.other.link, variable.annotation, punctuation.definition.string',
                 'intellij_attrs': ['DEFAULT_STRING'],
                 'variable': 'string_color'
             },
@@ -82,7 +82,7 @@ class IntelliJToSublimeJSONConverter:
             },
             'Punctuation': {
                 'scopes': 'punctuation, punctuation.separator, punctuation.separator.comma, punctuation.terminator, punctuation.terminator.semicolon, punctuation.section, punctuation.section.braces, punctuation.section.brackets, punctuation.section.parens, punctuation.accessor.dot, punctuation.separator.colon, punctuation.definition',
-                'intellij_attrs': ['DEFAULT_BRACKETS'],
+                'intellij_attrs': ['DEFAULT_BRACKETS', 'DEFAULT_BRACES', 'DEFAULT_COMMA', 'DEFAULT_DOT', 'DEFAULT_SEMICOLON'],
                 'variable': 'punctuation_color'
             },
             'JSON Keys': {
@@ -106,9 +106,14 @@ class IntelliJToSublimeJSONConverter:
                 'variable': 'yaml_value_color'
             },
             'XML/HTML Tags': {
-                'scopes': 'meta.tag, entity.name.tag, entity.name.tag.html, entity.name.tag.xml, entity.other.attribute-name, entity.other.attribute-name.html, entity.other.attribute-name.xml, string.quoted.double.xml, string.quoted.single.xml, string.quoted.double.html, string.quoted.single.html, punctuation.definition.tag, punctuation.definition.tag.html, punctuation.definition.tag.xml, meta.tag.preprocessor.xml, meta.tag.sgml, constant.character.entity.html, constant.character.entity.xml, punctuation.definition.entity.html, punctuation.definition.entity.xml, meta.tag.inline, meta.tag.block, meta.tag.other',
-                'intellij_attrs': ['HTML_TAG'],
+                'scopes': 'meta.tag, entity.other.attribute-name, entity.other.attribute-name.html, entity.other.attribute-name.xml, string.quoted.double.xml, string.quoted.single.xml, string.quoted.double.html, string.quoted.single.html, punctuation.definition.tag, punctuation.definition.tag.html, punctuation.definition.tag.xml, meta.tag.preprocessor.xml, meta.tag.sgml, constant.character.entity.html, constant.character.entity.xml, punctuation.definition.entity.html, punctuation.definition.entity.xml, meta.tag.inline, meta.tag.block, meta.tag.other',
+                'intellij_attrs': ['HTML_TAG', 'XML_TAG'],
                 'variable': 'tag_color'
+            },
+            'XML/HTML Tag Names': {
+                'scopes': 'entity.name.tag, entity.name.tag.html, entity.name.tag.xml',
+                'intellij_attrs': ['XML_TAG_NAME', 'HTML_TAG_NAME'],
+                'variable': 'tag_name_color'
             },
             'Annotations': {
                 'scopes': 'variable.annotation, punctuation.definition.annotation, meta.annotation, storage.type.annotation, entity.name.function.annotation, keyword.other.annotation, support.type.annotation, meta.declaration.annotation, punctuation.definition.annotation.java, storage.modifier.annotation, entity.other.attribute-name.annotation',
@@ -766,7 +771,7 @@ class IntelliJToSublimeJSONConverter:
         theme_json = self.create_sublime_json_theme(colors, attributes, theme_name)
 
         # Write output file
-        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        os.makedirs(os.path.dirname(output_file) or '.', exist_ok=True)
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(theme_json, f, indent=4, ensure_ascii=False)
 

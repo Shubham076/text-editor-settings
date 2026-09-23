@@ -318,14 +318,19 @@
             {"key": "panel_has_focus"}
         ]
     },
-       { 
+    {
         "keys": ["enter"],
-        "command": "replace_next",
-          "context": [
+        "command": "find_all",
+        "context": [
             {"key": "panel", "operand": "find_in_files"},
             {"key": "panel_has_focus"}
         ]
-      },
+    },
+
+    // Toggle "Wrap" in the find/replace panels (find_next wraps to first match only when this is on)
+    { "keys": ["super+alt+l"], "command": "toggle_wrap", "context":
+        [{ "key": "setting.is_widget", "operator": "equal", "operand": true }]
+    },
 
     // Auto-complete for Java
     {
