@@ -195,4 +195,16 @@
       "ctrl-shift-down": "editor::SelectToEndOfLargerSyntaxNode",
     },
   },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "alt-\\": "multi_workspace::ToggleWorkspaceSidebar"
+    }
+  },
+  {
+    "context": "Workspace",
+    "unbind": {
+      "alt-cmd-j": "multi_workspace::ToggleWorkspaceSidebar"
+    }
+  }
 ]
