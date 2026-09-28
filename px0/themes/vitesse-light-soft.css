@@ -1,0 +1,28 @@
+/* Vitesse Light Soft: ported from zed/themes vitesse-light.json (~/.config/zed/themes).
+   Token reference: docs/internals/styling-and-themes.md in px0. */
+:root[data-theme="vitesse-light-soft"] {
+  --theme-name: "Vitesse Light Soft";
+  color-scheme: light;
+
+  /* surfaces, from the editor out to raised hover states */
+  --bg: #f8f7f0; --bg2: #ecebe4; --bg3: #e7e5db; --bg4: #d3d3d3;
+  /* text: primary, secondary, tertiary */
+  --fg: #606060; --dim: #7d7d7d; --faint: #a3a19a;
+  /* borders and accent */
+  --line: #c4c2ba; --accent: #1c6b48; --accent-fg: #1c6b48; --on-accent: #f8f7f0;
+  /* selection, search matches, current line */
+  --sel: #d3d3d3; --mark: rgba(176, 125, 72, 0.18); --mark-active: #b07d48; --cur: #efede5;
+  --on-mark-active: #f8f7f0;
+  /* elevation */
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* syntax */
+  --k: #b56959; --kt: #5a6aa6; --nf: #5a6aa6; --nc: #5a6aa6; --nb: #5a6aa6;
+  --nv: #606060; --no: #b07d48; --na: #bd8f8f; --nt: #1c6b48; --nd: #5a6aa6;
+  --np: #606060; --s: #b07d48; --m: #2f798a; --o: #ab5959; --p: #ab5959;
+  --c: #808080; --cp: #b56959; --err: #d75c4d;
+
+  /* diffs and status */
+  --gi: #769876; --gd: #a88881;
+  --gi-bg: rgba(118, 152, 118, 0.16); --gd-bg: rgba(168, 136, 129, 0.16);
+}

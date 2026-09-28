@@ -1,6 +1,6 @@
 {
   "meta": {
-    "theme.name": "Vitesse Light Soft",
+    "theme.name": "Vitesse Light Sublime",
     "theme.kind": "Light",
     "theme.version": 1
   },
@@ -35,18 +35,18 @@
     "text.default": "Text",
     "text.primary": "Text",
     "text.secondary": "Comment",
-    "text.tertiary": "GutterFg",
+    "text.tertiary": "Storage",
     "text.disabled": "Comment",
     "text.bright": "Text",
     "text.dangerous": "Red",
     "editor.gitDiff.background.added": "DiffInserted",
-    "editor.gitDiff.text.added": "Green",
     "editor.gitDiff.background.deleted": "DiffDeleted",
-    "editor.gitDiff.text.deleted": "Red",
     "editor.gitDiff.background.modified": "DiffModified",
-    "editor.gitDiff.text.modified": "Blue",
     "editor.gitDiff.background.conflict": "DiffDeleted",
-    "editor.gitDiff.text.conflict": "Red",
+    "editor.gitDiff.text.added": "#50A14F",
+    "editor.gitDiff.text.conflict": "#DC1212",
+    "editor.gitDiff.text.deleted": "#E45649",
+    "editor.gitDiff.text.modified": "#C18401",
     "link.focusOutline": "Blue",
     "link.text": "Blue",
     "completion.match.background": "Transparent",
@@ -160,6 +160,9 @@
     "focusOutline": "Keyword"
   },
   "textAttributes": {
+    "editor.text.scheme": {
+      "foregroundColor": "Text"
+    },
     "comment": {
       "foregroundColor": "Comment",
       "fontModifier": {
@@ -180,6 +183,9 @@
     },
     "keyword.typeModifier": {
       "foregroundColor": "Storage"
+    },
+    "metadata": {
+      "foregroundColor": "Annotation"
     },
     "string": {
       "foregroundColor": "String"
@@ -202,6 +208,9 @@
     "identifier.function.declaration": {
       "foregroundColor": "Function"
     },
+    "identifier.class": {
+      "foregroundColor": "Storage"
+    },
     "identifier.type": {
       "foregroundColor": "Storage"
     },
@@ -220,6 +229,9 @@
     "identifier.typeReference": {
       "foregroundColor": "Storage"
     },
+    "identifier.typeParameter": {
+      "foregroundColor": "Storage"
+    },
     "identifier.constant": {
       "foregroundColor": "Constant"
     },
@@ -232,8 +244,11 @@
     "identifier.field": {
       "foregroundColor": "Variable"
     },
+    "identifier.method.static": {
+      "foregroundColor": "Function"
+    },
     "punctuation": {
-      "foregroundColor": "Operator"
+      "foregroundColor": "Text"
     },
     "punctuation.operator": {
       "foregroundColor": "Operator"
@@ -248,7 +263,22 @@
     "attributeName.html": {
       "foregroundColor": "Annotation"
     },
-    "json.keys": {
+    "attributeValue.html": {
+      "foregroundColor": "String"
+    },
+    "entityReference.html": {
+      "foregroundColor": "Constant"
+    },
+    "key.json": {
+      "foregroundColor": "JsonKey"
+    },
+    "key.yaml": {
+      "foregroundColor": "YamlKey"
+    },
+    "schema.yaml": {
+      "foregroundColor": "YamlKey"
+    },
+    "value.yaml": {
       "foregroundColor": "Text"
     },
     "markup.bold": {
@@ -307,6 +337,9 @@
       "foregroundColor": "Red",
       "backgroundColor": "Base"
     },
+    "problem.error": {
+      "foregroundColor": "Red"
+    },
     "editor.selection": {
       "backgroundColor": "Selection"
     },
@@ -318,6 +351,9 @@
     },
     "editor.indentGuide.current": {
       "foregroundColor": "Selection"
+    },
+    "editor.brace.match": {
+      "backgroundColor": "Selection"
     },
     "diff.added": {
       "backgroundColor": "DiffInserted"
@@ -344,7 +380,7 @@
     "Mantle": "#E0DFD8",
     "Selection": "#D3D3D3",
     "LineHighlight": "#E7E5DB",
-    "GutterFg": "#393A3450",
+    "GutterFg": "#868484",
     "Comment": "#808080",
     "Keyword": "#B56959",
     "String": "#B07D48",

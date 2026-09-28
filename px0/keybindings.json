@@ -1,0 +1,14 @@
+{
+  "// px0 keybindings": "Symlinked to ~/.px0/keybindings.json. Action ids: ACTIONS in px0 web/src/shortcuts.js. Mod is Cmd on macOS, Ctrl elsewhere. Built-in shortcuts keep working alongside these.",
+
+  "diff.toggle": "Ctrl+D",
+  "symbol.goto": "Mod+Shift+S",
+
+  "// from zed/keymap.json": "",
+  "history.back": "Mod+[",
+  "history.forward": "Mod+]",
+  "lsp.definition": "Mod+I",
+  "lsp.references": "Alt+F",
+  "sidebar.toggle": "Mod+\\",
+  "inspector.toggle": "Ctrl+\\"
+}

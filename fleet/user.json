@@ -145,12 +145,20 @@
       "action": "-markdown/toggle-italic"
     },
     {
-      "key": "cmd-b",
-      "action": "-go-to-declaration"
+      "key": "cmd-i",
+      "action": "-completion"
     },
     {
       "key": "cmd-i",
-      "action": "go-to-declaration"
+      "action": "-editor/show-parameter-info"
+    },
+    {
+      "key": "cmd-i",
+      "action": "-show-parameter-info"
+    },
+    {
+      "key": "cmd-b",
+      "action": "-go-to-declaration"
     },
     {
       "key": "cmd-shift-b",

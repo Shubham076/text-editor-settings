@@ -1,0 +1,488 @@
+{
+  "meta": {
+    "theme.name": "Vitesse Light Intellij",
+    "theme.kind": "Light",
+    "theme.version": 1
+  },
+  "colors": {
+    "editor.text": "Text",
+    "editor.caret.background": "Text",
+    "editor.whitespace.text": "Comment",
+    "editor.currentLine.background.default": "LineHighlight",
+    "editor.currentLine.background.focused": "LineHighlight",
+    "editor.lineNumber.default": "GutterFg",
+    "editor.lineNumber.current": "Keyword",
+    "editor.foldedMark.background": "Mantle",
+    "editor.foldedMark.text": "Text",
+    "editor.foldIndicator.icon.default": "GutterFg",
+    "editor.foldIndicator.icon.hovered": "Keyword",
+    "editor.foldIndicator.background.hovered": "Mantle",
+    "editor.interline.background": "Base",
+    "editor.interline.match.background": "Yellow",
+    "editor.interline.match.background.secondary": "Yellow",
+    "editor.interline.match.text": "Text",
+    "editor.interline.match.text.secondary": "Text",
+    "editor.interline.preview.background": "Base",
+    "editor.interline.preview.border": "Transparent",
+    "background.primary": "Selection",
+    "background.secondary": "Base",
+    "island.background": "Base",
+    "background.hovered": "LineHighlight",
+    "background.selected": "Selection",
+    "border": "Base",
+    "border.focused": "Keyword",
+    "shadow.border": "Mantle",
+    "text.default": "Text",
+    "text.primary": "Text",
+    "text.secondary": "Comment",
+    "text.tertiary": "Storage",
+    "text.disabled": "Comment",
+    "text.bright": "Text",
+    "text.dangerous": "Red",
+    "editor.gitDiff.background.added": "DiffInserted",
+    "editor.gitDiff.background.deleted": "DiffDeleted",
+    "editor.gitDiff.background.modified": "DiffModified",
+    "editor.gitDiff.background.conflict": "DiffDeleted",
+    "editor.gitDiff.text.added": "#50A14F",
+    "editor.gitDiff.text.conflict": "#DC1212",
+    "editor.gitDiff.text.deleted": "#E45649",
+    "editor.gitDiff.text.modified": "#C18401",
+    "link.focusOutline": "Blue",
+    "link.text": "Blue",
+    "completion.match.background": "Transparent",
+    "completion.match.text": "Yellow",
+    "search.match.background": "Yellow",
+    "search.match.text": "Base",
+    "popup.background": "Mantle",
+    "popup.editor.background": "Base",
+    "popup.goto.background": "Mantle",
+    "popup.text": "Text",
+    "popup.foreground": "Text",
+    "tooltip.background": "Mantle",
+    "tooltip.border": "Transparent",
+    "tooltip.text.primary": "Text",
+    "tooltip.text": "Text",
+    "tooltip.text.secondary": "Text",
+    "tooltip.text.tertiary": "Text",
+    "notification.background.default": "Base",
+    "notification.background.unread": "Selection",
+    "notification.separator": "Mantle",
+    "notification.text": "Text",
+    "notification.timestamp": "Text",
+    "ai.snippet.border": "Transparent",
+    "ai.snippet.header.background": "Mantle",
+    "ai.snippet.editor.background": "Base",
+    "ai.icon.background": "Purple",
+    "ai.icon.background.secondary": "Selection",
+    "ai.user.icon.text": "Blue",
+    "ai.user.icon.background": "Blue",
+    "ai.user.icon.background.secondary": "Selection",
+    "ai.error.border": "Red",
+    "listItem.text.default": "Text",
+    "listItem.text.hovered": "Text",
+    "listItem.text.focused": "Text",
+    "listItem.text.selected": "Text",
+    "listItem.text.secondary": "Comment",
+    "listItem.border.default": "Transparent",
+    "listItem.border.hovered": "Transparent",
+    "listItem.border.focused": "Transparent",
+    "listItem.border.selected": "Transparent",
+    "listItem.background.default": "Transparent",
+    "listItem.background.hovered": "LineHighlight",
+    "listItem.background.focused": "Selection",
+    "listItem.background.selected": "Selection",
+    "listItem.background.dnd": "Selection",
+    "tree.focusBorder": "Keyword",
+    "tree.compactFolder.selector.default": "Text",
+    "tree.compactFolder.selector.focused": "Text",
+    "tree.compactFolder.separator": "Comment",
+    "tab.background.default": "Transparent",
+    "tab.background.selected": "Selection",
+    "tab.background.hovered": "LineHighlight",
+    "tab.background.selectedFocused": "Selection",
+    "tab.border.default": "Transparent",
+    "tab.border.hovered": "Transparent",
+    "tab.border.selected": "Transparent",
+    "tab.border.selectedFocused": "Transparent",
+    "tab.text": "Text",
+    "terminal.background": "Base",
+    "terminal.foreground": "Text",
+    "terminal.ansiColors.background.ansiBlack": "Base",
+    "terminal.ansiColors.foreground.ansiBlack": "Text",
+    "terminal.ansiColors.background.ansiRed": "Red",
+    "terminal.ansiColors.foreground.ansiRed": "Red",
+    "terminal.ansiColors.background.ansiGreen": "Green",
+    "terminal.ansiColors.foreground.ansiGreen": "Green",
+    "terminal.ansiColors.background.ansiYellow": "Yellow",
+    "terminal.ansiColors.foreground.ansiYellow": "Yellow",
+    "terminal.ansiColors.background.ansiBlue": "Blue",
+    "terminal.ansiColors.foreground.ansiBlue": "Blue",
+    "terminal.ansiColors.background.ansiMagenta": "Purple",
+    "terminal.ansiColors.foreground.ansiMagenta": "Purple",
+    "terminal.ansiColors.background.ansiCyan": "Cyan",
+    "terminal.ansiColors.foreground.ansiCyan": "Cyan",
+    "terminal.ansiColors.background.ansiWhite": "Text",
+    "terminal.ansiColors.foreground.ansiWhite": "Text",
+    "terminal.ansiColors.background.ansiBrightBlack": "LineHighlight",
+    "terminal.ansiColors.foreground.ansiBrightBlack": "Comment",
+    "terminal.ansiColors.background.ansiBrightRed": "Red",
+    "terminal.ansiColors.foreground.ansiBrightRed": "Red",
+    "terminal.ansiColors.background.ansiBrightGreen": "Green",
+    "terminal.ansiColors.foreground.ansiBrightGreen": "Green",
+    "terminal.ansiColors.background.ansiBrightYellow": "Yellow",
+    "terminal.ansiColors.foreground.ansiBrightYellow": "Yellow",
+    "terminal.ansiColors.background.ansiBrightBlue": "Blue",
+    "terminal.ansiColors.foreground.ansiBrightBlue": "Blue",
+    "terminal.ansiColors.background.ansiBrightMagenta": "Purple",
+    "terminal.ansiColors.foreground.ansiBrightMagenta": "Purple",
+    "terminal.ansiColors.background.ansiBrightCyan": "Cyan",
+    "terminal.ansiColors.foreground.ansiBrightCyan": "Cyan",
+    "terminal.ansiColors.background.ansiBrightWhite": "Base",
+    "terminal.ansiColors.foreground.ansiBrightWhite": "Text",
+    "button.background.default": "LineHighlight",
+    "button.background.hovered": "Selection",
+    "button.text.default": "Text",
+    "button.text.hovered": "Text",
+    "button.border.default": "Selection",
+    "button.focusBorder": "Transparent",
+    "button.focusOutline": "Transparent",
+    "button.secondary.background.default": "LineHighlight",
+    "button.secondary.background.hovered": "Selection",
+    "button.secondary.text.default": "Text",
+    "button.secondary.text.hovered": "Text",
+    "button.secondary.border.default": "Transparent",
+    "button.tile.background.default": "Mantle",
+    "button.tile.background.hovered": "LineHighlight",
+    "button.tile.text.default": "Text",
+    "button.tile.text.hovered": "Text",
+    "button.tile.border.default": "Transparent",
+    "disabled": "Transparent",
+    "focusOutline": "Keyword"
+  },
+  "textAttributes": {
+    "editor.text.scheme": {
+      "foregroundColor": "Text"
+    },
+    "comment": {
+      "foregroundColor": "Comment"
+    },
+    "comment.doc": {
+      "foregroundColor": "CommentDoc"
+    },
+    "comment.doc.tag": {
+      "foregroundColor": "Documentation"
+    },
+    "comment.doc.value": {
+      "foregroundColor": "String"
+    },
+    "comment.todo": {
+      "foregroundColor": "CommentTodo"
+    },
+    "keyword": {
+      "foregroundColor": "Keyword"
+    },
+    "keyword.typeModifier": {
+      "foregroundColor": "Keyword"
+    },
+    "metadata": {
+      "foregroundColor": "Annotation"
+    },
+    "number": {
+      "foregroundColor": "Number"
+    },
+    "boolean": {
+      "foregroundColor": "Keyword"
+    },
+    "string": {
+      "foregroundColor": "String"
+    },
+    "string.escape": {
+      "foregroundColor": "String"
+    },
+    "string.regexp": {
+      "foregroundColor": "String"
+    },
+    "identifier": {
+      "foregroundColor": "Text"
+    },
+    "identifier.this": {
+      "foregroundColor": "Keyword"
+    },
+    "identifier.constant": {
+      "foregroundColor": "String"
+    },
+    "identifier.constant.predefined": {
+      "foregroundColor": "String"
+    },
+    "identifier.variable": {
+      "foregroundColor": "Text"
+    },
+    "identifier.variable.mutable": {
+      "foregroundColor": "Text"
+    },
+    "identifier.parameter": {
+      "foregroundColor": "Text"
+    },
+    "identifier.function.declaration": {
+      "foregroundColor": "Function"
+    },
+    "identifier.function.call": {
+      "foregroundColor": "Function"
+    },
+    "identifier.method.static": {
+      "foregroundColor": "Function"
+    },
+    "identifier.class": {
+      "foregroundColor": "Function"
+    },
+    "identifier.type": {
+      "foregroundColor": "Function"
+    },
+    "identifier.type.class": {
+      "foregroundColor": "Function"
+    },
+    "identifier.type.enum": {
+      "foregroundColor": "Function"
+    },
+    "identifier.type.struct": {
+      "foregroundColor": "Function"
+    },
+    "identifier.interface": {
+      "foregroundColor": "Function"
+    },
+    "identifier.typeParameter": {
+      "foregroundColor": "Function"
+    },
+    "identifier.field": {
+      "foregroundColor": "Text"
+    },
+    "identifier.field.static": {
+      "foregroundColor": "Text"
+    },
+    "punctuation": {
+      "foregroundColor": "Punctuation"
+    },
+    "punctuation.operator": {
+      "foregroundColor": "Operator"
+    },
+    "tag.html": {
+      "foregroundColor": "TagHtml"
+    },
+    "tagName.html": {
+      "foregroundColor": "TagNameHtml"
+    },
+    "tagName.custom.html": {
+      "foregroundColor": "String"
+    },
+    "attributeName.html": {
+      "foregroundColor": "Text"
+    },
+    "attributeValue.html": {
+      "foregroundColor": "String"
+    },
+    "entityReference.html": {
+      "foregroundColor": "Text"
+    },
+    "key.json": {
+      "foregroundColor": "Text"
+    },
+    "key.yaml": {
+      "foregroundColor": "Text"
+    },
+    "schema.yaml": {
+      "foregroundColor": "Text"
+    },
+    "value.yaml": {
+      "foregroundColor": "Text"
+    },
+    "identifier.anchor.yaml": {
+      "foregroundColor": "Text"
+    },
+    "identifier.alias.yaml": {
+      "foregroundColor": "Text"
+    },
+    "punctuation.operator.merge.yaml": {
+      "foregroundColor": "Operator"
+    },
+    "attributeName.css": {
+      "foregroundColor": "String"
+    },
+    "hex.css": {
+      "foregroundColor": "Text"
+    },
+    "identifier.css": {
+      "foregroundColor": "Text"
+    },
+    "identifier.function.css": {
+      "foregroundColor": "IdentifierFunctionCss"
+    },
+    "keyword.css": {
+      "foregroundColor": "Keyword"
+    },
+    "keyword.important.css": {
+      "foregroundColor": "Documentation",
+      "fontWeight": "BOLD"
+    },
+    "number.css": {
+      "foregroundColor": "Number"
+    },
+    "number.unit.css": {
+      "foregroundColor": "Number"
+    },
+    "propertyName.css": {
+      "foregroundColor": "PropertyNameCss"
+    },
+    "propertyValue.css": {
+      "foregroundColor": "Text"
+    },
+    "punctuation.css": {
+      "foregroundColor": "PunctuationCss"
+    },
+    "selector.class.css": {
+      "foregroundColor": "String"
+    },
+    "selector.id.css": {
+      "foregroundColor": "Text"
+    },
+    "selector.pseudo.css": {
+      "foregroundColor": "String"
+    },
+    "selector.tag.css": {
+      "foregroundColor": "Text"
+    },
+    "string.css": {
+      "foregroundColor": "String"
+    },
+    "url.css": {
+      "foregroundColor": "UrlCss"
+    },
+    "comment.buildConstraint.go": {
+      "foregroundColor": "Comment"
+    },
+    "identifier.methodReceiver.go": {
+      "foregroundColor": "Text"
+    },
+    "identifier.package.go": {
+      "foregroundColor": "Function"
+    },
+    "identifier.typeReference.go": {
+      "foregroundColor": "Text"
+    },
+    "identifier.variable.shadowing.go": {
+      "foregroundColor": "Text"
+    },
+    "metadata.structTag.key.go": {
+      "foregroundColor": "Annotation"
+    },
+    "markup.heading": {
+      "foregroundColor": "Text"
+    },
+    "markup.bold": {
+      "foregroundColor": "Text"
+    },
+    "markup.italic": {
+      "foregroundColor": "Text"
+    },
+    "markup.code.block": {
+      "foregroundColor": "Text"
+    },
+    "markup.href": {
+      "foregroundColor": "Text"
+    },
+    "link": {
+      "foregroundColor": "TagNameHtml"
+    },
+    "problem.unused": {
+      "foregroundColor": "Text"
+    },
+    "problem.error": {
+      "scrollbarMarkColor": "ProblemError",
+      "textDecoration": {
+        "color": "ProblemError",
+        "style": "WAVY",
+        "type": "UNDERLINE"
+      }
+    },
+    "editor.selection": {
+      "backgroundColor": "Selection"
+    },
+    "editor.selection.focused": {
+      "backgroundColor": "Selection"
+    },
+    "editor.search.results": {
+      "backgroundColor": "EditorSearchResults"
+    },
+    "editor.brace.match": {
+      "backgroundColor": "Selection"
+    },
+    "editor.indentGuide": {
+      "foregroundColor": "EditorIndentGuide"
+    },
+    "editor.indentGuide.current": {
+      "foregroundColor": "Documentation"
+    },
+    "diff.added": {
+      "backgroundColor": "DiffInserted"
+    },
+    "diff.added.word": {
+      "backgroundColor": "DiffInserted"
+    },
+    "diff.deleted": {
+      "backgroundColor": "DiffDeleted"
+    },
+    "diff.deleted.word": {
+      "backgroundColor": "DiffDeleted"
+    },
+    "diff.modified": {
+      "backgroundColor": "DiffModified"
+    },
+    "diff.modified.word": {
+      "backgroundColor": "DiffModified"
+    },
+    "diff.conflict": {
+      "backgroundColor": "DiffConflict"
+    }
+  },
+  "palette": {
+    "Text": "#606060",
+    "Base": "#F1F0E9",
+    "Mantle": "#F1F0E9",
+    "Selection": "#D3D3D3",
+    "LineHighlight": "#E7E5DB",
+    "GutterFg": "#868484",
+    "Comment": "#808080",
+    "Keyword": "#B56959",
+    "String": "#B07D48",
+    "Function": "#5A6AA6",
+    "Constant": "#B07D48",
+    "Operator": "#AB5959",
+    "Variable": "#606060",
+    "Storage": "#5A6AA6",
+    "Annotation": "#BD8F8F",
+    "Documentation": "#1C6B48",
+    "Red": "#CE0505",
+    "Green": "#067D17",
+    "Blue": "#1C44B2",
+    "Yellow": "#B28C00",
+    "Cyan": "#028E8E",
+    "Purple": "#962D96",
+    "DiffInserted": "#9ECB9E",
+    "DiffDeleted": "#E1B6AC",
+    "DiffModified": "#AEBBD9",
+    "Transparent": "#FFFFFF00",
+    "CommentDoc": "#A0ADA0",
+    "CommentTodo": "#7F8380",
+    "Number": "#2F798A",
+    "Punctuation": "#999999",
+    "TagHtml": "#6A737D",
+    "TagNameHtml": "#1E754F",
+    "IdentifierFunctionCss": "#59873A",
+    "PropertyNameCss": "#998418",
+    "PunctuationCss": "#296AA3",
+    "UrlCss": "#A65E2B",
+    "ProblemError": "#D73A49",
+    "EditorSearchResults": "#E6CC77",
+    "EditorIndentGuide": "#E1E4E8",
+    "DiffConflict": "#AEA1DC"
+  }
+}
