@@ -173,10 +173,6 @@
       "action": "editor/go-to-definition"
     },
     {
-      "key": "alt-f",
-      "action": "editor/find-usages"
-    },
-    {
       "key": "cmd-k",
       "action": "-git/commit/jump-to-tool"
     },
@@ -335,6 +331,10 @@
     {
       "key": "ctrl-shift-t",
       "action": "focus-and-toggle-tasks-panel"
+    },
+    {
+      "key": "cmd-k",
+      "action": "-goto/everything"
     }
   ]
 }

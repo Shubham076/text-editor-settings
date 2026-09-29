@@ -25,7 +25,7 @@
       // switch panes
       // go to
       "cmd-i": "editor::GoToDefinition",
-      "alt-f": "editor::FindAllReferences",
+      "cmd-u": "editor::FindAllReferences",
 
       //delete line
       "cmd-backspace": "editor::DeleteLine",
@@ -198,7 +198,7 @@
   {
     "context": "Workspace",
     "bindings": {
-      "alt-\\": "multi_workspace::ToggleWorkspaceSidebar"
+      "alt-t": "multi_workspace::ToggleWorkspaceSidebar"
     }
   },
   {
