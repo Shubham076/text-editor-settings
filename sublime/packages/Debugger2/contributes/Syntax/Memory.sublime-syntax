@@ -1,0 +1,40 @@
+%YAML 1.2
+---
+
+scope: debugger.memory
+name: 'Debugger Memory'
+hidden: true
+
+# Highlights the hex dump rendered by InternalMemoryView.line():
+#
+#   1400011E180: 20 80 11 00  40 .. .. ..     ␣ . . .
+#   |            |                            |
+#   address      bytes, '..' when unreadable   ascii rendering, separated by three spaces
+
+contexts:
+  main:
+    - match: '^([0-9A-Fa-f]+)(:)'
+      captures:
+        1: comment
+        2: punctuation.separator
+      push: bytes
+
+  bytes:
+    # three spaces end the byte columns and start the ascii rendering, the separator between the
+    # groups of four bytes is never more than two
+    - match: '   '
+      set: ascii
+
+    - match: '\.\.'
+      scope: comment
+
+    - match: '[0-9A-Fa-f]{2}'
+      scope: constant.numeric
+
+    - match: '$'
+      pop: true
+
+  ascii:
+    - meta_scope: string.unquoted
+    - match: '$'
+      pop: true

@@ -1,0 +1,17 @@
+%YAML 1.2
+---
+# The one-line prompt strip below the Watch panel, and the Watch panel's own input line when the
+# strip holds the toolbar. The scope is what the completion trigger characters hang on (see
+# `OutputPanel.configure_prompt_view`, `WatchOutputPanel.configure_input_line`). Painted, and dimmed
+# like the console's `:` prompt: the marker in front of the input line, and the caption standing on
+# the empty line, which begins with a zero-width space no typed expression starts with.
+hidden: true
+scope: debugger.prompt
+name: Debugger Prompt
+
+contexts:
+  main:
+    - match: '^[^\S\n]*›[^\S\n]?'
+      scope: comment.debugger punctuation.definition.prompt.debugger
+    - match: '\x{200b}[^\n]*'
+      scope: comment.debugger meta.placeholder.debugger

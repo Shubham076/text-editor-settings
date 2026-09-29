@@ -1,0 +1,614 @@
+{
+ "language": "c",
+ "adapter": "lldb-dap 17.0.0",
+ "compiler": "Apple clang 17.0.0",
+ "note": "recorded over DAP; see tests/capture/",
+ "variables": [
+  {
+   "name": ".one",
+   "value": "Item @ 0x16fdfe260",
+   "type": "Item",
+   "hasChildren": true
+  },
+  {
+   "name": ".one.name",
+   "value": "\"item-1\"",
+   "type": "char[16]",
+   "hasChildren": true
+  },
+  {
+   "name": ".one.name.[0]",
+   "value": "'i'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[1]",
+   "value": "'t'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[2]",
+   "value": "'e'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[3]",
+   "value": "'m'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[4]",
+   "value": "'-'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[5]",
+   "value": "'1'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[6]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[7]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[8]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[9]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[10]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[11]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[12]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[13]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[14]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.name.[15]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".one.qty",
+   "value": "1",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".box",
+   "value": "Box @ 0x16fdfe1e0",
+   "type": "Box",
+   "hasChildren": true
+  },
+  {
+   "name": ".box.items",
+   "value": "Item[2] @ 0x16fdfe1e0",
+   "type": "Item[2]",
+   "hasChildren": true
+  },
+  {
+   "name": ".box.items.[0]",
+   "value": "Item @ 0x16fdfe1e0",
+   "type": "Item",
+   "hasChildren": true
+  },
+  {
+   "name": ".box.items.[0].name",
+   "value": "\"a\\0\\xed\\xf4\\U00000001\\0\\0\\0\\U00000018\\xe2\\xdfo\\U00000001\"",
+   "type": "char[16]",
+   "hasChildren": true
+  },
+  {
+   "name": ".box.items.[0].qty",
+   "value": "1",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".box.items.[1]",
+   "value": "Item @ 0x16fdfe1f4",
+   "type": "Item",
+   "hasChildren": true
+  },
+  {
+   "name": ".box.items.[1].name",
+   "value": "\"b\\0\\0\\0X\\xc0[\\xf3\\U00000001\\0\\0\\0\\x90\\xe2\\xdfo\"",
+   "type": "char[16]",
+   "hasChildren": true
+  },
+  {
+   "name": ".box.items.[1].qty",
+   "value": "2",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".box.tag",
+   "value": "0x00000001000006d4 \"t\"",
+   "type": "const char *",
+   "hasChildren": true
+  },
+  {
+   "name": ".box.tag.*tag",
+   "value": "'t'",
+   "type": "const char",
+   "hasChildren": false
+  },
+  {
+   "name": ".box.n",
+   "value": "2",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr",
+   "value": "0x000000016fdfe260",
+   "type": "Item *",
+   "hasChildren": true
+  },
+  {
+   "name": ".ptr.name",
+   "value": "\"item-1\"",
+   "type": "char[16]",
+   "hasChildren": true
+  },
+  {
+   "name": ".ptr.name.[0]",
+   "value": "'i'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[1]",
+   "value": "'t'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[2]",
+   "value": "'e'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[3]",
+   "value": "'m'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[4]",
+   "value": "'-'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[5]",
+   "value": "'1'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[6]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[7]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[8]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[9]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[10]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[11]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[12]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[13]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[14]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.name.[15]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptr.qty",
+   "value": "1",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".arr",
+   "value": "int[3] @ 0x16fdfe250",
+   "type": "int[3]",
+   "hasChildren": true
+  },
+  {
+   "name": ".arr.[0]",
+   "value": "1",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".arr.[1]",
+   "value": "2",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".arr.[2]",
+   "value": "3",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".str",
+   "value": "0x00000001000006d6 \"hello\"",
+   "type": "const char *",
+   "hasChildren": true
+  },
+  {
+   "name": ".str.*str",
+   "value": "'h'",
+   "type": "const char",
+   "hasChildren": false
+  },
+  {
+   "name": ".num",
+   "value": "Num @ 0x16fdfe1cc",
+   "type": "Num",
+   "hasChildren": true
+  },
+  {
+   "name": ".num.i",
+   "value": "7",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".num.f",
+   "value": "9.80908925E-45",
+   "type": "float",
+   "hasChildren": false
+  },
+  {
+   "name": ".d",
+   "value": "2.5",
+   "type": "double",
+   "hasChildren": false
+  },
+  {
+   "name": ".flat",
+   "value": "int[2] @ 0x16fdfe248",
+   "type": "int[2]",
+   "hasChildren": true
+  },
+  {
+   "name": ".flat.[0]",
+   "value": "4",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".flat.[1]",
+   "value": "5",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair",
+   "value": "Item[2] @ 0x16fdfe220",
+   "type": "Item[2]",
+   "hasChildren": true
+  },
+  {
+   "name": ".pair.[0]",
+   "value": "Item @ 0x16fdfe220",
+   "type": "Item",
+   "hasChildren": true
+  },
+  {
+   "name": ".pair.[0].name",
+   "value": "\"x\"",
+   "type": "char[16]",
+   "hasChildren": true
+  },
+  {
+   "name": ".pair.[0].name.[0]",
+   "value": "'x'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[1]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[2]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[3]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[4]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[5]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[6]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[7]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[8]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[9]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[10]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[11]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[12]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[13]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[14]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].name.[15]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[0].qty",
+   "value": "1",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1]",
+   "value": "Item @ 0x16fdfe234",
+   "type": "Item",
+   "hasChildren": true
+  },
+  {
+   "name": ".pair.[1].name",
+   "value": "\"y\"",
+   "type": "char[16]",
+   "hasChildren": true
+  },
+  {
+   "name": ".pair.[1].name.[0]",
+   "value": "'y'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[1]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[2]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[3]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[4]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[5]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[6]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[7]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[8]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[9]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[10]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[11]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[12]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[13]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[14]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].name.[15]",
+   "value": "'\\0'",
+   "type": "char",
+   "hasChildren": false
+  },
+  {
+   "name": ".pair.[1].qty",
+   "value": "2",
+   "type": "int",
+   "hasChildren": false
+  }
+ ]
+}

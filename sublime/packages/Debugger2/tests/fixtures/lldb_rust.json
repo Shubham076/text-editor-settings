@@ -1,0 +1,158 @@
+{
+ "language": "rust",
+ "adapter": "lldb-dap 17.0.0",
+ "compiler": "rustc 1.95.0",
+ "note": "recorded over DAP; see tests/capture/",
+ "variables": [
+  {
+   "name": ".one",
+   "value": "rtest::Item @ 0x16fdfdcb0",
+   "type": "rtest::Item",
+   "hasChildren": true
+  },
+  {
+   "name": ".one.name",
+   "value": "alloc::string::String @ 0x16fdfdcb0",
+   "type": "alloc::string::String",
+   "hasChildren": true
+  },
+  {
+   "name": ".one.qty",
+   "value": "1",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".items",
+   "value": "alloc::vec::Vec<rtest::Item, alloc::alloc::Global> @ 0x16fdfdcf0",
+   "type": "alloc::vec::Vec<rtest::Item, alloc::alloc::Global>",
+   "hasChildren": true
+  },
+  {
+   "name": ".items.buf",
+   "value": "alloc::raw_vec::RawVec<rtest::Item, alloc::alloc::Global> @ 0x16fdfdcf0",
+   "type": "alloc::raw_vec::RawVec<rtest::Item, alloc::alloc::Global>",
+   "hasChildren": true
+  },
+  {
+   "name": ".items.len",
+   "value": "2",
+   "type": "unsigned long",
+   "hasChildren": false
+  },
+  {
+   "name": ".nums",
+   "value": "alloc::vec::Vec<int, alloc::alloc::Global> @ 0x16fdfdd90",
+   "type": "alloc::vec::Vec<int, alloc::alloc::Global>",
+   "hasChildren": true
+  },
+  {
+   "name": ".nums.buf",
+   "value": "alloc::raw_vec::RawVec<int, alloc::alloc::Global> @ 0x16fdfdd90",
+   "type": "alloc::raw_vec::RawVec<int, alloc::alloc::Global>",
+   "hasChildren": true
+  },
+  {
+   "name": ".nums.len",
+   "value": "3",
+   "type": "unsigned long",
+   "hasChildren": false
+  },
+  {
+   "name": ".map",
+   "value": "std::collections::hash::map::HashMap<alloc::string::String, int, std::hash::random::RandomState, alloc::alloc::Global> @ 0x16fdfdda8",
+   "type": "std::collections::hash::map::HashMap<alloc::string::String, int, std::hash::random::RandomState, alloc::alloc::Global>",
+   "hasChildren": true
+  },
+  {
+   "name": ".map.base",
+   "value": "hashbrown::map::HashMap<alloc::string::String, int, std::hash::random::RandomState, alloc::alloc::Global> @ 0x16fdfdda8",
+   "type": "hashbrown::map::HashMap<alloc::string::String, int, std::hash::random::RandomState, alloc::alloc::Global>",
+   "hasChildren": true
+  },
+  {
+   "name": ".tup",
+   "value": "(i32, &str) @ 0x16fdfddf0",
+   "type": "(i32, &str)",
+   "hasChildren": true
+  },
+  {
+   "name": ".tup.__0",
+   "value": "1",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".tup.__1",
+   "value": "&str @ 0x16fdfddf8",
+   "type": "&str",
+   "hasChildren": true
+  },
+  {
+   "name": ".opt",
+   "value": "core::option::Option<i32> @ 0x16fdfde08",
+   "type": "core::option::Option<i32>",
+   "hasChildren": true
+  },
+  {
+   "name": ".opt.$variants$",
+   "value": "core::option::Option<i32>::core::option::Option<i32>$Inner @ 0x16fdfde08",
+   "type": "core::option::Option<i32>::core::option::Option<i32>$Inner",
+   "hasChildren": true
+  },
+  {
+   "name": ".kind",
+   "value": "rtest::Kind @ 0x16fdfde10",
+   "type": "rtest::Kind",
+   "hasChildren": true
+  },
+  {
+   "name": ".kind.$variants$",
+   "value": "rtest::Kind::rtest::Kind$Inner @ 0x16fdfde10",
+   "type": "rtest::Kind::rtest::Kind$Inner",
+   "hasChildren": true
+  },
+  {
+   "name": ".plain",
+   "value": "rtest::Kind @ 0x16fdfde40",
+   "type": "rtest::Kind",
+   "hasChildren": true
+  },
+  {
+   "name": ".plain.$variants$",
+   "value": "rtest::Kind::rtest::Kind$Inner @ 0x16fdfde40",
+   "type": "rtest::Kind::rtest::Kind$Inner",
+   "hasChildren": true
+  },
+  {
+   "name": ".s",
+   "value": "alloc::string::String @ 0x16fdfde58",
+   "type": "alloc::string::String",
+   "hasChildren": true
+  },
+  {
+   "name": ".s.vec",
+   "value": "alloc::vec::Vec<unsigned char, alloc::alloc::Global> @ 0x16fdfde58",
+   "type": "alloc::vec::Vec<unsigned char, alloc::alloc::Global>",
+   "hasChildren": true
+  },
+  {
+   "name": ".sl",
+   "value": "&[i32] @ 0x16fdfe030",
+   "type": "&[i32]",
+   "hasChildren": true
+  },
+  {
+   "name": ".sl.data_ptr",
+   "value": "0x00000001006b1ad0",
+   "type": "int *",
+   "hasChildren": true
+  },
+  {
+   "name": ".sl.length",
+   "value": "3",
+   "type": "unsigned long",
+   "hasChildren": false
+  }
+ ]
+}

@@ -1,0 +1,74 @@
+{
+ "language": "python",
+ "adapter": "debugpy 1.8.20",
+ "compiler": "CPython 3.12.0",
+ "note": "recorded over DAP; see tests/capture/",
+ "variables": [
+  {
+   "name": "empty_d",
+   "value": "{}",
+   "type": "dict",
+   "hasChildren": true
+  },
+  {
+   "name": "empty_l",
+   "value": "[]",
+   "type": "list",
+   "hasChildren": true
+  },
+  {
+   "name": "flat_list",
+   "value": "[1, 2, 3]",
+   "type": "list",
+   "hasChildren": true
+  },
+  {
+   "name": "flat_scalars",
+   "value": "{'a': 1, 'b': 2}",
+   "type": "dict",
+   "hasChildren": true
+  },
+  {
+   "name": "flat_strs",
+   "value": "['ok', 'yes']",
+   "type": "list",
+   "hasChildren": true
+  },
+  {
+   "name": "list_of_lists",
+   "value": "[[1, 2], [3, 4]]",
+   "type": "list",
+   "hasChildren": true
+  },
+  {
+   "name": "list_of_objs",
+   "value": "[PluginOverride(plugin_id='a', auto_install=None, release=None), PluginOverride(plugin_id='b', auto_install=None, release=None)]",
+   "type": "list",
+   "hasChildren": true
+  },
+  {
+   "name": "mixed",
+   "value": "{'n': 1, 'sub': {'deep': 1}}",
+   "type": "dict",
+   "hasChildren": true
+  },
+  {
+   "name": "short_key_long_str",
+   "value": "{'url': 'https://downloads.prompt.security/releases/latest/agentic-plugins/installer-darwin-arm64.tar.gz'}",
+   "type": "dict",
+   "hasChildren": true
+  },
+  {
+   "name": "short_key_one_obj",
+   "value": "{'k': PluginOverride(plugin_id='claude-code', auto_install='disabled', release=None)}",
+   "type": "dict",
+   "hasChildren": true
+  },
+  {
+   "name": "short_keys_big_values",
+   "value": "{'a': {'x': 1, 'y': {...}}, 'b': {'p': 2, 'q': {...}}}",
+   "type": "dict",
+   "hasChildren": true
+  }
+ ]
+}

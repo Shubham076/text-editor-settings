@@ -1,0 +1,308 @@
+{
+ "language": "go",
+ "adapter": "delve 1.27.1",
+ "compiler": "go 1.25.5 darwin/arm64",
+ "note": "recorded over DAP; see tests/capture/",
+ "variables": [
+  {
+   "name": "items",
+   "value": "[]main.Item len: 2, cap: 2, [{Name: \"item-1\", Qty: 1},{Name: \"item-2\", Qty: 2}]",
+   "type": null,
+   "hasChildren": true
+  },
+  {
+   "name": "cfg",
+   "value": "main.Config {Name: \"x\", Port: 8080, Tags: map[string]string [\"a\": \"b\", ]}",
+   "type": null,
+   "hasChildren": true
+  },
+  {
+   "name": "ptr",
+   "value": "*main.Item {Name: \"item-1\", Qty: 1}",
+   "type": null,
+   "hasChildren": true
+  },
+  {
+   "name": "m",
+   "value": "map[string]int [\"a\": 1, \"b\": 2, ]",
+   "type": null,
+   "hasChildren": true
+  },
+  {
+   "name": "err",
+   "value": "error(*errors.errorString) *{s: \"boom\"}",
+   "type": null,
+   "hasChildren": true
+  },
+  {
+   "name": "wrapped",
+   "value": "error(*errors.errorString) *{s: \"outer: {inner}\"}",
+   "type": null,
+   "hasChildren": true
+  },
+  {
+   "name": "sh",
+   "value": "main.Shape(main.Circle) {R: 2}",
+   "type": null,
+   "hasChildren": true
+  },
+  {
+   "name": "strs",
+   "value": "[]string len: 2, cap: 2, [\"a[0]\",\"b(c)\"]",
+   "type": null,
+   "hasChildren": true
+  },
+  {
+   "name": "fn",
+   "value": "main.main",
+   "type": null,
+   "hasChildren": false
+  },
+  {
+   "name": "ch",
+   "value": "chan int 0/2",
+   "type": null,
+   "hasChildren": true
+  },
+  {
+   "name": "arr",
+   "value": "[3]int [1,2,3]",
+   "type": null,
+   "hasChildren": true
+  },
+  {
+   "name": ".deep",
+   "value": "main.Deep {Top: main.L1 {Mid: (*main.L2)(0x14000112bf0), Label: \"L\"}, Extra: map[string][]main.L4 [\"k\": [(*main.L4)(0x14000118000)], ]}",
+   "type": "main.Deep",
+   "hasChildren": true
+  },
+  {
+   "name": ".deep.Top",
+   "value": "main.L1 {Mid: (*main.L2)(0x14000112bf0), Label: \"L\"}",
+   "type": "main.L1",
+   "hasChildren": true
+  },
+  {
+   "name": ".deep.Top.Mid",
+   "value": "main.L2 {Inner: main.L3 {Items: []main.L4 len: 2, cap: 2, [(*main.L4)(0x14000112d98),(*main.L4)(0x14000112db0)], Tag: \"t\"}, Flag: true}",
+   "type": "main.L2",
+   "hasChildren": true
+  },
+  {
+   "name": ".deep.Top.Mid.Inner",
+   "value": "main.L3 {Items: []main.L4 len: 2, cap: 2, [(*main.L4)(0x14000112d98),(*main.L4)(0x14000112db0)], Tag: \"t\"}",
+   "type": "main.L3",
+   "hasChildren": true
+  },
+  {
+   "name": ".deep.Top.Mid.Inner.Items",
+   "value": "[]main.L4 len: 2, cap: 2, [(*main.L4)(0x14000112d98),(*main.L4)(0x14000112db0)]",
+   "type": "[]main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".deep.Top.Mid.Inner.Tag",
+   "value": "\"t\"",
+   "type": "string",
+   "hasChildren": false
+  },
+  {
+   "name": ".deep.Top.Mid.Flag",
+   "value": "true",
+   "type": "bool",
+   "hasChildren": false
+  },
+  {
+   "name": ".deep.Top.Label",
+   "value": "\"L\"",
+   "type": "string",
+   "hasChildren": false
+  },
+  {
+   "name": ".deep.Extra",
+   "value": "map[string][]main.L4 [\"k\": [(*main.L4)(0x14000118000)], ]",
+   "type": "map[string][]main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".deep.Extra.len()",
+   "value": "1",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".deep.Extra.\"k\"",
+   "value": "[]main.L4 len: 1, cap: 1, [(*main.L4)(0x14000118000)]",
+   "type": "string: []main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".deep.Extra.\"k\".[0]",
+   "value": "main.L4 {Name: \"c\", N: 3}",
+   "type": "main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".deep.Extra.\"k\".[0].Name",
+   "value": "\"c\"",
+   "type": "string",
+   "hasChildren": false
+  },
+  {
+   "name": ".deep.Extra.\"k\".[0].N",
+   "value": "3",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptrs",
+   "value": "[]*main.L4 len: 2, cap: 2, [*{Name: \"p\", N: 9},*{Name: \"q\", N: 10}]",
+   "type": "[]*main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".ptrs.[0]",
+   "value": "*main.L4 {Name: \"p\", N: 9}",
+   "type": "*main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".ptrs.[0].",
+   "value": "main.L4 {Name: \"p\", N: 9}",
+   "type": "main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".ptrs.[0]..Name",
+   "value": "\"p\"",
+   "type": "string",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptrs.[0]..N",
+   "value": "9",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptrs.[1]",
+   "value": "*main.L4 {Name: \"q\", N: 10}",
+   "type": "*main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".ptrs.[1].",
+   "value": "main.L4 {Name: \"q\", N: 10}",
+   "type": "main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".ptrs.[1]..Name",
+   "value": "\"q\"",
+   "type": "string",
+   "hasChildren": false
+  },
+  {
+   "name": ".ptrs.[1]..N",
+   "value": "10",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".nested",
+   "value": "[][]main.L4 len: 2, cap: 2, [[(*main.L4)(0x14000112cd0)],[(*main.L4)(0x14000112c98)]]",
+   "type": "[][]main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".nested.[0]",
+   "value": "[]main.L4 len: 1, cap: 1, [(*main.L4)(0x14000112cd0)]",
+   "type": "[]main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".nested.[0].[0]",
+   "value": "main.L4 {Name: \"x\", N: 1}",
+   "type": "main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".nested.[0].[0].Name",
+   "value": "\"x\"",
+   "type": "string",
+   "hasChildren": false
+  },
+  {
+   "name": ".nested.[0].[0].N",
+   "value": "1",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".nested.[1]",
+   "value": "[]main.L4 len: 1, cap: 1, [(*main.L4)(0x14000112c98)]",
+   "type": "[]main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".nested.[1].[0]",
+   "value": "main.L4 {Name: \"y\", N: 2}",
+   "type": "main.L4",
+   "hasChildren": true
+  },
+  {
+   "name": ".nested.[1].[0].Name",
+   "value": "\"y\"",
+   "type": "string",
+   "hasChildren": false
+  },
+  {
+   "name": ".nested.[1].[0].N",
+   "value": "2",
+   "type": "int",
+   "hasChildren": false
+  },
+  {
+   "name": ".err",
+   "value": "error(*errors.errorString) *{s: \"boom\"}",
+   "type": "error(*errors.errorString)",
+   "hasChildren": true
+  },
+  {
+   "name": ".err.data",
+   "value": "*errors.errorString {s: \"boom\"}",
+   "type": "*errors.errorString",
+   "hasChildren": true
+  },
+  {
+   "name": ".err.data.",
+   "value": "errors.errorString {s: \"boom\"}",
+   "type": "errors.errorString",
+   "hasChildren": true
+  },
+  {
+   "name": ".err.data..s",
+   "value": "\"boom\"",
+   "type": "string",
+   "hasChildren": false
+  },
+  {
+   "name": ".sh",
+   "value": "main.Shape(main.Circle) {R: 2}",
+   "type": "main.Shape(main.Circle)",
+   "hasChildren": true
+  },
+  {
+   "name": ".sh.data",
+   "value": "main.Circle {R: 2}",
+   "type": "main.Circle",
+   "hasChildren": true
+  },
+  {
+   "name": ".sh.data.R",
+   "value": "2",
+   "type": "float64",
+   "hasChildren": false
+  }
+ ]
+}

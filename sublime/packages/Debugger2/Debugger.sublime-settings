@@ -1,0 +1,106 @@
+{
+	// Open the debugger automatically when a project that is set up for debugging is opened.
+	"open_at_startup": false,
+
+	// Always keep the debugger panel visible
+	"always_keep_visible": false,
+
+	// When the LSP package is installed show the value of the hovered expression inside the LSP hover popup instead of in a separate popup. Requires a restart.
+	"hover_in_lsp_popup": true,
+
+	// Debugger ui: the toolbar, tabs, panes (breakpoints, call stack, variables) and menus.
+	// Font size; defaults to 87.5% of the font size in your preferences.
+	"font_size": null,
+	// Font family, e.g. "JetBrains Mono"; defaults to the font_face in your preferences.
+	"font_face": null,
+	// Extra space in pixels above and below each row of the panes. Larger values spread the rows out.
+	"line_padding": 0,
+
+	// Where the console's toolbar and tabs sit. "bottom" keeps them in a fixed strip below the output,
+	// visible however far the output scrolls. "top" draws them above the first line, scrolling with
+	// the output. Applies to consoles created after the change (restart or reopen the debugger).
+	"console_bar_position": "bottom",
+
+	// Console and terminal panels the debugger creates (the text, not the header above it).
+	// Text size; defaults to the debugger ui font size.
+	"console_font_size": null,
+	// Font family, e.g. "JetBrains Mono"; defaults to the font_face in your preferences.
+	"console_font_face": null,
+	// Extra space in pixels above and below each line of text. Larger values spread the lines out.
+	"console_line_padding": 2,
+
+	// Expected values of around 0.95 to 1.05. Only change this if the text/images/content are not aligning correctly within the panels (could cause the last panel to be clipped).
+	"internal_font_scale": 1,
+
+	// Expected values of around 0 to -5. Only change this if the size of the panels is too large and the last panel is cropped off (adjust internal_font_scale first if text/images/content are not aligned correctly). Negative values make the panels smaller. Postive make them bigger.
+	"internal_width_modifier": 0,
+
+	// Which external terminal should be used when an adapter requests an external terminal
+	// "platform" (default) uses Terminal on MacOS, CMD (Not tested) on Windows, (Unimplemented) on Linux
+	// "terminus" Opens a new terminal view using terminus. The terminus package must be installed https://github.com/randy3k/Terminus
+	"external_terminal": "terminus",
+
+	// Draws the debugger icons in the foreground colour of the colour scheme. The artwork is unchanged,
+	// only the colour. Breakpoints keep their own colours.
+	"icon_foreground_color": true,
+
+	// Draws a play icon at the head of each configuration in the .sublime-project file, and a settings
+	// icon on debugger_configurations. They are clickable, which is why they sit in the text rather
+	// than the gutter: Sublime will draw a gutter icon but has no event for a click on one.
+	"project_file_buttons": true,
+
+	// Gives each running configuration a callstack and a console of its own instead of sharing one of
+	// each, so two configurations running at the same time can be told apart.
+	"session_panels": true,
+
+	// Controls the minimum height of the debugger output panels in lines
+	"console_minimum_height": 20,
+
+	// Limits the number of lines allowed in the console before lines are removed
+	"console_scrollback_limit": 2000,
+
+	// Limits the number of annotationed regions/phantoms (source locations, variables, etc) allowed in the console
+	"console_scrollback_annotation_limit": 100,
+
+	// Additional console logs and some new features are locked behind this flag
+	"development": false,
+
+	// Sets a specific path for node if not set adapters that require node to run will use whatever is in your path
+	"node": null,
+
+	// Output panels outside of the debugger can be integrated into the tabbed debugger interface (note: In some cases output panels may cause issues and not work correctly depending on who owns them)
+	// An example for interating the Diagnostics panel of LSP and a Terminus output panel.
+	// 
+	// "integrated_output_panels": {
+	// 	"diagnostics": {
+	// 		"name": "Diagnostics",
+	// 	},
+	// 	"Terminus": {
+	// 		"name": "Terminal",
+	// 		"position": "bottom",
+	// 	}
+	// }
+	"integrated_output_panels": {},
+
+	// Some debug adapters require certain packages to be installed via package control. If you have installed these package outside of package control then you can add them to this list and they will be treated as if they are installed.
+	"installed_packages": [],
+
+	// Global debugger configurations that are accessible from every project
+	"global_debugger_configurations": [],
+
+	// Global debugger tasks that are accessible from every project
+	"global_debugger_tasks": [],
+
+	// Global debugger compounds that are accessible from every project
+	"global_debugger_compounds": [],
+
+	// Personal access token used for github api requests. If you are testing installing adapters you may need to set this to have higher api limits if you are getting 429 errors.
+	"github_personal_access_token": null,
+
+	// Which lldb library to use
+	"lldb_library": null,
+
+	// Sets a specific path for dlv if not set go will use whatever is in your path
+	"go_dlv": null,
+
+}

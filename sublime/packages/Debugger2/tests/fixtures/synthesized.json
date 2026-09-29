@@ -1,0 +1,205 @@
+{
+ "note": "NOT recorded. Representative values taken from each adapter's documented output format, to pin down how the label logic treats shapes we cannot capture here. Expected labels are what the current implementation produces, reviewed by hand.",
+ "variables": [
+  {
+   "language": "javascript",
+   "adapter": "vscode-js-debug",
+   "name": "obj",
+   "type": "Object",
+   "value": "Object {a: 1, b: 2}",
+   "hasChildren": true
+  },
+  {
+   "language": "javascript",
+   "adapter": "vscode-js-debug",
+   "name": "arr",
+   "type": "Array",
+   "value": "Array(3) [1, 2, 3]",
+   "hasChildren": true
+  },
+  {
+   "language": "javascript",
+   "adapter": "vscode-js-debug",
+   "name": "arr2",
+   "type": "Array",
+   "value": "(3) [1, 2, 3]",
+   "hasChildren": true
+  },
+  {
+   "language": "javascript",
+   "adapter": "vscode-js-debug",
+   "name": "fn",
+   "type": "Function",
+   "value": "function foo(a, b)",
+   "hasChildren": true
+  },
+  {
+   "language": "javascript",
+   "adapter": "vscode-js-debug",
+   "name": "arrow",
+   "type": "Function",
+   "value": "\u0192 (a, b)",
+   "hasChildren": true
+  },
+  {
+   "language": "javascript",
+   "adapter": "vscode-js-debug",
+   "name": "map",
+   "type": "Map",
+   "value": "Map(2) {'a' => 1, 'b' => 2}",
+   "hasChildren": true
+  },
+  {
+   "language": "javascript",
+   "adapter": "vscode-js-debug",
+   "name": "prom",
+   "type": "Promise",
+   "value": "Promise {<pending>}",
+   "hasChildren": true
+  },
+  {
+   "language": "javascript",
+   "adapter": "vscode-js-debug",
+   "name": "sym",
+   "type": "Symbol",
+   "value": "Symbol(x)",
+   "hasChildren": true
+  },
+  {
+   "language": "java",
+   "adapter": "java-debug",
+   "name": "item",
+   "type": "Item",
+   "value": "Item@1234  {name: \"x\", qty: 1}",
+   "hasChildren": true
+  },
+  {
+   "language": "java",
+   "adapter": "java-debug",
+   "name": "list",
+   "type": "ArrayList<Item>",
+   "value": "ArrayList<Item>  size=2",
+   "hasChildren": true
+  },
+  {
+   "language": "java",
+   "adapter": "java-debug",
+   "name": "arr",
+   "type": "int[]",
+   "value": "int[3]  [1, 2, 3]",
+   "hasChildren": true
+  },
+  {
+   "language": "csharp",
+   "adapter": "netcoredbg",
+   "name": "list",
+   "type": "List<int>",
+   "value": "System.Collections.Generic.List<int>(3)",
+   "hasChildren": true
+  },
+  {
+   "language": "csharp",
+   "adapter": "netcoredbg",
+   "name": "arr",
+   "type": "String[]",
+   "value": "{System.String[3]}",
+   "hasChildren": true
+  },
+  {
+   "language": "csharp",
+   "adapter": "netcoredbg",
+   "name": "item",
+   "type": "Item",
+   "value": "Item {Name=\"x\", Qty=1}",
+   "hasChildren": true
+  },
+  {
+   "language": "ruby",
+   "adapter": "rdbg",
+   "name": "item",
+   "type": "Item",
+   "value": "#<Item name=\"x\", qty=1>",
+   "hasChildren": true
+  },
+  {
+   "language": "ruby",
+   "adapter": "rdbg",
+   "name": "arr",
+   "type": "Array",
+   "value": "[1, 2, 3]",
+   "hasChildren": true
+  },
+  {
+   "language": "ruby",
+   "adapter": "rdbg",
+   "name": "hash",
+   "type": "Hash",
+   "value": "{\"a\"=>1, \"b\"=>2}",
+   "hasChildren": true
+  },
+  {
+   "language": "ruby",
+   "adapter": "rdbg",
+   "name": "st",
+   "type": "Point",
+   "value": "#<struct Point x=1, y=2>",
+   "hasChildren": true
+  },
+  {
+   "language": "php",
+   "adapter": "xdebug",
+   "name": "arr",
+   "type": "array",
+   "value": "array(3) [0 => 1, 1 => 2]",
+   "hasChildren": true
+  },
+  {
+   "language": "php",
+   "adapter": "xdebug",
+   "name": "item",
+   "type": "Item",
+   "value": "Item {$name = \"x\"}",
+   "hasChildren": true
+  },
+  {
+   "language": "lua",
+   "adapter": "local-lua-debugger",
+   "name": "t",
+   "type": "table",
+   "value": "table: 0x7f8 {a = 1, b = 2}",
+   "hasChildren": true
+  },
+  {
+   "language": "lua",
+   "adapter": "local-lua-debugger",
+   "name": "fn",
+   "type": "function",
+   "value": "function: 0x7f9",
+   "hasChildren": false
+  },
+  {
+   "language": "rust",
+   "adapter": "codelldb",
+   "name": "opt",
+   "type": "Option<i32>",
+   "value": "Some(5)",
+   "hasChildren": true
+  },
+  {
+   "language": "rust",
+   "adapter": "codelldb",
+   "name": "kind",
+   "type": "Kind",
+   "value": "Tagged(\"t\")",
+   "hasChildren": true
+  },
+  {
+   "language": "cpp",
+   "adapter": "cppdbg",
+   "name": "v",
+   "type": "vector<int>",
+   "value": "std::vector<int>(3)",
+   "hasChildren": true
+  }
+ ]
+}

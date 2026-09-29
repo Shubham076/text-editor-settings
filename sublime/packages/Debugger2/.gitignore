@@ -1,0 +1,3 @@
+__pycache__/
+*.pyc
+contributes/Schema/sublime-package.json

@@ -1,0 +1,16 @@
+[submodule "px0/src"]
+	path = px0/src
+	url = https://Shubham076@github.com/Shubham076/px0.git
+	branch = feat/keybindings-and-themes
+[submodule "sublime/packages/Debugger"]
+	path = sublime/packages/Debugger
+	url = https://Shubham076@github.com/Shubham076/SublimeDebugger.git
+	branch = feat/lsp-hover-integration
+[submodule "sublime/packages/LSP"]
+	path = sublime/packages/LSP
+	url = https://Shubham076@github.com/Shubham076/LSP.git
+	branch = feat/hover-content-providers
+[submodule "sublime/packages/MarkdownPreviewOverlay"]
+	path = sublime/packages/MarkdownPreviewOverlay
+	url = https://github.com/flashmodel/MarkdownPreviewOverlay.git
+	branch = master

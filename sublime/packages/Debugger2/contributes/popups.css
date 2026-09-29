@@ -1,0 +1,39 @@
+/*
+Stylesheet for the hover popup shown when the hover information is not contributed to the LSP popup.
+
+The rules are a copy of the ones from Packages/LSP/popups.css that apply to the content we render, so
+that the popup looks the same whether or not LSP is installed. When LSP *is* installed its own
+stylesheet is used instead, see modules/hover.py.
+*/
+
+.debugger_popup {
+    --font-size: 1rem;
+    --font-size-sm: 0.9rem;
+    font-family: system;
+    font-size: var(--font-size);
+}
+.mdpopups div.highlight,
+.mdpopups pre.highlight {
+    font-size: var(--font-size);
+}
+.mdpopups code.highlight {
+    font-size: var(--font-size-sm);
+}
+.mdpopups hr {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-color: color(var(--foreground) alpha(0.10));
+}
+.debugger_popup .wrapper {
+    padding: 0.5rem;
+    padding-bottom: 0;
+}
+.debugger_popup .wrapper--spacer {
+    margin-top: .5rem;
+}
+.debugger_popup .m-0 {
+    margin: 0;
+}
+.color-muted {
+    color: color(var(--foreground) alpha(0.6));
+}

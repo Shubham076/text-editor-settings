@@ -1,0 +1,124 @@
+[
+	// Escape in the debugger panel's prompt strip drops the prompt instead of hiding the panel
+	{
+		"keys": [
+			"escape"
+		],
+		"command": "debugger_prompt_cancel",
+		"context": [
+			{
+				"key": "setting.debugger.prompt",
+				"operator": "equal",
+				"operand": true
+			},
+		]
+	},
+	// Don't allow closing output panels that have focus with the escape key
+	{
+		"keys": [
+			"escape"
+		],
+		"command": "noop",
+		"context": [
+			{
+				"key": "debugger.always_keep_visible"
+			},
+			{
+				"key": "debugger.output"
+			},
+		]
+	},
+	// Switch to input mode when hitting enter with the console in focus. Not while the completion
+	// popup is open: then enter commits the highlighted item, as it does in the editor
+	{
+		"keys": [
+			"enter"
+		],
+		"command": "debugger",
+		"args": {
+			"action": "callstack_toggle_input"
+		},
+		"context": [
+			{
+				"key": "debugger.output.console",
+			},
+			{
+				"key": "auto_complete_visible",
+				"operator": "equal",
+				"operand": false
+			}
+		]
+	},
+	// Switch to input mode when hitting enter with the callstack in focus (command will switch to console panel)
+	{
+		"keys": [
+			"enter"
+		],
+		"command": "debugger",
+		"args": {
+			"action": "callstack_toggle_input"
+		},
+		"context": [
+			{
+				"key": "debugger.output.debugger",
+			},
+			{
+				"key": "auto_complete_visible",
+				"operator": "equal",
+				"operand": false
+			}
+		]
+	},
+	// The same from the Breakpoints tab
+	{
+		"keys": [
+			"enter"
+		],
+		"command": "debugger",
+		"args": {
+			"action": "callstack_toggle_input"
+		},
+		"context": [
+			{
+				"key": "debugger.output.breakpoints",
+			},
+			{
+				"key": "auto_complete_visible",
+				"operator": "equal",
+				"operand": false
+			}
+		]
+	},
+	// Enter on the Watch tab adds the expression typed on its input line (or, with the toolbar
+	// above the tabs, moves to its prompt strip). Not while the completion popup is open
+	{
+		"keys": [
+			"enter"
+		],
+		"command": "debugger",
+		"args": {
+			"action": "watch_enter"
+		},
+		"context": [
+			{
+				"key": "debugger.output.watch",
+			},
+			{
+				"key": "auto_complete_visible",
+				"operator": "equal",
+				"operand": false
+			}
+		]
+	},
+	{
+		"keys": [
+			"<character>"
+		],
+		"command": "debugger_memory_input",
+		"context": [
+			{
+				"key": "debugger.view.memory"
+			},
+		]
+	},
+]

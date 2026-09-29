@@ -1,0 +1,96 @@
+%YAML 1.2
+---
+hidden: true
+scope: debugger.console
+name: Debugger Console
+
+contexts:
+  main:
+    - match: '​​​​​​​​​​'
+      scope: meta.result.debugger
+      push: result
+    - match: '​​​​​​​​​'
+      scope: meta.input.debugger
+      push: input
+    - match: '​​​​​​​​'
+      scope: region.cyanish.debugger
+      push: cyan
+    - match: '​​​​​​​'
+      scope: region.purplish.debugger
+      push: magenta
+    - match: '​​​​​​'
+      scope: region.bluish.debugger
+      push: blue
+    - match: '​​​​​'
+      scope: region.yellowish.debugger
+      push: yellow
+    - match: '​​​​'
+      scope: region.greenish.debugger
+      push: green
+    - match: '​​​'
+      scope: region.redish.debugger
+      push: red
+    - match: '​​'
+      scope: comment.debugger
+      push: comment
+  result:
+    - meta_scope: meta.result.debugger
+    - match: '‌'
+      scope: meta.result.debugger
+      pop: true
+    - match: '"(?:[^"\\]|\\.)*"'
+      scope: string.quoted.double.debugger
+    - match: '''(?:[^''\\]|\\.)*'''
+      scope: string.quoted.single.debugger
+    - match: '\b(?:True|False|None|true|false|null|nil|undefined|NaN|Infinity)\b'
+      scope: constant.language.debugger
+    - match: '(?<![\w.])-?(?:0[xX][0-9a-fA-F]+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\b'
+      scope: constant.numeric.debugger
+  input:
+    - meta_scope: meta.input.debugger
+    - match: '‌'
+      scope: meta.input.debugger
+      pop: true
+    - match: ':'
+      scope: meta.input.debugger comment.debugger punctuation.definition.prompt.debugger
+      set: input-body
+  input-body:
+    - meta_scope: meta.input.debugger
+    - match: '‌'
+      scope: meta.input.debugger
+      pop: true
+  cyan:
+    - meta_scope: region.cyanish.debugger
+    - match: '‌'
+      scope: region.cyanish.debugger
+      pop: true
+  magenta:
+    - meta_scope: region.purplish.debugger
+    - match: '‌'
+      scope: region.purplish.debugger
+      pop: true
+  blue:
+    - meta_scope: region.bluish.debugger
+    - match: '‌'
+      scope: region.bluish.debugger
+      pop: true
+  yellow:
+    - meta_scope: region.yellowish.debugger
+    - match: '‌'
+      scope: region.yellowish.debugger
+      pop: true
+  green:
+    - meta_scope: region.greenish.debugger
+    - match: '‌'
+      scope: region.greenish.debugger
+      pop: true
+  red:
+    - meta_scope: region.redish.debugger
+    - match: '‌'
+      scope: region.redish.debugger
+      pop: true
+  comment:
+    - meta_scope: comment.debugger
+    - match: '‌'
+      scope: comment.debugger
+      pop: true
