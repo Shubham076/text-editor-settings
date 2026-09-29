@@ -32,6 +32,13 @@ def str_width(text):
     return sum(char_width(char) for char in text)
 
 
+CONTROL_ESCAPES = str.maketrans({"\r": "\\r", "\n": "\\n", "\t": "\\t"})
+
+
+def escape_control(text):
+    return text.translate(CONTROL_ESCAPES)
+
+
 def truncate(text, width):
     """Clip text to a display width, marking clipped text with an ellipsis."""
 
@@ -102,12 +109,12 @@ class GridRenderer:
         widths = [1] * column_count
         for index, name in enumerate(header):
             # Headers also carry a space and a sort glyph.
-            widths[index] = max(widths[index], str_width(name) + 2)
+            widths[index] = max(widths[index], str_width(escape_control(name)) + 2)
         for _, row in rows:
             for index in range(min(column_count, len(row))):
                 value = row[index]
                 if value:
-                    widths[index] = max(widths[index], str_width(value))
+                    widths[index] = max(widths[index], str_width(escape_control(value)))
         return widths
 
     def gutter_width(self, rows):
@@ -211,7 +218,7 @@ class GridRenderer:
 
     def _cell_html(self, text, width, align_right, css_class=None, href=None):
         gap = " " * self.cell_padding
-        content = pad(truncate(text, width), width, align_right)
+        content = pad(truncate(escape_control(text), width), width, align_right)
         escaped = html.escape(content)
         if href:
             classes = "cell %s" % css_class if css_class else "cell"
@@ -231,7 +238,10 @@ class GridRenderer:
             is_sorted = index == sort_column
             glyph = SORT_GLYPHS[sort_direction if is_sorted else None]
             label_width = width - 2 if handles else width
-            name = truncate(header[index] if index < len(header) else "", label_width - 2)
+            name = truncate(
+                escape_control(header[index]) if index < len(header) else "",
+                label_width - 2,
+            )
             label = pad("%s %s" % (name, glyph), label_width)
             classes = "hdr sorted" if is_sorted else "hdr"
             gap = " " * self.cell_padding

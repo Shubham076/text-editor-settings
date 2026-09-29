@@ -34,6 +34,7 @@
 	 	},
 	 	"gopls": {
 	 		"enabled": true,
+            "command": ["/Users/shubham/go/bin/gopls"],
 	 		"selector": "source.go",
 	 		"disabled_capabilities": {
 	 			"signatureHelpProvider": true  // Disable parameter hints for Go too
