@@ -3,3 +3,11 @@ __pycache__/
 *.py[cod]
 .ruff_cache/
 .mypy_cache/
+
+# Clones of upstream projects, each tracked by its own git repo rather than this
+# one. Recreate them with the commands in sublime/packages/README.md; px0/src is
+# recreated by px0/install.sh.
+/px0/src
+/sublime/packages/Debugger
+/sublime/packages/LSP
+/sublime/packages/MarkdownPreviewOverlay
