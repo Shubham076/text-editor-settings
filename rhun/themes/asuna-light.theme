@@ -1,0 +1,55 @@
+name = Asuna Light
+kind = light
+
+bg             = #fcf9f9
+fg             = #4d4d4a
+panel_fg       = #4d4d4a
+accent         = #5d5e9d
+panel          = #eceae9
+hover          = #d2d1cf
+active         = #c4c3d4
+border         = #bbb9b8
+selection      = #d0e3f1
+line_highlight = #e6ecec
+muted          = #6a6a68
+line_number    = #70706d
+cursor         = #a61d0d
+error          = #a65454
+warning        = #c38e2e
+success        = #469846
+
+[syntax]
+text        = #5e5e5a
+keyword     = #b26158
+type        = #5d5e9d
+function    = #5d5e9d
+string      = #8a6e36
+number      = #377c7c
+comment     = #8f8fa4
+constant    = #6c6c63
+operator    = #b26158
+punctuation = #5e5e5a
+preproc     = #5d5e9d
+builtin     = #5d5e9d
+attribute   = #b26158
+tag         = #5e5e5a
+heading     = #b26158
+escape      = #8a6e36
+
+[terminal]
+black          = #555555
+red            = #a65454
+green          = #469846
+yellow         = #c38e2e
+blue           = #6464af
+magenta        = #b756b7
+cyan           = #14a6a6
+white          = #656565
+bright_black   = #656565
+bright_red     = #b65b5b
+bright_green   = #4c9a56
+bright_yellow  = #ceaa24
+bright_blue    = #4f73d9
+bright_magenta = #a250a2
+bright_cyan    = #33a9a9
+bright_white   = #5e5e5a

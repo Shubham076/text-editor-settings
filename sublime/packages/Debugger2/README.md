@@ -52,10 +52,8 @@ This project comes with some pre-configured debuggers (They can be installed usi
 ##### Python
 - For an overview see https://code.visualstudio.com/docs/python/debugging
 - See https://github.com/Microsoft/vscode-python
-- The installer supports both legacy `debugpy_info.json` metadata and newer extension releases
-  that pin `DEBUGPY_VERSION` in `noxfile.py`. For newer releases it downloads that exact version's
-  universal wheel from PyPI, verifies SHA-256 before extraction, and checks the adapter entry
-  point. It does not run the extension's build scripts or install packages into your Python environment.
+- The adapter is the `ms-python/debugpy` extension downloaded from Open VSX. Installs made by the
+  earlier `vscode-python-debugger` installer are still found at their old path until you reinstall.
 
 ##### Go
 - For an overview see https://github.com/golang/vscode-go/blob/master/docs/debugging.md

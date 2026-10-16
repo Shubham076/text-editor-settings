@@ -1,0 +1,55 @@
+name = Carbon Light Pro
+kind = light
+
+bg             = #fafafa
+fg             = #464f53
+panel_fg       = #464f53
+accent         = #af828d
+panel          = #ecedee
+hover          = #d5d9da
+active         = #dbcfd3
+border         = #bebaaa
+selection      = #d0e3f1
+line_highlight = #e6ecec
+muted          = #656b6e
+line_number    = #93a1a1
+cursor         = #2aa198
+error          = #dc322f
+warning        = #b58900
+success        = #859900
+
+[syntax]
+text        = #6d7c81
+keyword     = #8c7a94
+type        = #af828d
+function    = #af828d
+string      = #9a8171
+number      = #9a8171
+comment     = #93a1a1
+constant    = #af828d
+operator    = #6d7c81
+punctuation = #6d7c81
+preproc     = #9a8171
+builtin     = #af828d
+attribute   = #6d7c81
+tag         = #6d7c81
+heading     = #8c7a94
+escape      = #9a8171
+
+[terminal]
+black          = #657b83
+red            = #946b6a
+green          = #859900
+yellow         = #b58900
+blue           = #6c7fa6
+magenta        = #a16e86
+cyan           = #659898
+white          = #93a1a1
+bright_black   = #586e75
+bright_red     = #946b6a
+bright_green   = #859900
+bright_yellow  = #b58900
+bright_blue    = #6c7fa6
+bright_magenta = #a16e86
+bright_cyan    = #659898
+bright_white   = #fafafa

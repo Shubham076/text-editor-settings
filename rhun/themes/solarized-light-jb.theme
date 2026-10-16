@@ -1,0 +1,55 @@
+name = Solarized Light JB
+kind = light
+
+bg             = #f8f6f2
+fg             = #4a4a54
+panel_fg       = #4a4a54
+accent         = #648e8f
+panel          = #eae9e7
+hover          = #d4d3d4
+active         = #c4d0ce
+border         = #cab7a1
+selection      = #f8e1c6
+line_highlight = #e4ebf2
+muted          = #68676d
+line_number    = #707080
+cursor         = #707080
+error          = #a93b3b
+warning        = #b58900
+success        = #397b44
+
+[syntax]
+text        = #707080
+keyword     = #a9776d
+type        = #648e8f
+function    = #648e8f
+string      = #a4916d
+number      = #a97ca7
+comment     = #909098
+constant    = #648e8f
+operator    = #707080
+punctuation = #707080
+preproc     = #648e8f
+builtin     = #648e8f
+attribute   = #707080
+tag         = #bf7958
+heading     = #a9776d
+escape      = #b58900
+
+[terminal]
+black          = #707080
+red            = #a93b3b
+green          = #397b44
+yellow         = #b58900
+blue           = #3978a8
+magenta        = #8e478c
+cyan           = #648e8f
+white          = #595959
+bright_black   = #909098
+bright_red     = #a93b3b
+bright_green   = #397b44
+bright_yellow  = #b58900
+bright_blue    = #3978a8
+bright_magenta = #8e478c
+bright_cyan    = #648e8f
+bright_white   = #707080

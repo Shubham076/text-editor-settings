@@ -1,0 +1,55 @@
+name = Carbon Light
+kind = light
+
+bg             = #f8f8f8
+fg             = #464c54
+panel_fg       = #464c54
+accent         = #8c7185
+panel          = #eaebec
+hover          = #d4d6d9
+active         = #d0c9cf
+border         = #bdb8a8
+selection      = #eae0c0
+line_highlight = #eee8d5
+muted          = #64696e
+line_number    = #4d6a86
+cursor         = #6d7783
+error          = #ff4262
+warning        = #a68960
+success        = #6e9b8b
+
+[syntax]
+text        = #6d7783
+keyword     = #477883
+type        = #8c7185
+function    = #8c7185
+string      = #946b69
+number      = #8c7185
+comment     = #a9a391
+constant    = #8c7185
+operator    = #4d6a86
+punctuation = #6d7783
+preproc     = #8c7185
+builtin     = #8c7185
+attribute   = #8c7185
+tag         = #87617e
+heading     = #477883
+escape      = #946b69
+
+[terminal]
+black          = #2f3f50
+red            = #bb6270
+green          = #6e9b8b
+yellow         = #a68960
+blue           = #4d768a
+magenta        = #9b6a9b
+cyan           = #509494
+white          = #929292
+bright_black   = #656565
+bright_red     = #bb6270
+bright_green   = #6e9b8b
+bright_yellow  = #a68960
+bright_blue    = #4d768a
+bright_magenta = #9b6a9b
+bright_cyan    = #509494
+bright_white   = #c9c9c9

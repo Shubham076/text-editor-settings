@@ -1,1 +1,1230 @@
-{}
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Prin",
+				"Fprintln"
+			],
+			[
+				"plug",
+				"pluginPath"
+			],
+			[
+				"pr",
+				"Println"
+			],
+			[
+				"o",
+				"\"output\""
+			],
+			[
+				"err",
+				"errorCode"
+			],
+			[
+				"Cl",
+				"CLOUDFLARE_GET_ZONES_ERROR"
+			],
+			[
+				"tr",
+				"trim"
+			],
+			[
+				"req",
+				"request_schema"
+			],
+			[
+				"Clou",
+				"CLOUDFLARE_GET_ZONES_ERROR"
+			],
+			[
+				"ma",
+				"matches"
+			],
+			[
+				"Expl",
+				"ExploitScanMessage"
+			],
+			[
+				"C",
+				"Context"
+			],
+			[
+				"ha",
+				"handlePaginatedResponse(ResponseEntity<T> dataResponseEntity, Pagination pagination) : ResponseEntity<ResponseWrapper<T>>"
+			],
+			[
+				"Pr",
+				"Println"
+			],
+			[
+				"Pin",
+				"Println"
+			],
+			[
+				"Sp",
+				"Sprintf"
+			],
+			[
+				"Print",
+				"Println"
+			],
+			[
+				"se",
+				"SetFormatter"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "/Users/shubham.dogra/Desktop/text-editor-settings/jetbrains/intellij_to_sublime_json.py",
+			"file_size": 39136,
+			"file_write_time": 134346228079877858,
+			"settings":
+			{
+				"buffer_size": 39129,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+			]
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"ACP: ◉ Start Session"
+			],
+			[
+				"ACP: Ask Agent",
+				"ACP: ✦ Ask Agent"
+			],
+			[
+				"hello",
+				"Help: Changelog"
+			],
+			[
+				"ACP:",
+				"ACP: ✦ Ask Agent"
+			],
+			[
+				"acp",
+				"ACP: Prompt"
+			],
+			[
+				"re",
+				"Package Control: Remove Package"
+			],
+			[
+				"UI: Select Color Scheme",
+				"UI: Select Color Scheme"
+			],
+			[
+				"flow",
+				"Flow Icons: Select Palette"
+			],
+			[
+				"ui",
+				"UI: Customize Theme"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"lsp",
+				"LSP: Toggle Log Panel"
+			],
+			[
+				"package",
+				"Package Control: Install Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"package cont",
+				"Package Control: Install Package"
+			],
+			[
+				"De",
+				"Debugger2: Open"
+			],
+			[
+				"Deb",
+				"Debugger2: Open"
+			],
+			[
+				"de",
+				"Debugger2: Open"
+			],
+			[
+				"Debug",
+				"Debugger2: Open"
+			],
+			[
+				"debug",
+				"Debugger2: Open"
+			],
+			[
+				"Debugger",
+				"Debugger2: Open"
+			],
+			[
+				"Debugger: pre",
+				"Debugger: Open New UI Preview"
+			],
+			[
+				"Debugg",
+				"Debugger2: Open"
+			],
+			[
+				"Debugger2: ",
+				"Debugger2: Open"
+			],
+			[
+				"Pre",
+				"Preferences: Debugger Settings"
+			],
+			[
+				"packa",
+				"Package Control: Remove Package"
+			],
+			[
+				"Drop",
+				"Dropdown: Draw in Current Editor"
+			],
+			[
+				"drop",
+				"Dropdown: Draw in Current Editor"
+			],
+			[
+				"Dropdown",
+				"Dropdown: Toggle Buttons"
+			],
+			[
+				"Debuug",
+				"Debugger: Run Task"
+			],
+			[
+				"lower",
+				"Convert Case: Lower Case"
+			],
+			[
+				"termin",
+				"Terminus Utilities: Generate User Theme"
+			],
+			[
+				"ter",
+				"Terminus Utilities: Generate User Theme"
+			],
+			[
+				"t",
+				"Terminus Utilities: Generate User Theme"
+			],
+			[
+				"terminu",
+				"Terminus Utilities: Select Theme"
+			],
+			[
+				"json",
+				"Pretty JSON: Format JSON"
+			],
+			[
+				"sort",
+				"Sort Lines (Case Sensitive)"
+			],
+			[
+				"expan",
+				"Selection: Expand"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"form",
+				"Pretty JSON: Format JSON"
+			],
+			[
+				"terminus",
+				"Terminus: Open Default Shell in Panel"
+			],
+			[
+				"markdownpr",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"lee",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"leetcode",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"markdown",
+				"Markdown Preview: Export HTML in Sublime Text"
+			],
+			[
+				"remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"lsp: en",
+				"LSP: Enable Language Server in Project"
+			],
+			[
+				"Preferences: Debugger Settings",
+				"Preferences: Debugger Settings"
+			],
+			[
+				"debugger: ins",
+				"Debugger: Install Adapters"
+			],
+			[
+				"debi",
+				"Debugger: New Terminal"
+			],
+			[
+				"remov",
+				"Package Control: Remove Package"
+			],
+			[
+				"in",
+				"Package Control: Install Package"
+			],
+			[
+				"rem",
+				"Package Control: Remove Package"
+			],
+			[
+				"terminus:",
+				"Terminus: Open Default Shell in Panel"
+			],
+			[
+				"debugger: ope",
+				"Debugger: Open"
+			],
+			[
+				"debu",
+				"Debugger: Add or Select Configuration"
+			],
+			[
+				"debugger: in",
+				"Debugger: Install Adapters"
+			],
+			[
+				"lsp: togg",
+				"LSP: Toggle Log Panel"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"codeiu",
+				"Codeium: Enable Plugin"
+			],
+			[
+				"term",
+				"Terminus Utilities: Generate User Theme"
+			],
+			[
+				"Debuger",
+				"Debugger: Open"
+			],
+			[
+				"dele",
+				"File: Delete"
+			],
+			[
+				"new",
+				"File: New File"
+			],
+			[
+				"le",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"l",
+				"LeetCode: Show Test Cases Panel"
+			],
+			[
+				"leetcode: sh",
+				"LeetCode: Show Test Cases Panel"
+			],
+			[
+				"leetcode: se",
+				"LeetCode: Search Problems"
+			],
+			[
+				"leecode",
+				"LeetCode: Search Problems"
+			],
+			[
+				"leetcode:",
+				"LeetCode: Search Problems"
+			],
+			[
+				"leetcode: ",
+				"LeetCode: Run Solution"
+			],
+			[
+				"leetcod",
+				"LeetCode: Show Test Cases Panel"
+			],
+			[
+				"leet",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"LEE",
+				"LeetCode: Refresh Problems"
+			],
+			[
+				"leetco",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"leetcode: run",
+				"LeetCode: Run Solution"
+			],
+			[
+				"leetcode: r",
+				"LeetCode: Run Solution"
+			],
+			[
+				"leetc",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"leetcode: ope",
+				"LeetCode: Open Current Problem"
+			],
+			[
+				"leetcode: op",
+				"LeetCode: Open Current Problem"
+			],
+			[
+				"Leetc",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"Leet",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"Leetcode",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"Leecode",
+				"LeetCode: Search Problems"
+			],
+			[
+				"letcode",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"leetocde",
+				"LeetCode: Show Problems Panel"
+			],
+			[
+				"terminal: op",
+				"Terminal: Open in project folder"
+			],
+			[
+				"lsp: renam",
+				"LSP: Rename"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"disable",
+				"LSP: Disable Language Server in Project"
+			],
+			[
+				"lsp dis",
+				"LSP: Disable Language Server in Project"
+			],
+			[
+				"lsp disba",
+				"LSP: Disable Language Server in Project"
+			],
+			[
+				"selector color",
+				"UI: Select Color Scheme"
+			],
+			[
+				"convert in",
+				"Indentation: Convert to Spaces"
+			],
+			[
+				"git: br",
+				"git: branch"
+			],
+			[
+				"git: s",
+				"git: status"
+			],
+			[
+				"git:ed",
+				"git: edit and stage diff"
+			],
+			[
+				"git :stat",
+				"git: status"
+			],
+			[
+				"git",
+				"git: diff"
+			],
+			[
+				"git: dif",
+				"git: diff"
+			],
+			[
+				"git di",
+				"Git: Diff Current File"
+			],
+			[
+				"dif",
+				"Git: Diff All Files"
+			],
+			[
+				"git: stat",
+				"Git: Status"
+			],
+			[
+				"diff",
+				"Git: Diff All Files"
+			],
+			[
+				"git dif",
+				"Git: Diff Tool All"
+			],
+			[
+				"git:diff",
+				"Git: Diff All Files"
+			],
+			[
+				"git diff",
+				"Git: Diff Current File"
+			],
+			[
+				"git:dif",
+				"Git: Diff Current File"
+			],
+			[
+				"lsptype",
+				"Preferences: LSP-typescript Settings"
+			],
+			[
+				"lsp-ty",
+				"Preferences: LSP-typescript Settings"
+			],
+			[
+				"lp",
+				"LSP: Toggle Log Panel"
+			],
+			[
+				"lps: tog",
+				"LSP: Toggle Log Panel"
+			],
+			[
+				"debugger:",
+				"Debugger: Run Task"
+			],
+			[
+				"debuger:run",
+				"Debugger: Run Task"
+			],
+			[
+				"package con",
+				"Package Control: Remove Package"
+			],
+			[
+				"debugger",
+				"Debugger: Run Task"
+			],
+			[
+				"jdtl",
+				"Preferences: LSP-jdtls Settings"
+			],
+			[
+				"jdt",
+				"Preferences: LSP-jdtls Settings"
+			],
+			[
+				"debuug",
+				"Debugger: Run Task"
+			],
+			[
+				"deubgger: Run",
+				"Debugger: Run Task"
+			],
+			[
+				"debugger: run",
+				"Debugger: Run Task"
+			],
+			[
+				"debugger: rn",
+				"Debugger: Run Task"
+			],
+			[
+				"debugger :",
+				"Debugger: Open"
+			],
+			[
+				"debugg",
+				"Debugger: Run Task"
+			],
+			[
+				"Debugger: Run",
+				"Debugger: Run Task"
+			],
+			[
+				"Debugger: ope",
+				"Debugger: Open"
+			],
+			[
+				"debugger: add ta",
+				"Debugger: Add or Select Configuration"
+			],
+			[
+				"jd",
+				"Preferences: LSP-jdtls Settings"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 375.0,
+		"history":
+		[
+			"import sublime_plugin; sublime_plugin.reload_plugin(\"ACP.acp\")",
+			"import importlib, ACP.modules.ui, ACP.modules.daemon, ACP.modules.commands; importlib.reload(ACP.modules.ui); importlib.reload(ACP.modules.daemon); importlib.reload(ACP.modules.commands); sublime_plugin.reload_plugin(\"ACP.acp\")",
+			"import sublime_plugin; sublime_plugin.reload_plugin(\"ACP.acp\")",
+			"v=sublime.active_window().find_output_panel(\"console\"); sublime.set_clipboard(v.substr(sublime.Region(0,v.size())))",
+			"sublime.active_window().run_command(\"acp_start\")",
+			"sublime.active_window().run_command(\"acp_start\")sublime.active_window().run_command(\"acp_start\")",
+			"sublime.ui_info()",
+			"ui_info()",
+			"sublime.active_window().active_view().style().get(\"background\")",
+			"sublime.load_settings(\"Preferences.sublime-settings\").get(\"file_icon_theme\")",
+			"sublime.find_resources(\"*.sublime-file-icons\")",
+			"sublime.ui_info()",
+			"ui_info[\"color_scheme\"]",
+			"view.style_for_scope(\"comment\")",
+			"view.style().get(\"comment\")",
+			"view.style().get(\"selection\")",
+			"style = view.style()\n                selection = style.get(\"selection\", selection)",
+			"sublime.ui_info()[\"color_scheme\"]",
+			"sublime.log_commands(True)",
+			"sublime.active_window().active_view().file_name()",
+			"sublime.active_window().active_view()",
+			"sublime.active_window().active_view().file_name()",
+			"self.window()",
+			"self.view()",
+			"(v.name()  for v in view.window().views())",
+			"(v.name()  for v in view.window())",
+			"view.window()",
+			"sublime.view.window()",
+			"self.view.window()",
+			"clear()",
+			"clear",
+			"sublime.ui_info()",
+			"sublime.",
+			"sublime.ui_info()",
+			"sublime.ui_info()[\"color_scheme\"]",
+			"sublime.ui_info()[\"color_scheme\"][\"palette\"]",
+			"sublime.ui_info()[\"color_scheme\"]",
+			"sublime.ui_info()"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/shubham.dogra/Desktop/text-editor-settings"
+	],
+	"file_history":
+	[
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/libs/http-client/src/core/constants/index.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/apps/ps-api-gateway/src/index.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/apps/ps-backend/src/api/rest/agentic-plugin/installerConfig.test.ts",
+		"/Users/shubham.dogra/Library/Application Support/Sublime Text/Packages/User/icon-theme-switch.py",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/node_modules/.pnpm/http-status-codes@2.3.0/node_modules/http-status-codes/build/cjs/status-codes.d.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/apps/ps-backend/src/api/rest/permissions.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/apps/ps-backend/src/api/rest/agentic-plugin/installerConfig.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/apps/ps-backend/src/api/rest/agentic-plugin-config/config.ts",
+		"/Users/shubham.dogra/Documents/# CapCanvas — Client-Side Animated Capti.md",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/node_modules/.pnpm/http-status-codes@2.3.0/node_modules/http-status-codes/build/cjs/legacy.js",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/apps/ps-backend/src/lib/cacheStore/index.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/libs/kafka/src/lib/topic-creation/topics.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/libs/kafka/src/lib/topic-creation/index.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/libs/logger/src/request-context/request-context-middleware.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/ps-platform.sublime-project",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/node_modules/.pnpm/@types+node@25.3.0/node_modules/@types/node/async_hooks.d.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/apps/ps-backend/src/index.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/apps/ps-backend/src/lib/kafka/service/kafkaProducer.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/node_modules/.pnpm/kafkajs@2.2.4/node_modules/kafkajs/types/index.d.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/node_modules/.pnpm/http-status-codes@2.3.0/node_modules/http-status-codes/build/cjs/status-codes.js",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/node_modules/.pnpm/fastify@5.8.5/node_modules/fastify/types/reply.d.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/libs/bullmq-manager/src/lib/bullmq-monitor.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/libs/clickhouse/src/manager.ts",
+		"/Users/shubham.dogra/Desktop/prompt/ps-local-dev/repositories/ps-platform/apps/ps-backend/src/api/rest/agentic-plugin/settings.ts",
+		"/Users/shubham.dogra/WebstormProjects/ps-agent/src/agentic_plugin_installer/main.py",
+		"/Users/shubham.dogra/WebstormProjects/ps-agent/src/agentic_plugin_installer/scheduler.py",
+		"/Users/shubham.dogra/WebstormProjects/ps-agent/src/agentic_plugin_installer/constants.py",
+		"/Users/shubham.dogra/WebstormProjects/ps-agent/src/agentic_plugin_installer/settings.py",
+		"/Users/shubham.dogra/WebstormProjects/ps-agent/src/common/logger.py",
+		"/Users/shubham.dogra/WebstormProjects/ps-agent/ps-agent.sublime-project",
+		"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/zipfile/_path/__init__.py",
+		"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/zipfile/__init__.py",
+		"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/importlib/metadata/__init__.py",
+		"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/genericpath.py",
+		"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py",
+		"/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/events.py",
+		"/Users/shubham.dogra/WebstormProjects/ps-agent/tests/test_agentic_plugin_installer/conftest.py",
+		"/Users/shubham.dogra/Desktop/acp_design.md",
+		"/Users/shubham.dogra/Desktop/handler.py",
+		"/Users/shubham.dogra/WebstormProjects/ps-agent/src/common/parsing/plugins/openai_sse.py",
+		"/Users/shubham.dogra/WebstormProjects/ps-agent/src/common/parsing/plugins/base.py",
+		"/Users/shubham.dogra/WebstormProjects/ps-agent/src/agentic_plugin_installer/runner.py",
+		"/Users/shubham.dogra/Desktop/plugin-installer/internal/types/types.go",
+		"/Users/shubham.dogra/Desktop/plugin-installer/cmd/installer/main.go",
+		"/Users/shubham.dogra/Desktop/plugin-installer/plugin-installer.sublime-project",
+		"/Users/shubham.dogra/Desktop/plugin-installer/internal/installer/installer.go",
+		"/Users/shubham.dogra/Desktop/test/test.sublime-project",
+		"/Users/shubham.dogra/Desktop/test/main.go",
+		"/Users/shubham.dogra/Desktop/text-editor-settings/sublime/packages/Debugger/contributes/Images/dark/open.png",
+		"/Users/shubham.dogra/Desktop/text-editor-settings/sublime/packages/Debugger/contributes/Images/light/close.png",
+		"/Users/shubham.dogra/Desktop/text-editor-settings/sublime/packages/Debugger/contributes/Images/light/open.png",
+		"/Users/shubham.dogra/Desktop/text-editor-settings/sublime/packages/Debugger/contributes/Images/dark/close.png",
+		"/Users/shubham.dogra/Desktop/text-editor-settings/sublime/packages/Debugger/contributes/Images/dark/open_disabled.png",
+		"/Users/shubham.dogra/Desktop/text-editor-settings/sublime/packages/Debugger/contributes/Images/dark/close_disabled.png",
+		"/Users/shubham.dogra/Desktop/changes.md",
+		"/opt/homebrew/Cellar/go/1.25.5/libexec/src/fmt/print.go",
+		"/Users/shubham.dogra/Desktop/debugger-ui-redesign.md",
+		"/Users/shubham.dogra/Library/Application Support/Sublime Text/Packages/Debugger/bin/☰ 0x140000a2040",
+		"/Users/shubham.dogra/Library/Application Support/Sublime Text/Packages/Debugger/bin/☰ 0x1400012e000",
+		"/Users/shubham.dogra/Library/Application Support/Sublime Text/Packages/Debugger/bin/☰ 0x1400011e180",
+		"/Users/shubham.dogra/Library/Application Support/Sublime Text/Packages/Debugger/bin/☰ 0x140000a8180",
+		"/Users/shubham.dogra/Desktop/Screenshot 2026-09-07 at 8.42.58 AM.png",
+		"/Users/shubham.dogra/Desktop/trustic/node_modules/request-promise/lib/rp.js",
+		"/Users/shubham.dogra/Desktop/trustic/server/models/error_codes.js",
+		"/Users/shubham.dogra/Desktop/trustic/deployment/services/cns-trustic/Chart.yaml",
+		"/Users/shubham.dogra/Desktop/trustic/scripts/housekeeping/issue_status_resolver_script.js",
+		"/Users/shubham.dogra/Desktop/trustic/app.js",
+		"/Users/shubham.dogra/Desktop/trustic/test/alerting/alerting.test.js",
+		"/Users/shubham.dogra/Desktop/trustic/.sublime/trustic.sublime-project",
+		"/Users/shubham.dogra/Desktop/trustic/pingsafe-metrics/tables/subdomain_history.js",
+		"/Users/shubham.dogra/Desktop/trustic/pingsafe-metrics/core/index.js",
+		"/Users/shubham.dogra/.npmrc",
+		"/Users/shubham.dogra/Library/Caches/JetBrains/acp-agents/.runtimes/node/24.13.0/npm-cache/_logs/2026-04-24T17_45_52_870Z-debug-0.log",
+		"/Users/shubham.dogra/GolandProjects/exploit/cmd/exploit_scripts/main.go",
+		"/Users/shubham.dogra/Documents/replication.txt",
+		"/Users/shubham.dogra/Documents/dns_server_deployment",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-prod/manifests/cnapp/clusters/aprod-use1-s1/values-cnapp-services.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-prod/manifests/cnapp/clusters/aprod-use1-s1/values-policy-services.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cnapp/clusters/adev-use1-s1/values-cnapp-services.yaml",
+		"/Users/shubham.dogra/Desktop/data.json",
+		"/Users/shubham.dogra/Desktop/aps1.json",
+		"/Users/shubham.dogra/Desktop/resolve.js",
+		"/Users/shubham.dogra/Desktop/use1-1.json",
+		"/Users/shubham.dogra/Desktop/logs/use1-3.txt",
+		"/Users/shubham.dogra/Desktop/use1-2.json",
+		"/Users/shubham.dogra/Desktop/logs/use1-2.txt",
+		"/Users/shubham.dogra/Desktop/euc1.json",
+		"/Users/shubham.dogra/Desktop/logs/euc1.txt",
+		"/Users/shubham.dogra/Desktop/data.txt",
+		"/Users/shubham.dogra/Desktop/logs/use1-1.txt",
+		"/Users/shubham.dogra/Desktop/apse2.json",
+		"/Users/shubham.dogra/Desktop/logs/apse2.txt",
+		"/Users/shubham.dogra/Desktop/logs/aps1.txt",
+		"/Users/shubham.dogra/Desktop/logs/use1-3.json",
+		"/Users/shubham.dogra/Desktop/logs/use1-2.json",
+		"/Users/shubham.dogra/Desktop/logs/use1-1.json",
+		"/Users/shubham.dogra/Desktop/apse1.json",
+		"/Users/shubham.dogra/Documents/rds.txt",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-prod/manifests/cns/clusters/don/charts/alerts/templates/alert-definitions/cls-cns-core/cns-offensive-security-engine.tpl",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-prod/apps/clusters/gprod-usc1-s1/kustomization.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-prod/manifests/cns-offensive-security-engine/clusters/gprod-usc1-s1/values.yaml",
+		"/Users/shubham.dogra/Documents/gcp_ksa_prod.cer",
+		"/Users/shubham.dogra/Documents/gcp_frankfurt-prod.cer",
+		"/Users/shubham.dogra/Documents/gcp_nam_prod.cer",
+		"/Users/shubham.dogra/Documents/gcp_auto.cer",
+		"/Users/shubham.dogra/Documents/One Time Dead Drop",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-prod/manifests/cns-offensive-security-engine/clusters/gprod-mec2-s1/values.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-prod/manifests/cns-offensive-security-engine/clusters/gprod-mec2-s1/config-values.yaml",
+		"/Users/shubham.dogra/.ssh/config",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns/clusters/aauto-use1-s1/atlas-temporal.yaml",
+		"/Users/shubham.dogra/Desktop/Calm.icls",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns/clusters/aauto-use1-s1/ose-temporal.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns/clusters/adev-use1-s1/atlas-temporal.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns/clusters/adev-use1-s1/ose-temporal.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns/clusters/faauto-usgw1-s1/temporal.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns/clusters/gauto-use4-s1/atlas-temporal.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns/clusters/aauto-use1-s1/rabbitmq.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns/clusters/faauto-usgw1-s1/rabbitmq.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns/clusters/gauto-use4-s1/rabbitmq.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns/clusters/gdev-usc1-s1/rabbitmq.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns-offensive-security-engine/clusters/gauto-use4-s1/config-values.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns-offensive-security-engine/clusters/aauto-use1-s1/config-values.yaml",
+		"/Users/shubham.dogra/Documents/dev.key",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns-offensive-security-engine/clusters/adev-use1-s1/config-values.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns-offensive-security-engine/clusters/adev-use1-s1/values.yaml",
+		"/Users/shubham.dogra/Desktop/sentinelOne/k8s-deployments-dev/manifests/cns-offensive-security-engine/clusters/aauto-use1-s1/values.yaml",
+		"/Users/shubham.dogra/Documents/docker commands",
+		"/Users/shubham.dogra/Desktop/Night_Owl.icls"
+	],
+	"find":
+	{
+		"height": 44.0
+	},
+	"find_in_files":
+	{
+		"height": 152.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": false
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "/Users/shubham.dogra/Desktop/text-editor-settings/jetbrains/intellij_to_sublime_json.py",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 39129,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								18335,
+								17986
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"lsp_uri": "file:///Users/shubham.dogra/Desktop/text-editor-settings/jetbrains/intellij_to_sublime_json.py",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 13373.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 44.0
+	},
+	"input":
+	{
+		"height": 56.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.Debugger":
+	{
+		"height": 622.0,
+		"history":
+		[
+		]
+	},
+	"output.Debugger Breakpoints":
+	{
+		"height": 622.0,
+		"history":
+		[
+		]
+	},
+	"output.Debugger Callstack":
+	{
+		"height": 622.0,
+		"history":
+		[
+		]
+	},
+	"output.Debugger Watch":
+	{
+		"height": 622.0,
+		"history":
+		[
+		]
+	},
+	"output.LSP Log Panel":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"output.SublimeLinter":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"output.Terminus":
+	{
+		"height": 232.0,
+		"history":
+		[
+		]
+	},
+	"output.diagnostics":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"output.find_results":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"pinned_build_system": "",
+	"project": "text-editor-settings.sublime-project",
+	"replace":
+	{
+		"height": 84.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"pingsafe-metrics/core/index.js"
+			],
+			[
+				"app",
+				"app.js"
+			],
+			[
+				"kafka",
+				"server/kafka/handler.js"
+			],
+			[
+				"handle",
+				"server/kafka/handler.js"
+			],
+			[
+				"server/clients/cloudflare_client.js",
+				"server/clients/cloudflare_client.js"
+			],
+			[
+				"s1_exploit",
+				"server/workflows/s1_exploit_scan.js"
+			],
+			[
+				"a1_expl",
+				"server/clients/crons/scans/s1_exploit_scan_client.js"
+			],
+			[
+				"workflows/internal/snap_scan.js",
+				"server/workflows/internal/snap_scan.js"
+			],
+			[
+				"cons",
+				"node_modules/tar-stream/constants.js"
+			],
+			[
+				"constat",
+				"internal/constants/constants.go"
+			],
+			[
+				"sola",
+				"src/main/resources/themes/solarizedLight.xml"
+			],
+			[
+				"monokai",
+				"build/resources/main/themes/monokaiLight.xml"
+			],
+			[
+				"atlas",
+				"server/clients/atlas.js"
+			],
+			[
+				"config",
+				"config/config.go"
+			],
+			[
+				"con",
+				"config/config.go"
+			],
+			[
+				"erro",
+				"server/models/error_codes.js"
+			],
+			[
+				"GIT",
+				"Git Diff"
+			],
+			[
+				"s1_dns_sync",
+				"server/clients/crons/s1_dns_sync.js"
+			],
+			[
+				"offensiv",
+				"server/clients/offensive_security_engine_client.js"
+			],
+			[
+				"cns-gateway/src/main/java/com/sentinelone/cns/gateway/CnsGateway",
+				"cns-gateway/src/main/java/com/sentinelone/cns/gateway/CnsGateway.java"
+			],
+			[
+				"cns-gateway/utils.java",
+				"cns-gateway/src/main/java/com/sentinelone/cns/gateway/utils/Utils.java"
+			],
+			[
+				"cns-gateay/utils",
+				"cns-gateway/src/main/java/com/sentinelone/cns/gateway/utils/Utils.java"
+			],
+			[
+				"Utils",
+				"cns-gateway/build/reports/jacoco/test/html/com.sentinelone.cns.gateway.utils/Utils.html"
+			],
+			[
+				"worflows/scan",
+				"internal/workflows/scan_plugin.go"
+			],
+			[
+				"handler",
+				"server/kafka/handler.js"
+			],
+			[
+				"s1_subdomain",
+				"server/workflows/s1_subdomain_sync.js"
+			],
+			[
+				"s1_subdoman",
+				"server/workflows/s1_subdomain_sync.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 505.0,
+		"last_filter": "ps-",
+		"selected_items":
+		[
+			[
+				"ps-",
+				"~/Desktop/prompt/ps-local-dev/repositories/ps-platform/ps-platform.sublime-project"
+			],
+			[
+				"ps-age",
+				"~/WebstormProjects/ps-agent/ps-agent.sublime-project"
+			],
+			[
+				"ps",
+				"~/WebstormProjects/ps-agent/ps-agent.sublime-project"
+			],
+			[
+				"p",
+				"~/WebstormProjects/ps-agent/ps-agent.sublime-project"
+			],
+			[
+				"",
+				"~/Desktop/sentinelOne/k8s-deployments-dev/.sublime/k8s-deployments-dev.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 234.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 592.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+		"lsp_show_inlay_hints": false
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 241.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+		"max_columns": 1
+	}
+}

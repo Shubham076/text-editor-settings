@@ -1,0 +1,55 @@
+name = Vitesse Light
+kind = light
+
+bg             = #f1f0e9
+fg             = #474747
+panel_fg       = #474747
+accent         = #5a6aa6
+panel          = #e2e2db
+hover          = #cbcbc5
+active         = #bcc0cc
+border         = #b0b2b5
+selection      = #d3d3d3
+line_highlight = #e7e5db
+muted          = #646363
+line_number    = #868484
+cursor         = #606060
+error          = #d73a49
+warning        = #b28c00
+success        = #067d17
+
+[syntax]
+text        = #606060
+keyword     = #b56959
+type        = #5a6aa6
+function    = #5a6aa6
+string      = #b07d48
+number      = #2f798a
+comment     = #808080
+constant    = #b07d48
+operator    = #ab5959
+punctuation = #606060
+preproc     = #bd8f8f
+builtin     = #5a6aa6
+attribute   = #b07d48
+tag         = #1c6b48
+heading     = #b56959
+escape      = #b07d48
+
+[terminal]
+black          = #606060
+red            = #ce0505
+green          = #067d17
+yellow         = #b28c00
+blue           = #1c44b2
+magenta        = #962d96
+cyan           = #028e8e
+white          = #929292
+bright_black   = #656565
+bright_red     = #a62b2b
+bright_green   = #3d964a
+bright_yellow  = #bb9713
+bright_blue    = #3154b6
+bright_magenta = #9f339f
+bright_cyan    = #2f9a9a
+bright_white   = #606060

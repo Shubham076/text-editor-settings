@@ -1,0 +1,55 @@
+name = Forest Fly Light
+kind = light
+
+bg             = #ece3db
+fg             = #434343
+panel_fg       = #434343
+accent         = #7a7640
+panel          = #e0d8d1
+hover          = #ccc6c0
+active         = #c3bda8
+border         = #b2aba5
+selection      = #c8ced9
+line_highlight = #d9d1c9
+muted          = #605e5c
+line_number    = #656565
+cursor         = #808080
+error          = #ff4d12
+warning        = #987b4e
+success        = #738841
+
+[syntax]
+text        = #737373
+keyword     = #93704a
+type        = #7a7640
+function    = #7a7640
+string      = #946b8e
+number      = #56858c
+comment     = #8c8b84
+constant    = #6d6aa1
+operator    = #737373
+punctuation = #737373
+preproc     = #7a7640
+builtin     = #7a7640
+attribute   = #737373
+tag         = #93704a
+heading     = #93704a
+escape      = #946b8e
+
+[terminal]
+black          = #6c6969
+red            = #8f5b58
+green          = #738841
+yellow         = #987b4e
+blue           = #596a7c
+magenta        = #ad6583
+cyan           = #367a7f
+white          = #656565
+bright_black   = #6c6969
+bright_red     = #8f5b58
+bright_green   = #738841
+bright_yellow  = #987b4e
+bright_blue    = #596a7c
+bright_magenta = #ad6583
+bright_cyan    = #367a7f
+bright_white   = #a9a7a7

@@ -1,0 +1,55 @@
+name = Elements Light
+kind = light
+
+bg             = #ececec
+fg             = #474747
+panel_fg       = #474747
+accent         = #886fa9
+panel          = #e0e0e0
+hover          = #cccccc
+active         = #c7c0d1
+border         = #abb2bf
+selection      = #d5dbe7
+line_highlight = #d7dee0
+muted          = #636363
+line_number    = #a4a4a4
+cursor         = #404859
+error          = #c6637c
+warning        = #b16b16
+success        = #338485
+
+[syntax]
+text        = #737272
+keyword     = #936178
+type        = #886fa9
+function    = #886fa9
+string      = #4f6f94
+number      = #ab5959
+comment     = #7e8aa2
+constant    = #936178
+operator    = #737272
+punctuation = #737272
+preproc     = #886fa9
+builtin     = #886fa9
+attribute   = #b16b16
+tag         = #535e74
+heading     = #936178
+escape      = #4f6f94
+
+[terminal]
+black          = #565e70
+red            = #a93b3b
+green          = #338485
+yellow         = #b16b16
+blue           = #5454da
+magenta        = #ad33ad
+cyan           = #29855d
+white          = #595959
+bright_black   = #656565
+bright_red     = #a93b3b
+bright_green   = #29855d
+bright_yellow  = #b67d2c
+bright_blue    = #1c5e7d
+bright_magenta = #935693
+bright_cyan    = #499a77
+bright_white   = #737272

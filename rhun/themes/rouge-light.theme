@@ -1,0 +1,55 @@
+name = Rouge Light
+kind = light
+
+bg             = #f8f8f2
+fg             = #4d4d4d
+panel_fg       = #4d4d4d
+accent         = #a87c87
+panel          = #ecece7
+hover          = #d9d9d5
+active         = #d9cdcc
+border         = #b8bab8
+selection      = #dedfe3
+line_highlight = #e3e3dd
+muted          = #6a6a68
+line_number    = #b4b2a9
+cursor         = #4fb4d8
+error          = #a66e6e
+warning        = #bb810c
+success        = #4c944c
+
+[syntax]
+text        = #858585
+keyword     = #6c8798
+type        = #a87c87
+function    = #a87c87
+string      = #a88b74
+number      = #a87e7c
+comment     = #98989d
+constant    = #a87e7c
+operator    = #858585
+punctuation = #858585
+preproc     = #a87c87
+builtin     = #a87c87
+attribute   = #807e7e
+tag         = #3e3e3e
+heading     = #6c8798
+escape      = #a88b74
+
+[terminal]
+black          = #696666
+red            = #a66e6e
+green          = #4c944c
+yellow         = #bb810c
+blue           = #6262ab
+magenta        = #a669a6
+cyan           = #539696
+white          = #595959
+bright_black   = #656565
+bright_red     = #b26969
+bright_green   = #509d5c
+bright_yellow  = #c09805
+bright_blue    = #506bb7
+bright_magenta = #a957a9
+bright_cyan    = #3e9a9a
+bright_white   = #858585

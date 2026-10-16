@@ -335,6 +335,10 @@
     {
       "key": "cmd-k",
       "action": "-goto/everything"
+    },
+    {
+      "key": "cmd-period",
+      "action": "editor/add-to-task"
     }
   ]
 }

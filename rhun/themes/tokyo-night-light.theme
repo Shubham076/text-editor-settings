@@ -1,0 +1,55 @@
+name = Tokyo Night Light
+kind = light
+
+bg             = #e6e7ed
+fg             = #444449
+panel_fg       = #444449
+accent         = #96684e
+panel          = #dadbe1
+hover          = #c7c8ce
+active         = #c7bbb8
+border         = #aaaab0
+selection      = #d1d2d7
+line_highlight = #d7d8dd
+muted          = #5f6064
+line_number    = #757575
+cursor         = #343b59
+error          = #c42740
+warning        = #9a926d
+success        = #038830
+
+[syntax]
+text        = #717279
+keyword     = #6e6380
+type        = #58747a
+function    = #96684e
+string      = #6b7a5a
+number      = #96684e
+comment     = #82857e
+constant    = #717279
+operator    = #717279
+punctuation = #717279
+preproc     = #58747a
+builtin     = #96684e
+attribute   = #717279
+tag         = #b05467
+heading     = #6e6380
+escape      = #6b7a5a
+
+[terminal]
+black          = #45464f
+red            = #c42740
+green          = #038830
+yellow         = #a28007
+blue           = #00529b
+magenta        = #d2548e
+cyan           = #0186b4
+white          = #717279
+bright_black   = #646464
+bright_red     = #e62000
+bright_green   = #038830
+bright_yellow  = #a28007
+bright_blue    = #3981c6
+bright_magenta = #d3625c
+bright_cyan    = #07aaad
+bright_white   = #929292

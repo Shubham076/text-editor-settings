@@ -18,7 +18,7 @@ class InstallerBase:
 	def __init__(self, type, repo):
 		self.type, self.repo = type, repo
 
-	def temporary_install_path(self):
+	def install_path(self):
 		return str(self.path)
 
 
@@ -28,40 +28,40 @@ def package(name):
 	return module
 
 
-class PythonInstallerTests(unittest.TestCase):
+class Configuration(dict):
+	"""`dap.ConfigurationExpanded` without sublime: a dict with `request` and awaitable variables"""
+	request = 'launch'
+
+	async def folder(self):
+		return '/project'
+
+	@property
+	def variables(self):
+		return {'folder': self.folder()}
+
+
+class PythonAdapterTests(unittest.TestCase):
 	def setUp(self):
 		self.temporary = tempfile.TemporaryDirectory()
 		self.addCleanup(self.temporary.cleanup)
 		self.path = Path(self.temporary.name)
-		self.request = types.SimpleNamespace(json=AsyncMock(), download_and_extract_zip=AsyncMock(side_effect=self.extract))
+		self.transport = Mock(side_effect=lambda command: command)
 		self.modules = {
 			'_python_installer_test': package('_python_installer_test'),
 			'_python_installer_test.modules': package('_python_installer_test.modules'),
 			'_python_installer_test.modules.adapters': package('_python_installer_test.modules.adapters'),
-			'_python_installer_test.modules.adapters.util': types.SimpleNamespace(GitSourceInstaller=InstallerBase, request=self.request),
-			'_python_installer_test.modules.dap': types.SimpleNamespace(Adapter=type('Adapter', (), {}), Error=RuntimeError),
-			'_python_installer_test.modules.core': types.SimpleNamespace(json_decode_file=lambda path: json.loads(Path(path).read_text())),
+			'_python_installer_test.modules.adapters.util': types.SimpleNamespace(OpenVsxInstaller=InstallerBase),
+			'_python_installer_test.modules.dap': types.SimpleNamespace(Adapter=type('Adapter', (), {}), Error=RuntimeError, StdioTransport=self.transport),
+			'_python_installer_test.modules.core': types.SimpleNamespace(),
 			'sublime': types.SimpleNamespace(),
 		}
 		self.module = load_module('_python_installer_test.modules.adapters.python', ROOT / 'modules/adapters/python.py', self.modules)
-		self.installer = self.module.PythonInstaller(type='debugpy', repo='microsoft/vscode-python-debugger')
-		self.installer.path = self.path
-		self.log = Mock()
+		self.adapter = self.module.Python()
+		self.adapter.installer.path = self.path
+		self.console = Mock()
 
-	async def extract(self, url, path, **kwargs):
-		entry = Path(path) / 'debugpy/adapter/__main__.py'
-		entry.parent.mkdir(parents=True)
-		entry.write_text('')
-
-	def metadata(self, **overrides):
-		wheel = {'filename': 'debugpy-1.8.20-py2.py3-none-any.whl', 'packagetype': 'bdist_wheel',
-			'url': 'https://files.pythonhosted.org/debugpy.whl', 'digests': {'sha256': 'a' * 64}, 'yanked': False}
-		wheel.update(overrides)
-		return {'info': {'version': '1.8.20'}, 'urls': [wheel]}
-
-	def modern_release(self):
-		(self.path / 'noxfile.py').write_text('import nox\nDEBUGPY_VERSION = "1.8.20"\nraise AssertionError("must not execute")\n')
-		self.request.json.return_value = self.metadata()
+	def start(self):
+		return asyncio.run(self.adapter.start(self.console, Configuration(python='/usr/bin/python3')))
 
 	def test_protected_members_are_grouped_unless_the_configuration_says_otherwise(self):
 		presentation = self.module.variable_presentation
@@ -70,54 +70,27 @@ class PythonInstallerTests(unittest.TestCase):
 		self.assertEqual(presentation({'protected': 'inline'}), {'protected': 'inline'})
 		self.assertEqual(presentation({'all': 'inline'}), {'all': 'inline'})
 
-	def test_modern_release_uses_pinned_universal_wheel_without_executing_nox(self):
-		self.modern_release()
-		asyncio.run(self.installer.post_install('2026.6.0', self.log))
-		self.request.json.assert_awaited_once_with('https://pypi.org/pypi/debugpy/1.8.20/json')
-		self.request.download_and_extract_zip.assert_awaited_once_with(
-			'https://files.pythonhosted.org/debugpy.whl', str(self.path / 'debugpy'), log=self.log, sha256='a' * 64)
-		self.assertTrue((self.path / 'debugpy/debugpy/adapter/__main__.py').is_file())
+	def test_debugpy_comes_from_the_ms_python_extension_on_openvsx(self):
+		self.assertIsInstance(self.adapter.installer, InstallerBase)
+		self.assertEqual((self.adapter.installer.type, self.adapter.installer.repo), ('debugpy', 'ms-python/debugpy'))
 
-	def test_legacy_metadata_accepts_list_and_object_formats(self):
-		for entries in ([{'url': 'https://example.invalid/debugpy.zip'}], {'url': 'https://example.invalid/debugpy.zip'}):
-			with self.subTest(entries=entries):
-				(self.path / 'debugpy_info.json').write_text(json.dumps({'any': entries}))
-				self.request.download_and_extract_zip.reset_mock()
-				self.request.download_and_extract_zip.side_effect = None
-				entry = self.path / 'debugpy/debugpy/adapter/__main__.py'
-				entry.parent.mkdir(parents=True, exist_ok=True)
-				entry.write_text('')
-				asyncio.run(self.installer.post_install('2025.0.0', self.log))
-				self.request.download_and_extract_zip.assert_awaited_once_with(
-					'https://example.invalid/debugpy.zip', str(self.path / 'debugpy'), log=self.log)
-		self.request.json.assert_not_awaited()
+	def test_openvsx_install_layout_is_used_when_present(self):
+		(self.path / 'bundled/libs/debugpy').mkdir(parents=True)
+		self.assertEqual(self.start(), ['/usr/bin/python3', str(self.path / 'bundled/libs/debugpy')])
 
-	def test_nonliteral_version_pin_is_rejected(self):
-		(self.path / 'noxfile.py').write_text('DEBUGPY_VERSION = get_latest_version()')
-		with self.assertRaisesRegex(RuntimeError, 'version'):
-			asyncio.run(self.installer.post_install('2026.6.0', self.log))
-		self.request.json.assert_not_awaited()
+	def test_legacy_install_layout_still_starts(self):
+		(self.path / 'debugpy/debugpy/adapter').mkdir(parents=True)
+		self.assertEqual(self.start(), ['/usr/bin/python3', str(self.path / 'debugpy/debugpy/adapter')])
 
-	def test_native_or_yanked_wheels_are_not_selected(self):
-		self.modern_release()
-		for overrides in ({'filename': 'debugpy-1.8.20-cp312-cp312-win_amd64.whl'}, {'yanked': True}):
-			self.request.json.return_value = self.metadata(**overrides)
-			with self.assertRaisesRegex(RuntimeError, 'wheel'):
-				asyncio.run(self.installer.post_install('2026.6.0', self.log))
-		self.request.download_and_extract_zip.assert_not_awaited()
+	def test_openvsx_layout_wins_over_legacy_layout(self):
+		(self.path / 'bundled/libs/debugpy').mkdir(parents=True)
+		(self.path / 'debugpy/debugpy/adapter').mkdir(parents=True)
+		self.assertEqual(self.start()[1], str(self.path / 'bundled/libs/debugpy'))
 
-	def test_missing_digest_is_rejected(self):
-		self.modern_release()
-		self.request.json.return_value = self.metadata(digests={})
-		with self.assertRaisesRegex(RuntimeError, 'SHA-256'):
-			asyncio.run(self.installer.post_install('2026.6.0', self.log))
-		self.request.download_and_extract_zip.assert_not_awaited()
-
-	def test_install_requires_adapter_entrypoint(self):
-		self.modern_release()
-		self.request.download_and_extract_zip.side_effect = None
-		with self.assertRaisesRegex(RuntimeError, 'adapter'):
-			asyncio.run(self.installer.post_install('2026.6.0', self.log))
+	def test_missing_adapter_names_the_paths_searched(self):
+		with self.assertRaisesRegex(RuntimeError, 'bundled/libs/debugpy'):
+			self.start()
+		self.transport.assert_not_called()
 
 
 class DownloadIntegrityTests(unittest.TestCase):

@@ -1,0 +1,55 @@
+name = Brackets Light
+kind = light
+
+bg             = #fdfeff
+fg             = #4a5157
+panel_fg       = #4a5157
+accent         = #a17474
+panel          = #eff1f3
+hover          = #d9dce0
+active         = #d9cecf
+border         = #b5bdca
+selection      = #d4dde7
+line_highlight = #e6edf5
+muted          = #696d72
+line_number    = #7d9aa6
+cursor         = #467196
+error          = #d56666
+warning        = #d6b140
+success        = #93d193
+
+[syntax]
+text        = #747e88
+keyword     = #6c8c80
+type        = #a17474
+function    = #a17474
+string      = #8c7f62
+number      = #a17474
+comment     = #8c9398
+constant    = #747e88
+operator    = #747e88
+punctuation = #747e88
+preproc     = #a17474
+builtin     = #a17474
+attribute   = #2e674f
+tag         = #8d5f5d
+heading     = #6c8c80
+escape      = #8c7f62
+
+[terminal]
+black          = #fdfeff
+red            = #a17474
+green          = #93d193
+yellow         = #b87626
+blue           = #647b8d
+magenta        = #74118c
+cyan           = #287586
+white          = #747e88
+bright_black   = #8c9398
+bright_red     = #a17474
+bright_green   = #93d193
+bright_yellow  = #b87626
+bright_blue    = #647b8d
+bright_magenta = #74118c
+bright_cyan    = #287586
+bright_white   = #747e88

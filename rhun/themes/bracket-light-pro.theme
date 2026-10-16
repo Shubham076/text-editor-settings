@@ -1,0 +1,55 @@
+name = Bracket Light Pro
+kind = light
+
+bg             = #f8f8f8
+fg             = #504d4d
+panel_fg       = #504d4d
+accent         = #926998
+panel          = #ebebeb
+hover          = #d6d6d6
+active         = #d2c7d4
+border         = #bcbbbb
+selection      = #abdffa
+line_highlight = #e4e4e4
+muted          = #6b6a6a
+line_number    = #727070
+cursor         = #797575
+error          = #b64646
+warning        = #c28d22
+success        = #548554
+
+[syntax]
+text        = #797575
+keyword     = #587094
+type        = #926998
+function    = #926998
+string      = #9d7146
+number      = #788355
+comment     = #8c8c8c
+constant    = #797575
+operator    = #797575
+punctuation = #797575
+preproc     = #926998
+builtin     = #926998
+attribute   = #587094
+tag         = #797575
+heading     = #587094
+escape      = #9d7146
+
+[terminal]
+black          = #5d5c5c
+red            = #b64646
+green          = #548554
+yellow         = #c28d22
+blue           = #5e5e98
+magenta        = #8d4d8d
+cyan           = #2f8181
+white          = #595959
+bright_black   = #656565
+bright_red     = #a45f5f
+bright_green   = #5d9a56
+bright_yellow  = #9f8858
+bright_blue    = #5c6d9b
+bright_magenta = #a25ba2
+bright_cyan    = #67a6a6
+bright_white   = #797575

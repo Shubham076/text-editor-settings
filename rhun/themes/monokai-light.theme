@@ -1,0 +1,55 @@
+name = Monokai Light
+kind = light
+
+bg             = #faf4f2
+fg             = #494949
+panel_fg       = #494949
+accent         = #79619e
+panel          = #ebe5e3
+hover          = #d2cdcb
+active         = #cbc0d0
+border         = #bab4b4
+selection      = #d3cdcc
+line_highlight = #e0dad9
+muted          = #676665
+line_number    = #bfb9ba
+cursor         = #606060
+error          = #e14775
+warning        = #e16032
+success        = #269d69
+
+[syntax]
+text        = #606060
+keyword     = #c6637c
+type        = #79619e
+function    = #79619e
+string      = #ab6763
+number      = #79619e
+comment     = #a59fa0
+constant    = #286a84
+operator    = #c6637c
+punctuation = #555555
+preproc     = #79619e
+builtin     = #79619e
+attribute   = #239161
+tag         = #e14775
+heading     = #ab6763
+escape      = #ab6763
+
+[terminal]
+black          = #bfb9ba
+red            = #e14775
+green          = #269d69
+yellow         = #ab6763
+blue           = #e16032
+magenta        = #79619e
+cyan           = #286a84
+white          = #918c8e
+bright_black   = #a59fa0
+bright_red     = #e14775
+bright_green   = #269d69
+bright_yellow  = #ab6763
+bright_blue    = #e16032
+bright_magenta = #79619e
+bright_cyan    = #286a84
+bright_white   = #606060

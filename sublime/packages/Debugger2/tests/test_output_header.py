@@ -173,7 +173,7 @@ class OutputHeaderTests(unittest.TestCase):
 
 	def test_prompt_strip_keeps_the_dashboard_on_screen_while_asking_for_text(self):
 		tabs = Mock()
-		dependencies = dict(self.loaded, sublime_plugin=self.preview.sublime_plugin)
+		dependencies = dict(self.loaded, sublime_plugin=self.stubs.sublime_plugin)
 		dependencies['_live_test.modules.output_panel_tabs'] = types.SimpleNamespace(OutputPanelTabsPhantom=tabs)
 		module = load_module('_live_test.modules.output_panel', ROOT / 'modules/output_panel.py', dependencies)
 		self.settings.console_minimum_height = 20
@@ -241,7 +241,7 @@ class OutputHeaderTests(unittest.TestCase):
 		self.window.show_input_panel.assert_not_called()
 
 	def test_watch_panel_takes_its_expression_on_a_line_under_the_rows(self):
-		dependencies = dict(self.loaded, sublime_plugin=self.preview.sublime_plugin)
+		dependencies = dict(self.loaded, sublime_plugin=self.stubs.sublime_plugin)
 		live = types.SimpleNamespace(anchor_text=' \n \n', invalidate=Mock(), toolbar=Mock())
 		tabs = Mock(return_value=types.SimpleNamespace(live=live, dispose=Mock()))
 		dependencies['_live_test.modules.output_panel_tabs'] = types.SimpleNamespace(OutputPanelTabsPhantom=tabs)
@@ -403,7 +403,7 @@ class OutputHeaderTests(unittest.TestCase):
 
 	def test_bottom_bar_console_uses_an_io_panel_with_a_read_only_strip(self):
 		tabs = Mock()
-		dependencies = dict(self.loaded, sublime_plugin=self.preview.sublime_plugin)
+		dependencies = dict(self.loaded, sublime_plugin=self.stubs.sublime_plugin)
 		dependencies['_live_test.modules.output_panel_tabs'] = types.SimpleNamespace(OutputPanelTabsPhantom=tabs)
 		module = load_module('_live_test.modules.output_panel', ROOT / 'modules/output_panel.py', dependencies)
 		self.settings.console_minimum_height = 20
@@ -444,7 +444,7 @@ class OutputHeaderTests(unittest.TestCase):
 		self.dap.SourceLocation = type('SourceLocation', (), {})
 		# the completion lookup is the base panel's; borrow it for the stand-in base
 		real = load_module('_live_test.modules.output_panel', ROOT / 'modules/output_panel.py', dict(self.loaded,
-			sublime_plugin=self.preview.sublime_plugin, **{'_live_test.modules.output_panel_tabs': types.SimpleNamespace(OutputPanelTabsPhantom=Mock())}))
+			sublime_plugin=self.stubs.sublime_plugin, **{'_live_test.modules.output_panel_tabs': types.SimpleNamespace(OutputPanelTabsPhantom=Mock())}))
 		for name in ('completion_session', 'completion_triggers', 'COMPLETION_TRIGGERS', 'language_server_completion_list'):
 			setattr(FakeOutputPanel, name, getattr(real.OutputPanel, name))
 		dependencies = dict(self.loaded)
@@ -587,7 +587,7 @@ class OutputHeaderTests(unittest.TestCase):
 		self.view.set_viewport_position.assert_not_called()
 
 	def test_output_edits_refresh_header_and_terminal_cursor_restores_short_viewport(self):
-		dependencies = dict(self.loaded, sublime_plugin=self.preview.sublime_plugin)
+		dependencies = dict(self.loaded, sublime_plugin=self.stubs.sublime_plugin)
 		module = load_module('_live_test.modules.output_panel', ROOT / 'modules/output_panel.py', dependencies)
 		ui = self.make_ui()
 		panel = types.SimpleNamespace(tabs_phantom=types.SimpleNamespace(live=ui, invalidated_layout=Mock()),
@@ -606,7 +606,7 @@ class OutputHeaderTests(unittest.TestCase):
 
 	def test_console_and_terminal_hosts_do_not_create_io_panels(self):
 		tabs = Mock()
-		dependencies = dict(self.loaded, sublime_plugin=self.preview.sublime_plugin)
+		dependencies = dict(self.loaded, sublime_plugin=self.stubs.sublime_plugin)
 		dependencies['_live_test.modules.output_panel_tabs'] = types.SimpleNamespace(OutputPanelTabsPhantom=tabs)
 		module = load_module('_live_test.modules.output_panel', ROOT / 'modules/output_panel.py', dependencies)
 		self.settings.console_minimum_height = 20

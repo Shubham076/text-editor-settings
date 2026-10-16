@@ -262,7 +262,7 @@ class DashboardLayoutTests(unittest.TestCase):
 
 	def test_dashboard_uses_output_panel_without_native_input_strip(self):
 		tabs = Mock()
-		dependencies = dict(self.loaded, sublime_plugin=self.preview.sublime_plugin)
+		dependencies = dict(self.loaded, sublime_plugin=self.stubs.sublime_plugin)
 		dependencies['_live_test.modules.output_panel_tabs'] = types.SimpleNamespace(OutputPanelTabsPhantom=tabs)
 		module = load_module('_live_test.modules.output_panel', ROOT / 'modules/output_panel.py', dependencies)
 		self.settings.console_minimum_height = 20

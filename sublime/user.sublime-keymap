@@ -1,4 +1,7 @@
 [
+    { "keys": ["super+shift+["], "command": "prev_view" },
+    { "keys": ["super+shift+]"], "command": "next_view" },
+
     // Commented out chained command for super+t
     // {
     //     "keys": ["super+t"],
@@ -404,6 +407,8 @@
     // Navigate between terminus panels (forward and backward)
     { "keys": ["ctrl+tab"], "command": "toggle_terminus_panel", "args": {"cycle": true}, "context": [{"key": "terminus_view"}] },
     { "keys": ["alt+tab"], "command": "toggle_terminus_panel", "args": {"cycle": true, "reverse": true}, "context": [{"key": "terminus_view"}] },
+    { "keys": ["super+shift+]"], "command": "toggle_terminus_panel", "args": {"cycle": true}, "context": [{"key": "terminus_view"}] },
+    { "keys": ["super+shift+["], "command": "toggle_terminus_panel", "args": {"cycle": true, "reverse": true}, "context": [{"key": "terminus_view"}] },
     { "keys": ["super+w"], "command": "terminus_close", "context": [{"key": "terminus_view"}] },
 
     // Claude Code context refs (@path:start-end)

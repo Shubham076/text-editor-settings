@@ -1,0 +1,55 @@
+name = Night Owl Light
+kind = light
+
+bg             = #fbfbfb
+fg             = #4d4f53
+panel_fg       = #4d4f53
+accent         = #b77b79
+panel          = #eeeeef
+hover          = #d9d9db
+active         = #dfcece
+border         = #babbbf
+selection      = #cee1f0
+line_highlight = #eff2ef
+muted          = #6a6b6e
+line_number    = #5c6166
+cursor         = #4fb4d8
+error          = #b77b79
+warning        = #df8618
+success        = #357b42
+
+[syntax]
+text        = #787c81
+keyword     = #9b7cad
+type        = #9b7cad
+function    = #b77b79
+string      = #b77b79
+number      = #6a888f
+comment     = #939dbb
+constant    = #b77b79
+operator    = #9b7cad
+punctuation = #787c81
+preproc     = #b77b79
+builtin     = #6f83ab
+attribute   = #787c81
+tag         = #3e3e3e
+heading     = #9b7cad
+escape      = #b77b79
+
+[terminal]
+black          = #5c6166
+red            = #b77b79
+green          = #357b42
+yellow         = #df8618
+blue           = #2f86d2
+magenta        = #a44185
+cyan           = #0991b6
+white          = #595959
+bright_black   = #939dbb
+bright_red     = #b77b79
+bright_green   = #357b42
+bright_yellow  = #df8618
+bright_blue    = #2f86d2
+bright_magenta = #a44185
+bright_cyan    = #0991b6
+bright_white   = #787c81

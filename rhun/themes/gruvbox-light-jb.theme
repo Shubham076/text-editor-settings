@@ -1,0 +1,55 @@
+name = Gruvbox Light JB
+kind = light
+
+bg             = #fffcf3
+fg             = #61493b
+panel_fg       = #61493b
+accent         = #6c782e
+panel          = #f3ede3
+hover          = #dfd4c9
+active         = #cdccb0
+border         = #cabb99
+selection      = #fff0cc
+line_highlight = #f2efe6
+muted          = #78685c
+line_number    = #a89984
+cursor         = #836350
+error          = #c14a4a
+warning        = #b47109
+success        = #6c782e
+
+[syntax]
+text        = #836350
+keyword     = #c14a4a
+type        = #b47109
+function    = #6c782e
+string      = #4c7a5d
+number      = #945e80
+comment     = #928374
+constant    = #945e80
+operator    = #836350
+punctuation = #836350
+preproc     = #4c7a5d
+builtin     = #6c782e
+attribute   = #928374
+tag         = #c14a4a
+heading     = #c14a4a
+escape      = #b47109
+
+[terminal]
+black          = #4f3829
+red            = #c14a4a
+green          = #6c782e
+yellow         = #b47109
+blue           = #45707a
+magenta        = #945e80
+cyan           = #4c7a5d
+white          = #a89984
+bright_black   = #7c6f64
+bright_red     = #c14a4a
+bright_green   = #67782e
+bright_yellow  = #b47109
+bright_blue    = #45707a
+bright_magenta = #945e80
+bright_cyan    = #4c7a5d
+bright_white   = #836350

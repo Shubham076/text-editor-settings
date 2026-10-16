@@ -1,0 +1,55 @@
+name = Autumn
+kind = light
+
+bg             = #faf9f9
+fg             = #524c4c
+panel_fg       = #524c4c
+accent         = #a65e6d
+panel          = #ecebeb
+hover          = #d6d4d4
+active         = #d8c4c8
+border         = #c2bab2
+selection      = #dae5cd
+line_highlight = #f6eedb
+muted          = #6d6969
+line_number    = #a98837
+cursor         = #6b9a24
+error          = #d56666
+warning        = #d6b140
+success        = #067d17
+
+[syntax]
+text        = #726969
+keyword     = #3c8491
+type        = #a65e6d
+function    = #a65e6d
+string      = #4d7549
+number      = #47834a
+comment     = #8d7e79
+constant    = #a65e6d
+operator    = #726969
+punctuation = #726969
+preproc     = #773918
+builtin     = #9f5161
+attribute   = #b0633a
+tag         = #be5f3e
+heading     = #3c8491
+escape      = #4d7549
+
+[terminal]
+black          = #544c4c
+red            = #ce0505
+green          = #067d17
+yellow         = #b28c00
+blue           = #063fdb
+magenta        = #9d459d
+cyan           = #419898
+white          = #929292
+bright_black   = #656565
+bright_red     = #ce3b3b
+bright_green   = #3b9a49
+bright_yellow  = #d5af25
+bright_blue    = #2d61f0
+bright_magenta = #ab2fab
+bright_cyan    = #2e9494
+bright_white   = #726969

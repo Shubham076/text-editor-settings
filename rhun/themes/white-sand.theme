@@ -1,0 +1,55 @@
+name = White Sand
+kind = light
+
+bg             = #eee9e4
+fg             = #454545
+panel_fg       = #454545
+accent         = #b47d54
+panel          = #e2ddd9
+hover          = #cecac7
+active         = #d5c2b4
+border         = #b4ada6
+selection      = #ded6cf
+line_highlight = #e7ddd5
+muted          = #626160
+line_number    = #9d9d9d
+cursor         = #808080
+error          = #ff4d12
+warning        = #b7a462
+success        = #4a858c
+
+[syntax]
+text        = #737373
+keyword     = #888655
+type        = #b47d54
+function    = #b47d54
+string      = #8f7284
+number      = #a9736d
+comment     = #9a9999
+constant    = #a9736d
+operator    = #737373
+punctuation = #737373
+preproc     = #b47d54
+builtin     = #b47d54
+attribute   = #747a33
+tag         = #747a33
+heading     = #888655
+escape      = #8f7284
+
+[terminal]
+black          = #726e6e
+red            = #b3534b
+green          = #4a858c
+yellow         = #c49b4f
+blue           = #815976
+magenta        = #cb5687
+cyan           = #4a858c
+white          = #656565
+bright_black   = #737373
+bright_red     = #b3534b
+bright_green   = #4a858c
+bright_yellow  = #c99d4a
+bright_blue    = #6a6aa6
+bright_magenta = #cb5687
+bright_cyan    = #4a858c
+bright_white   = #737373

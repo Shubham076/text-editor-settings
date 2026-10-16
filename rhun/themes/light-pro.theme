@@ -1,0 +1,55 @@
+name = Light Pro
+kind = light
+
+bg             = #fafaf5
+fg             = #504d4d
+panel_fg       = #504d4d
+accent         = #a28777
+panel          = #eeeee9
+hover          = #dbdad6
+active         = #d9d1c9
+border         = #afbfbf
+selection      = #dfebe7
+line_highlight = #efedeb
+muted          = #6b6a69
+line_number    = #a6a4a4
+cursor         = #4d545d
+error          = #ff5370
+warning        = #aeae80
+success        = #3f813f
+
+[syntax]
+text        = #868080
+keyword     = #6f8d80
+type        = #a28777
+function    = #a28777
+string      = #b0848f
+number      = #689883
+comment     = #928db0
+constant    = #a4935b
+operator    = #868080
+punctuation = #868080
+preproc     = #a28777
+builtin     = #a28777
+attribute   = #588672
+tag         = #588672
+heading     = #6f8d80
+escape      = #a28777
+
+[terminal]
+black          = #656363
+red            = #b44646
+green          = #3f813f
+yellow         = #bdab3b
+blue           = #596eab
+magenta        = #ad5dad
+cyan           = #349b9b
+white          = #929292
+bright_black   = #656565
+bright_red     = #c04b4b
+bright_green   = #5da65d
+bright_yellow  = #c2a22d
+bright_blue    = #4a65af
+bright_magenta = #a163a1
+bright_cyan    = #519898
+bright_white   = #f8f8f0

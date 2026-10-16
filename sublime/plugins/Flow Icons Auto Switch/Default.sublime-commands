@@ -1,0 +1,18 @@
+[
+    {
+        "caption": "Flow Icons: Select Palette",
+        "command": "flow_icons_select_palette"
+    },
+    {
+        "caption": "Flow Icons: Sync With UI Style",
+        "command": "flow_icons_sync"
+    },
+    {
+        "caption": "Preferences: Flow Icons Settings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/Flow Icons Auto Switch/Flow Icons.sublime-settings",
+            "default": "{\n\t\"palette\": \"$0\"\n}\n"
+        }
+    }
+]

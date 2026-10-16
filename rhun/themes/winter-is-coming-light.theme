@@ -1,0 +1,55 @@
+name = Winter Is Coming Light
+kind = light
+
+bg             = #ffffff
+fg             = #465157
+panel_fg       = #465157
+accent         = #7354a9
+panel          = #eff0f1
+hover          = #d5d8da
+active         = #ccc4dd
+border         = #babbbf
+selection      = #cee1f0
+line_highlight = #eff2ef
+muted          = #666d72
+line_number    = #5c6a72
+cursor         = #4fb4d8
+error          = #af5454
+warning        = #af9153
+success        = #8a964d
+
+[syntax]
+text        = #5c6a72
+keyword     = #b9587a
+type        = #7354a9
+function    = #7354a9
+string      = #5a6aa6
+number      = #5a6aa6
+comment     = #8c8f8e
+constant    = #b9587a
+operator    = #65747d
+punctuation = #5c6a72
+preproc     = #7354a9
+builtin     = #7354a9
+attribute   = #65747d
+tag         = #3e3e3e
+heading     = #b9587a
+escape      = #5a6aa6
+
+[terminal]
+black          = #7a7373
+red            = #af5454
+green          = #8a964d
+yellow         = #af9153
+blue           = #6f6fa4
+magenta        = #b261b2
+cyan           = #5da9a9
+white          = #656565
+bright_black   = #656565
+bright_red     = #af5454
+bright_green   = #8a964d
+bright_yellow  = #af9153
+bright_blue    = #6f6fa4
+bright_magenta = #b261b2
+bright_cyan    = #5da9a9
+bright_white   = #5c6a72

@@ -9,7 +9,23 @@ from typing import Any
 import unittest
 from unittest.mock import Mock, patch
 
-from test_ui_preview import load_preview
+
+
+def sublime_stubs():
+	"""`sublime` and `sublime_plugin` without Sublime: the names the ui modules touch at import time"""
+	sublime = types.ModuleType('sublime')
+	sublime_plugin = types.ModuleType('sublime_plugin')
+	sublime_plugin.WindowCommand = type('WindowCommand', (), {})
+	sublime_plugin.EventListener = type('EventListener', (), {})
+	sublime_plugin.TextCommand = type('TextCommand', (), {})
+	sublime.Region = lambda point: point
+	sublime.LAYOUT_BLOCK = 1
+	sublime.LAYOUT_INLINE = 0
+	sublime.Phantom = lambda region, content, layout, navigate: (region, content, navigate, layout)
+	sublime.PhantomSet = lambda *args: Mock()
+	sublime.set_timeout = Mock()
+	sublime.load_settings = lambda name: types.SimpleNamespace(get=lambda key, default=None: 16 if key == 'font_size' else default)
+	return types.SimpleNamespace(sublime=sublime, sublime_plugin=sublime_plugin)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -52,8 +68,8 @@ class FakeInputList:
 
 class MenuTests(unittest.TestCase):
 	def setUp(self):
-		self.preview = load_preview()
-		self.sublime = self.preview.sublime
+		self.stubs = sublime_stubs()
+		self.sublime = self.stubs.sublime
 		self.sublime.KEEP_ON_SELECTION_MODIFIED = 1
 		self.menu = load_module('_debugger_menu_test', ROOT / 'debugger_ui_menu.py', {'sublime': self.sublime})
 		self.view = Mock()
@@ -125,8 +141,8 @@ class LiveTests(unittest.TestCase):
 	def setUp(self):
 		import asyncio
 		self.asyncio = asyncio
-		self.preview = load_preview()
-		self.sublime = self.preview.sublime
+		self.stubs = sublime_stubs()
+		self.sublime = self.stubs.sublime
 		self.sublime.Region = lambda a, b=None: a if b is None else (a, b)
 		self.sublime.KEEP_ON_SELECTION_MODIFIED = 1
 		self.sublime.KIND_ID_AMBIGUOUS, self.sublime.KIND_ID_COLOR_YELLOWISH, self.sublime.KIND_ID_COLOR_GREENISH = 0, 14, 15
@@ -151,7 +167,7 @@ class LiveTests(unittest.TestCase):
 		self.loaded = {
 			'_live_test': package, '_live_test.modules': modules, '_live_test.modules.views': views,
 			'_live_test.modules.ui': ui_package,
-			'_live_test.debugger_ui_preview': self.preview, 'sublime': self.sublime,
+			'sublime': self.sublime,
 			'_live_test.modules.core': self.core, '_live_test.modules.dap': self.dap,
 			'_live_test.modules.settings': types.SimpleNamespace(Settings=self.settings),
 			'_live_test.modules.output_panel_console': types.SimpleNamespace(ConsoleOutputPanel=self.console_class),
@@ -454,18 +470,6 @@ class LiveTests(unittest.TestCase):
 		self.asyncio.run(configurations.restart(self.backend, 'Both'))
 		self.assertEqual(self.backend.stop.await_count, 2)
 		self.backend.start.assert_awaited_once_with(args={'configuration': 'Both'})
-
-	def test_preview_constructs_without_uielements(self):
-		self.window.create_output_panel.return_value = self.view
-		self.window.active_panel.return_value = 'output.debugger_ui_preview'
-		self.view.size.return_value = 0
-		self.view.settings.return_value.get.side_effect = lambda key, default=None: default
-		dependencies = dict(self.loaded, sublime_plugin=self.preview.sublime_plugin)
-		with patch.dict(sys.modules, {'UIElements': None}):
-			module = load_module('_live_test.debugger_ui_preview', ROOT / 'debugger_ui_preview.py', dependencies)
-			preview = module.DebuggerUiPreview(self.window)
-			self.assertIs(preview.dropdown, self.loaded['_live_test.debugger_ui_menu'])
-			preview.dispose()
 
 	def test_variable_tree_escapes_values_and_pages_children(self):
 		variable = types.SimpleNamespace(name='<root>', value='<Object>', type='Object', has_children=True,

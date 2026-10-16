@@ -1,0 +1,55 @@
+name = Everforest Light
+kind = light
+
+bg             = #f5f4f4
+fg             = #424c52
+panel_fg       = #424c52
+accent         = #838a52
+panel          = #e6e6e7
+hover          = #cdd0d2
+active         = #caccbd
+border         = #b9b7a6
+selection      = #d7dbde
+line_highlight = #e1e5e8
+muted          = #62686b
+line_number    = #bdc3af
+cursor         = #5c6a72
+error          = #f85552
+warning        = #dfa000
+success        = #5e9166
+
+[syntax]
+text        = #5c6a72
+keyword     = #bd8869
+type        = #838a52
+function    = #838a52
+string      = #5b916b
+number      = #ab7799
+comment     = #939f91
+constant    = #ab7799
+operator    = #5c6a72
+punctuation = #5c6a72
+preproc     = #af749a
+builtin     = #838a52
+attribute   = #bd8869
+tag         = #a7c080
+heading     = #f85552
+escape      = #5b916b
+
+[terminal]
+black          = #7c7979
+red            = #a26c6c
+green          = #5e9166
+yellow         = #a4914b
+blue           = #5b70a8
+magenta        = #a660a6
+cyan           = #579494
+white          = #929292
+bright_black   = #656565
+bright_red     = #a16161
+bright_green   = #51915a
+bright_yellow  = #b09c51
+bright_blue    = #6273a2
+bright_magenta = #a86ca8
+bright_cyan    = #659898
+bright_white   = #5c6a72

@@ -75,6 +75,9 @@
   {
     "context": "Terminal",
     "bindings": {
+      // switch terminal tabs, same keys as editor tabs (Cmd+Shift+[ / ])
+      "cmd-{": "pane::ActivatePreviousItem",
+      "cmd-}": "pane::ActivateNextItem",
       "ctrl-cmd-space": "terminal::ShowCharacterPalette",
       "cmd-c": "terminal::Copy",
       "cmd-v": "terminal::Paste",
@@ -205,6 +208,14 @@
     "context": "Workspace",
     "unbind": {
       "alt-cmd-j": "multi_workspace::ToggleWorkspaceSidebar"
+    }
+  },
+  {
+    "context": "Pane",
+    "bindings": {
+      // Cmd+Shift+[ / ] : Zed names shifted keys by the character they type
+      "cmd-{": "pane::ActivatePreviousItem",
+      "cmd-}": "pane::ActivateNextItem"
     }
   }
 ]

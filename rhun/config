@@ -1,0 +1,78 @@
+# rhun configuration. Also editable from Settings (ctrl+,).
+# Changes are picked up while rhun is running.
+
+[ui]
+follow_system = false
+theme = carbon-light-pro
+dark_theme = kanagawa
+light_theme = rhun-light
+scale = 1.1
+font_size = 14
+font = /Users/shubham.dogra/Library/Fonts/ComicMono.ttf
+sidebar = true
+sidebar_width = 240
+agents_panel = false
+agents_width = 322
+tooltips = true
+auto_hide_scrollbars = true
+decorations = server
+scroll_sensitivity = 1.0
+fast_scroll_sensitivity = 4.0
+
+[editor]
+font_size = 17
+font = /Users/shubham.dogra/Library/Fonts/UbuntuSansMono-Medium.ttf
+line_height = 1.8
+tab_width = 4
+insert_spaces = true
+line_numbers = true
+highlight_line = true
+animate_disk_changes = true
+match_brackets = true
+indent_guides = true
+word_wrap = false
+whitespace = false
+cursor_blink = true
+smooth_caret = true
+auto_pairs = true
+scroll_past_end = true
+vim_mode = false
+
+[files]
+trim_trailing_whitespace = false
+final_newline = true
+restore_session = true
+restore_project = true
+exclude = .git node_modules target build .cache __pycache__ .venv .idea .DS_Store
+
+[agents]
+claude = false
+codex = true
+grok = false
+opencode = true
+
+[terminal]
+shell =
+font_size = 14
+font =
+line_height = 1.4
+scrollback = 10000
+height = 418
+
+[git]
+enabled = true
+commit_ai = off
+commit_model = qwen2.5-coder:1.5b
+
+[updates]
+check = true
+
+[keys]
+ctrl+t = select_theme
+ctrl+\ = toggle_sidebar
+ctrl+Backspace = delete_line
+ctrl+r = replace
+ctrl+shift+f = find_in_files
+alt+r = rename_file
+ctrl+shift+} = next_tab
+ctrl+shift+{ = prev_tab

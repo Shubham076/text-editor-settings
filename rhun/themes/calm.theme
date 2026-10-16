@@ -1,0 +1,56 @@
+name = Calm
+kind = dark
+
+bg             = #35383b
+fg             = #ded6c9
+panel_fg       = #ded6c9
+accent         = #bccb9f
+panel          = #404243
+hover          = #575754
+active         = #686e60
+border         = #5b5b59
+selection      = #3f4e6c
+line_highlight = #3f4e57
+muted          = #b2aea6
+line_number    = #838f9a
+cursor         = #cec3af
+accent_fg      = #404243
+error          = #dc7f7d
+warning        = #e0c08e
+success        = #a3ce62
+
+[syntax]
+text        = #cec3af
+keyword     = #dcaba6
+type        = #bccb9f
+function    = #bccb9f
+string      = #a3c4c5
+number      = #e0c08e
+comment     = #809f9f
+constant    = #bccb9f
+operator    = #cec3af
+punctuation = #cec3af
+preproc     = #eeb89d
+builtin     = #bccb9f
+attribute   = #dcaba6
+tag         = #cec3af
+heading     = #dcaba6
+escape      = #a3c4c5
+
+[terminal]
+black          = #727171
+red            = #ef8b89
+green          = #a3ce62
+yellow         = #ffcb8b
+blue           = #a4befa
+magenta        = #c6a4dc
+cyan           = #7fdbca
+white          = #637777
+bright_black   = #595959
+bright_red     = #f5949d
+bright_green   = #90d26f
+bright_yellow  = #f1d962
+bright_blue    = #81c2e8
+bright_magenta = #e086e0
+bright_cyan    = #83e3e3
+bright_white   = #d9d9d5

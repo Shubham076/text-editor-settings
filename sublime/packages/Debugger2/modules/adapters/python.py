@@ -5,9 +5,6 @@ from . import util
 from .. import dap
 from .. import core
 
-import ast
-import re
-
 import sublime
 import shutil
 import os
@@ -15,54 +12,6 @@ import subprocess
 import shlex
 
 from pathlib import Path
-
-
-class PythonInstaller(util.GitSourceInstaller):
-	async def post_install(self, version: str, log: dap.Console):
-		path = Path(self.temporary_install_path())
-		metadata = path / 'debugpy_info.json'
-		if metadata.is_file():
-			info = core.json_decode_file(str(metadata))
-			entries = info.get('any')
-			entry = entries[0] if isinstance(entries, list) and entries else entries
-			url = entry.get('url') if isinstance(entry, dict) else None
-			if not isinstance(url, str) or not url.startswith('https://'):
-				raise dap.Error('Release debugpy_info.json does not contain a valid debugpy download URL')
-			await util.request.download_and_extract_zip(url, str(path / 'debugpy'), log=log)
-		else:
-			debugpy_version = self.pinned_debugpy_version(path / 'noxfile.py')
-			release = await util.request.json(f'https://pypi.org/pypi/debugpy/{debugpy_version}/json')
-			wheel = next((item for item in release.get('urls', [])
-				if item.get('packagetype') == 'bdist_wheel' and not item.get('yanked')
-				and item.get('filename', '').startswith(f'debugpy-{debugpy_version}-')
-				and item.get('filename', '').endswith('-none-any.whl')), None)
-			if not wheel:
-				raise dap.Error(f'No supported universal debugpy wheel found for pinned version {debugpy_version}')
-			digest = wheel.get('digests', {}).get('sha256', '')
-			if not isinstance(digest, str) or not re.fullmatch(r'[0-9a-fA-F]{64}', digest):
-				raise dap.Error('The debugpy wheel is missing a valid SHA-256 digest')
-			url = wheel.get('url', '')
-			if not isinstance(url, str) or not url.startswith('https://files.pythonhosted.org/'):
-				raise dap.Error('The debugpy wheel has an invalid download URL')
-			log.info(f'Using debugpy {debugpy_version} pinned by extension {version}')
-			await util.request.download_and_extract_zip(url, str(path / 'debugpy'), log=log, sha256=digest)
-
-		if not (path / 'debugpy/debugpy/adapter/__main__.py').is_file():
-			raise dap.Error('The downloaded debugpy package does not contain the adapter entry point')
-
-	@staticmethod
-	def pinned_debugpy_version(path: Path) -> str:
-		try:
-			module = ast.parse(path.read_text(encoding='utf-8'))
-		except (OSError, SyntaxError) as error:
-			raise dap.Error('Unable to read the pinned debugpy version from noxfile.py') from error
-		for node in module.body:
-			if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == 'DEBUGPY_VERSION' for target in node.targets):
-				if isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
-					version = node.value.value
-					if re.fullmatch(r'\d+\.\d+\.\d+[A-Za-z0-9.+-]*', version):
-						return version
-		raise dap.Error('The release does not define a literal pinned DEBUGPY_VERSION version in noxfile.py')
 
 
 def variable_presentation(configured: Any) -> Any:
@@ -84,7 +33,7 @@ class Python(dap.Adapter):
 	type = ['debugpy', 'python']
 	docs = 'https://github.com/microsoft/vscode-docs/blob/main/docs/python/debugging.md#python-debug-configurations-in-visual-studio-code'
 
-	installer = PythonInstaller(type='debugpy', repo='microsoft/vscode-python-debugger')
+	installer = util.OpenVsxInstaller(type='debugpy', repo='ms-python/debugpy')
 
 	async def start(self, console: dap.Console, configuration: dap.ConfigurationExpanded):
 		configuration['variablePresentation'] = variable_presentation(configuration.get('variablePresentation'))
@@ -104,8 +53,6 @@ class Python(dap.Adapter):
 			if not configuration.get('listen') and not configuration.get('processId'):
 				sublime.error_message('Warning: Check your debugger configuration.\n\n"attach" requires "connect", "listen" or "processId".\n\nIf they contain a $variable that variable may not have existed.')
 
-		install_path = self.installer.install_path()
-
 		python = configuration.get('pythonPath') or configuration.get('python')
 
 		configuration['cwd'] = configuration.get('cwd', await configuration.variables['folder'])
@@ -119,7 +66,7 @@ class Python(dap.Adapter):
 
 			if venv:
 				python, folder = venv
-				console.info('Detected virtual environment for `{}`'.format(folder))
+				console.info(f'Detected virtual environment for `{folder}`')
 			elif shutil.which('python3'):
 				python = shutil.which('python3')
 			else:
@@ -128,14 +75,26 @@ class Python(dap.Adapter):
 		if not python:
 			raise dap.Error('Unable to find `python3` or `python`')
 
-		console.info('Using python `{}`'.format(python))
+		console.info(f'Using python `{python}`')
 
-		return dap.StdioTransport(
-			[
-				f'{python}',
-				f'{install_path}/debugpy/debugpy/adapter',
-			]
-		)
+		install_path = self.installer.install_path()
+		paths = [
+			f'{install_path}/bundled/libs/debugpy', # new path using openvsx
+			f'{install_path}/debugpy/debugpy/adapter'
+		]
+
+		for path in paths:
+			if not os.path.exists(path):
+				continue
+
+			return dap.StdioTransport(
+				[
+					f'{python}',
+					path,
+				]
+			)
+
+		raise dap.Error(f'Unable to find debugpy searched {paths}')
 
 	async def on_custom_event(self, session: dap.Session, event: str, body: Any):
 		if event == 'debugpyAttach':

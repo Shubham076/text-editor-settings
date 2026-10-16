@@ -1,6 +1,14 @@
 // Place your key bindings in this file to override the defaultsauto[]
 [
   {
+    "key": "cmd+shift+]",
+    "command": "workbench.action.nextEditor"
+  },
+  {
+    "key": "cmd+shift+[",
+    "command": "workbench.action.previousEditor"
+  },
+  {
     "key": "numpad_decimal",
     "command": "leetcode.testSolution"
   },

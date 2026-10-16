@@ -1,0 +1,55 @@
+name = Rose Pine JB
+kind = light
+
+bg             = #faf4ed
+fg             = #4b4b4c
+panel_fg       = #4b4b4c
+accent         = #ad7370
+panel          = #ebe6e0
+hover          = #d3cfcb
+active         = #dac6c1
+border         = #b4b6b4
+selection      = #cee1f0
+line_highlight = #eff2ef
+muted          = #696766
+line_number    = #585859
+cursor         = #4fb4d8
+error          = #a66e6e
+warning        = #bb810c
+success        = #4c944c
+
+[syntax]
+text        = #686869
+keyword     = #4a858c
+type        = #ad7370
+function    = #ad7370
+string      = #94765d
+number      = #686869
+comment     = #868f88
+constant    = #8a822d
+operator    = #686869
+punctuation = #686869
+preproc     = #ad7370
+builtin     = #ad7370
+attribute   = #c3706c
+tag         = #3e3e3e
+heading     = #4a858c
+escape      = #94765d
+
+[terminal]
+black          = #696666
+red            = #a66e6e
+green          = #4c944c
+yellow         = #bb810c
+blue           = #6262ab
+magenta        = #a669a6
+cyan           = #539696
+white          = #595959
+bright_black   = #656565
+bright_red     = #b26969
+bright_green   = #509d5c
+bright_yellow  = #c09805
+bright_blue    = #506bb7
+bright_magenta = #a957a9
+bright_cyan    = #3e9a9a
+bright_white   = #686869

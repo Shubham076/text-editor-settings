@@ -1,9 +1,12 @@
 {
     "folders": [
         {
-            "path": ".."
+            "path": "..",
         }
     ],
     "build_systems": [],
     "settings": {},
+    "debugger_configurations":
+    [
+	],
 }

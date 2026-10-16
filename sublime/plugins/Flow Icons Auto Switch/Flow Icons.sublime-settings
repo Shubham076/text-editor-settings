@@ -1,0 +1,24 @@
+{
+    // Base palette: "Flow Dawn", "Flow Deep", "Flow Dim" or "Flow You".
+    // The "(Light)" variant of this palette is used whenever the UI is light.
+    "palette": "Flow Dawn",
+
+    // Keep "file_icon_theme" in sync with the resolved UI style.
+    "auto_switch": true,
+
+    // Also keep the sidebar folder icons in sync with the palette and style.
+    // This writes a <theme>.sublime-theme override inside this package; your
+    // own Packages/User theme file is never modified.
+    "manage_folder_icons": true,
+
+    // Folder accent: teal | sky | red | purple | pink | orange | lime |
+    // green | gray | brown | blue | yellow
+    "folder_color": "sky",
+
+    // Package directory holding the icon PNGs.
+    "icons_package": "Flow Icons",
+
+    // How often (ms) to re-check the UI style. Sublime fires no event when the
+    // OS appearance changes, so this is polled.
+    "poll_interval": 2000
+}

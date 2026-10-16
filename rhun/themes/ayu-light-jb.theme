@@ -1,0 +1,55 @@
+name = Ayu Light JB
+kind = light
+
+bg             = #f8f9fa
+fg             = #484c50
+panel_fg       = #484c50
+accent         = #4f8889
+panel          = #e9eaec
+hover          = #d1d2d5
+active         = #becfd0
+border         = #b6b8ba
+selection      = #cee1f0
+line_highlight = #dee1e5
+muted          = #66696b
+line_number    = #757b80
+cursor         = #d68c67
+error          = #f51818
+warning        = #f29718
+success        = #769f00
+
+[syntax]
+text        = #61676c
+keyword     = #cc8866
+type        = #4f8889
+function    = #4f8889
+string      = #749123
+number      = #cc8866
+comment     = #9ea2a8
+constant    = #61676c
+operator    = #cc8866
+punctuation = #61676c
+preproc     = #4f8889
+builtin     = #4f8889
+attribute   = #cc8866
+tag         = #61676c
+heading     = #cc8866
+escape      = #749123
+
+[terminal]
+black          = #f8f9fa
+red            = #f51818
+green          = #769f00
+yellow         = #f29718
+blue           = #55b4d4
+magenta        = #8839ef
+cyan           = #55b4d4
+white          = #595959
+bright_black   = #9ea2a8
+bright_red     = #f51818
+bright_green   = #769f00
+bright_yellow  = #f29718
+bright_blue    = #55b4d4
+bright_magenta = #8839ef
+bright_cyan    = #55b4d4
+bright_white   = #61676c
