@@ -15,6 +15,7 @@ from .variable_format import (
 	CHILD_INDENT,
 	CONTINUATION_INDENT,
 	WRAP_WIDTH,
+	_field_key,
 	_fields_of,
 	_is_flat_contents,
 	_leaf_lines,
@@ -53,6 +54,10 @@ NON_RECURSIVE_CHILDREN = {JAVASCRIPT_PROTOTYPE}
 # value is made of rather than what it holds, so it leaves them out
 SYNTHETIC_CHILDREN = {'len()', *PYTHON_GROUPS}
 
+# pydantic keeps what it knows about a model class in the `model_` namespace, which it reserves, and
+# debugpy lists all of it next to the fields of every instance: `model_fields`, `model_config`, ...
+CLASS_MEMBER_PREFIXES = ('model_',)
+
 # what each level in is indented by
 
 # The class name and size limits LSP uses for its hover popup, see Packages/LSP/popups.css and the
@@ -84,7 +89,10 @@ async def evaluate_hover(view: sublime.View, point: int) -> tuple[Debugger, dap.
 
 	word_string, region = r
 	response = await session.evaluate_expression(word_string, 'hover')
-	return debugger, dap.Variable.from_evaluate(session, '', response), region
+	variable = dap.Variable.from_evaluate(session, '', response)
+	# what was hovered is what evaluates to it, which an adapter needs to ask anything more about it
+	variable.evaluateName = word_string
+	return debugger, variable, region
 
 
 @core.run
@@ -340,6 +348,32 @@ def _is_opaque(variable: dap.Variable) -> bool:
 	return not (value[:1] in ('[', '{') and value[-1:] in (']', '}') and _is_flat_contents(value))
 
 
+async def _children_with_unlisted(variable: dap.Variable) -> list[dap.Variable] | None:
+	'''The fields of a python object when its repr leaves some of them out, or None when it names them all
+
+	A repr is what the author of the class chose to print. A dataclass field declared `repr=False`, a
+	pydantic field with `Field(repr=False)`, a private attribute, anything set on the instance afterwards:
+	none of it is in `Config(api_key='...')`, and a popup that reads the object off its repr shows a
+	config with one field where the Variables panel shows the settings next to it. So the fields are
+	asked for after all, and compared with the ones the repr named; only when there is one it did not
+	name is the object listed by its fields instead.
+	'''
+	value = ' '.join((variable.value or '').split())
+	fields = _fields_of(value)
+
+	# only `Name(a=1)`: a struct written `T {A: 1}` is printed by the adapter, which leaves nothing out
+	if not fields or not value.endswith(')') or not variable.variablesReference:
+		return None
+
+	named = {_field_key(entry) for entry in fields[1]}
+	children = [child for child in await _children_of(variable) if not child.name.startswith(CLASS_MEMBER_PREFIXES)]
+
+	if all(child.name in named for child in children):
+		return None
+
+	return children
+
+
 async def _lines_for(variable: dap.Variable, depth: int, indent: str, limit: int) -> list[str]:
 	'''The value and, as far down as `MAX_DEPTH`, what is inside it
 
@@ -352,13 +386,20 @@ async def _lines_for(variable: dap.Variable, depth: int, indent: str, limit: int
 	# the adapter's own rendering of it would leave the reader with an address or a type name
 	expand = depth < MAX_DEPTH and variable.name not in NON_RECURSIVE_CHILDREN and (depth == 0 or _is_opaque(variable))
 
-	if not expand:
+	children: list[dap.Variable] | None = None
+
+	# the repr of an object is taken at its word only as far as it goes
+	if not expand and depth < MAX_DEPTH and variable.name not in NON_RECURSIVE_CHILDREN:
+		children = await _children_with_unlisted(variable)
+
+	if not expand and children is None:
 		return _leaf_lines(variable.name, variable.value, indent)[:limit]
 
 	# a value that is about to have its contents listed underneath does not need them inline as well
 	value = value_summary(variable)
 
-	children = await _children_of(variable)
+	if children is None:
+		children = await _children_of(variable)
 
 	# js-debug sometimes puts a complete object literal in `value` as well as returning each property
 	# as a child. Once the children are rendered that preview repeats every property. The synthetic

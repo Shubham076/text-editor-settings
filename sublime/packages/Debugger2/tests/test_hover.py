@@ -168,6 +168,20 @@ class HoverTests(unittest.TestCase):
 		self.assertIn('  config: Config(a=1, sub=Sub(x=2))', text)
 		self.assertEqual(text.count('x=2'), 1)
 
+	def test_field_the_repr_leaves_out_is_listed_with_the_ones_it_names(self):
+		# a dataclass field declared `repr=False`: the Variables panel has it, the repr does not
+		proxy = Variable('settings', "mappingproxy({'timeout': 5000, 'failOpen': True})", [Variable("'timeout'", '5000'), Variable("'failOpen'", 'True'), Variable('len()', '2')], type='mappingproxy')
+		config = Variable(
+			'plugin_config',
+			"AgenticPluginConfig(api_key='5f30')",
+			[Variable('api_key', "'5f30'"), Variable('model_config', '{}', [Variable('len()', '0')]), proxy],
+			type='AgenticPluginConfig',
+		)
+		root = Variable('', "Settings(arch='arm64', plugin_config=AgenticPluginConfig(api_key='5f30'))", [Variable('arch', "'arm64'"), config])
+		text = '\n'.join(asyncio.run(self.hover._lines_for(root, 0, '', self.hover.MAX_LINES)))
+		self.assertIn("  plugin_config: AgenticPluginConfig\n    api_key: '5f30'\n    settings: mappingproxy\n      'timeout': 5000\n      'failOpen': True", text)
+		self.assertNotIn('model_config', text)
+
 
 if __name__ == '__main__':
 	unittest.main()

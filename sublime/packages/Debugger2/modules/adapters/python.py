@@ -4,6 +4,7 @@ from typing import Any
 from . import util
 from .. import dap
 from .. import core
+from ..variable_format import PYTHON_GROUPS
 
 import sublime
 import shutil
@@ -27,6 +28,13 @@ def variable_presentation(configured: Any) -> Any:
 	if 'protected' in configured or 'all' in configured:
 		return configured
 	return dict(configured, protected='group')
+
+
+# what debugpy lists under a value that is not part of what the value holds, see `PYTHON_GROUPS`
+SYNTHETIC_CHILDREN = {'len()', *PYTHON_GROUPS}
+
+# a mapping debugpy does not know how to open, as the dict it can. Anything else evaluates to None
+MAPPING_AS_DICT = "(lambda v: dict(v) if isinstance(v, __import__('collections.abc').abc.Mapping) else None)({})"
 
 
 class Python(dap.Adapter):
@@ -103,6 +111,40 @@ class Python(dap.Adapter):
 			await session.debugger.launch(self, configuration_expanded, parent=session)
 		else:
 			core.info(f'event not handled `{event}`')
+
+	async def on_variable_children(self, variable: dap.Variable, children: list[dap.Variable]) -> list[dap.Variable]:
+		'''The items of a mapping debugpy opens to nothing but its group rows
+
+		debugpy lists the items of a `dict` and of little else. A `mappingproxy`, which is what a class
+		`__dict__` and a frozen settings object are, opens to `special variables` and `function variables`
+		and nothing more: its contents exist only in the repr, which the row drops because an open row
+		is expected to list them underneath. So a value that came back with no data of its own is asked
+		for again as a dict, and the items of that are what it opens to.
+		'''
+		expression = variable.evaluateName
+		if not expression or not variable.value or any(child.name not in SYNTHETIC_CHILDREN for child in children):
+			return children
+
+		wrapped = MAPPING_AS_DICT.format(expression)
+
+		try:
+			response = await variable.session.evaluate_expression(wrapped, 'watch')
+			if not response.variablesReference:
+				return children
+
+			items = await variable.session.get_variables(response.variablesReference)
+		except dap.Error:
+			return children
+
+		items = [item for item in items if item.name not in PYTHON_GROUPS]
+
+		# debugpy names each item by the expression it was reached through, and the mapping itself can be
+		# subscripted, so there is no reason for a copied expression to carry the conversion
+		for item in items:
+			if item.evaluateName:
+				item.evaluateName = item.evaluateName.replace(wrapped, expression)
+
+		return items + [child for child in children if child.name in PYTHON_GROUPS]
 
 	# TODO: patch in env since python seems to not inherit it from the adapter process.
 	# async def configuration_resolve(self, configuration: dap.ConfigurationExpanded):

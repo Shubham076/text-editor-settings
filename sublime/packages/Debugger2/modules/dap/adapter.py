@@ -74,6 +74,12 @@ class Adapter(metaclass=AdapterRegistery):
 		region = sublime.Region(word.b - len(matched_string), word.b)
 		return (matched_string, region)
 
+	async def on_variable_children(self, variable: dap.Variable, children: list[dap.Variable]) -> list[dap.Variable]:
+		"""
+		Allows the adapter to change what a variable opens to, given what its `variables` request returned.
+		"""
+		return children
+
 	def did_start_debugging(self, session: Session): ...
 
 	def did_stop_debugging(self, session: Session): ...

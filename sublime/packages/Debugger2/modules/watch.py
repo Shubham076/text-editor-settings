@@ -95,6 +95,7 @@ class Watch(core.Dispose):
 		else:
 			expression.message = ''
 			expression.evaluate_response = dap.Variable.from_evaluate(session, expression.value, evaluation)
+			expression.evaluate_response.evaluateName = expression.value
 			expression.results[session] = expression.evaluate_response
 
 	def clear_session_data(self, session: dap.Session):

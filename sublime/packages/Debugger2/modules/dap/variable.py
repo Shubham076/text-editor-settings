@@ -91,7 +91,8 @@ class Variable:
 
 	async def fetch(self):
 		assert self.variablesReference
-		return await self.session.get_variables(self.variablesReference)
+		children = await self.session.get_variables(self.variablesReference)
+		return await self.session.adapter.on_variable_children(self, children)
 
 	async def children(self) -> list[Variable]:
 		if not self.has_children:

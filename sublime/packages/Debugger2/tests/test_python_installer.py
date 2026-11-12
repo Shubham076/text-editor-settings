@@ -53,6 +53,7 @@ class PythonAdapterTests(unittest.TestCase):
 			'_python_installer_test.modules.adapters.util': types.SimpleNamespace(OpenVsxInstaller=InstallerBase),
 			'_python_installer_test.modules.dap': types.SimpleNamespace(Adapter=type('Adapter', (), {}), Error=RuntimeError, StdioTransport=self.transport),
 			'_python_installer_test.modules.core': types.SimpleNamespace(),
+			'_python_installer_test.modules.variable_format': load_module('_python_installer_test.modules.variable_format', ROOT / 'modules/variable_format.py', {}),
 			'sublime': types.SimpleNamespace(),
 		}
 		self.module = load_module('_python_installer_test.modules.adapters.python', ROOT / 'modules/adapters/python.py', self.modules)
@@ -92,6 +93,28 @@ class PythonAdapterTests(unittest.TestCase):
 			self.start()
 		self.transport.assert_not_called()
 
+	def test_mapping_with_no_data_rows_opens_to_its_items(self):
+		Row = lambda name, evaluateName=None: types.SimpleNamespace(name=name, evaluateName=evaluateName)
+		wrapped = self.module.MAPPING_AS_DICT.format('cfg.settings')
+		session = types.SimpleNamespace(
+			evaluate_expression=AsyncMock(return_value=types.SimpleNamespace(variablesReference=7)),
+			get_variables=AsyncMock(return_value=[Row('special variables'), Row("'timeout'", wrapped + "['timeout']"), Row('len()')]),
+		)
+		proxy = types.SimpleNamespace(session=session, evaluateName='cfg.settings', value="mappingproxy({'timeout': 5000})")
+		groups = [Row('special variables'), Row('function variables')]
+		children = asyncio.run(self.adapter.on_variable_children(proxy, groups))
+		self.assertEqual([child.name for child in children], ["'timeout'", 'len()', 'special variables', 'function variables'])
+		self.assertEqual(children[0].evaluateName, "cfg.settings['timeout']")
+		session.evaluate_expression.assert_awaited_once_with(wrapped, 'watch')
+
+		# a value that lists data of its own is left alone, and so is one that is not a mapping
+		session.evaluate_expression.reset_mock()
+		data = [Row('api_key'), Row('special variables')]
+		self.assertIs(asyncio.run(self.adapter.on_variable_children(proxy, data)), data)
+		session.evaluate_expression.assert_not_awaited()
+		session.evaluate_expression.return_value = types.SimpleNamespace(variablesReference=0)
+		self.assertIs(asyncio.run(self.adapter.on_variable_children(proxy, groups)), groups)
+
 
 class DownloadIntegrityTests(unittest.TestCase):
 	def setUp(self):
@@ -127,7 +150,6 @@ class DownloadIntegrityTests(unittest.TestCase):
 		with self.assertRaisesRegex(RuntimeError, 'SHA-256'):
 			asyncio.run(self.module.download_and_extract_zip('https://example.invalid/wheel', str(self.path), sha256='0' * 64))
 		self.assertFalse(self.path.exists())
-
 
 if __name__ == '__main__':
 	unittest.main()
