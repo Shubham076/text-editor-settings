@@ -9,6 +9,7 @@ panel          = #e2ddd9
 hover          = #cecac7
 active         = #d5c2b4
 border         = #b4ada6
+popup          = #e7e2dd
 selection      = #ded6cf
 line_highlight = #e7ddd5
 muted          = #626160

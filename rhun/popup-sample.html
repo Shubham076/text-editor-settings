@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hover Card Redesign</title>
+<style>
+  :root { --page:#2b2d30; --ink:#e6e1d8; --dim:#a9a49b; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px 16px 40px; background:var(--page); color:var(--ink); font:14px/1.5 ui-monospace,"SF Mono",Menlo,monospace; }
+  .wrap { max-width:1180px; margin:0 auto; }
+  h1 { font-size:17px; margin:0 0 6px; font-weight:600; }
+  .lead { color:var(--dim); margin:0 0 10px; max-width:80ch; }
+  pre.key { background:#232528; border-radius:8px; padding:12px 14px; color:#c8d3a8; margin:0 0 8px; overflow:auto; }
+  h2 { font-size:13px; letter-spacing:.04em; text-transform:uppercase; color:var(--dim); margin:30px 0 12px; font-weight:600; }
+  .pair { display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
+  .label { font-size:12px; color:var(--dim); margin:0 0 8px; } .label b { color:var(--ink); }
+  .scene { background:var(--bg); border-radius:8px; padding:14px 14px 18px; }
+  .line { color:var(--text); white-space:nowrap; overflow:hidden; }
+  .kw { color:var(--kw); } .ty { color:var(--ty); }
+  .card { margin-top:8px; background:var(--popup); border:1px solid var(--edge); border-radius:8px; padding:12px 14px; color:var(--fg); font-size:13.5px; }
+  .code { background:var(--code); border-radius:5px; padding:18px 14px; position:relative; }
+  .rule { height:1px; background:var(--rule); margin:12px 0; }
+  .chip { background:var(--code); border-radius:3px; padding:0 4px; }
+  .card .chip { outline:1px solid var(--rule); outline-offset:0; }
+  .copy-text { position:absolute; top:7px; right:7px; font-size:12px; padding:2px 9px; border-radius:5px; background:var(--popup); border:1px solid var(--edge); }
+  .copy-icon { position:absolute; top:7px; right:7px; width:26px; height:26px; border-radius:5px; display:grid; place-items:center; color:var(--mut); }
+  .ui-font { font-family: "Comic Sans MS", "Chalkboard SE", system-ui, sans-serif; }
+  .changes { margin-top:30px; background:#232528; border-radius:8px; padding:16px 18px; }
+  .changes ol { margin:6px 0 0; padding-left:20px; } .changes li { margin:6px 0; } .changes code { color:#c8d3a8; }
+  .copy-icon svg { width:15px; height:15px; }
+</style></head>
+<body><div class="wrap">
+<h1>rhun hover card with a new <code>code_bg</code> key</h1>
+<p class="lead">One new theme key colors the hover card and every Markdown code block. A theme can set it; when it doesn't, rhun derives it from the editor background toward the text color: <b>darker</b> on light themes, <b>lighter</b> on dark ones.</p>
+<pre class="key">code_bg = #505152        # optional
+# default when missing:
+#   light theme: editor bg mixed 6% toward the text color
+#   dark theme:  editor bg mixed 16% toward the text color</pre>
+<svg width="0" height="0" style="position:absolute"><symbol id="copy" viewBox="0 0 128 128" fill="none" stroke="currentColor" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"><rect x="44" y="44" width="68" height="68" rx="10"/><path d="M84 44V26a10 10 0 0 0-10-10H26a10 10 0 0 0-10 10v48a10 10 0 0 0 10 10h18"/></symbol></svg>
+
+<h2>Calm · dark</h2>
+<div class="pair">
+  <div><p class="label"><b>Now</b> · card <code>popup #3d3f42</code> · code block <code>hover #575754</code> · rules <code>#5b5b59</code></p>
+  <div class="scene" style="--bg:#35383b;--text:#cec3af;--kw:#dcaba6;--ty:#bccb9f;--fg:#ded6c9;--mut:#b2aea6;--popup:#3d3f42;--code:#575754;--rule:#5b5b59;--edge:#5b5b59;">
+      <div class="line">func Load(pluginDir <span class="ty">string</span>) interfaces.PluginContext {</div>
+      <div class="card">
+        <div class="code"><span class="copy-text">Copy</span><span class="kw">type</span> <span class="ty">string</span> string</div>
+        <div class="rule"></div>
+        <div>string is the set of all strings of 8-bit bytes, conventionally but not necessarily representing UTF-8-encoded text.</div>
+        <div class="rule"></div>
+        <div><span class="chip">string</span> on pkg.go.dev</div>
+      </div>
+    </div></div>
+  <div><p class="label"><b>With <code>code_bg</code></b> · card and code <code>#505152</code> · rules <code>#7c7a75</code> · Copy icon</p>
+  <div class="scene" style="--bg:#35383b;--text:#cec3af;--kw:#dcaba6;--ty:#bccb9f;--fg:#ded6c9;--mut:#b2aea6;--popup:#505152;--code:#505152;--rule:#7c7a75;--edge:#5b5b59;">
+      <div class="line">func Load(pluginDir <span class="ty">string</span>) interfaces.PluginContext {</div>
+      <div class="card">
+        <div class="code"><span class="copy-icon"><svg><use href="#copy"/></svg></span><span class="kw">type</span> <span class="ty">string</span> string</div>
+        <div class="rule"></div>
+        <div>string is the set of all strings of 8-bit bytes, conventionally but not necessarily representing UTF-8-encoded text.</div>
+        <div class="rule"></div>
+        <div><span class="chip">string</span> on pkg.go.dev</div>
+      </div>
+    </div></div>
+</div>
+<h2>White Sand · light</h2>
+<div class="pair">
+  <div><p class="label"><b>Now</b> · card <code>popup #f7f5f3</code> · code block <code>hover #cecac7</code> · rules <code>#b4ada6</code></p>
+  <div class="scene" style="--bg:#eee9e4;--text:#737373;--kw:#888655;--ty:#b47d54;--fg:#454545;--mut:#626160;--popup:#f7f5f3;--code:#cecac7;--rule:#b4ada6;--edge:#b4ada6;">
+      <div class="line">func Load(pluginDir <span class="ty">string</span>) interfaces.PluginContext {</div>
+      <div class="card">
+        <div class="code"><span class="copy-text">Copy</span><span class="kw">type</span> <span class="ty">string</span> string</div>
+        <div class="rule"></div>
+        <div>string is the set of all strings of 8-bit bytes, conventionally but not necessarily representing UTF-8-encoded text.</div>
+        <div class="rule"></div>
+        <div><span class="chip">string</span> on pkg.go.dev</div>
+      </div>
+    </div></div>
+  <div><p class="label"><b>With <code>code_bg</code></b> · card and code <code>#e4dfda</code> · rules <code>#98938e</code> · Copy icon</p>
+  <div class="scene" style="--bg:#eee9e4;--text:#737373;--kw:#888655;--ty:#b47d54;--fg:#454545;--mut:#626160;--popup:#e4dfda;--code:#e4dfda;--rule:#98938e;--edge:#b4ada6;">
+      <div class="line">func Load(pluginDir <span class="ty">string</span>) interfaces.PluginContext {</div>
+      <div class="card">
+        <div class="code"><span class="copy-icon"><svg><use href="#copy"/></svg></span><span class="kw">type</span> <span class="ty">string</span> string</div>
+        <div class="rule"></div>
+        <div>string is the set of all strings of 8-bit bytes, conventionally but not necessarily representing UTF-8-encoded text.</div>
+        <div class="rule"></div>
+        <div><span class="chip">string</span> on pkg.go.dev</div>
+      </div>
+    </div></div>
+</div>
+<h2>Tokyo Night Light · light</h2>
+<div class="pair">
+  <div><p class="label"><b>Now</b> · card <code>popup #f3f3f6</code> · code block <code>hover #c7c8ce</code> · rules <code>#aaaab0</code></p>
+  <div class="scene" style="--bg:#e6e7ed;--text:#717279;--kw:#6e6380;--ty:#58747a;--fg:#444449;--mut:#5f6064;--popup:#f3f3f6;--code:#c7c8ce;--rule:#aaaab0;--edge:#aaaab0;">
+      <div class="line">func Load(pluginDir <span class="ty">string</span>) interfaces.PluginContext {</div>
+      <div class="card">
+        <div class="code"><span class="copy-text">Copy</span><span class="kw">type</span> <span class="ty">string</span> string</div>
+        <div class="rule"></div>
+        <div>string is the set of all strings of 8-bit bytes, conventionally but not necessarily representing UTF-8-encoded text.</div>
+        <div class="rule"></div>
+        <div><span class="chip">string</span> on pkg.go.dev</div>
+      </div>
+    </div></div>
+  <div><p class="label"><b>With <code>code_bg</code></b> · card and code <code>#dcdde3</code> · rules <code>#909096</code> · Copy icon</p>
+  <div class="scene" style="--bg:#e6e7ed;--text:#717279;--kw:#6e6380;--ty:#58747a;--fg:#444449;--mut:#5f6064;--popup:#dcdde3;--code:#dcdde3;--rule:#909096;--edge:#aaaab0;">
+      <div class="line">func Load(pluginDir <span class="ty">string</span>) interfaces.PluginContext {</div>
+      <div class="card">
+        <div class="code"><span class="copy-icon"><svg><use href="#copy"/></svg></span><span class="kw">type</span> <span class="ty">string</span> string</div>
+        <div class="rule"></div>
+        <div>string is the set of all strings of 8-bit bytes, conventionally but not necessarily representing UTF-8-encoded text.</div>
+        <div class="rule"></div>
+        <div><span class="chip">string</span> on pkg.go.dev</div>
+      </div>
+    </div></div>
+</div>
+
+<h2>Tokyo Night Light · text color and font inside the card</h2>
+<div class="pair">
+  <div><p class="label"><b>Now</b> · plain code words in interface <code>fg #444449</code> · description in the interface font</p>
+    <div class="scene" style="--bg:#e6e7ed;--text:#717279;--fg:#444449;--popup:#f3f3f6;--code:#c7c8ce;--rule:#aaaab0;--edge:#aaaab0;">
+      <div class="card">
+        <div class="code"><span class="copy-text">Copy</span><span style="color:#6e6380">func</span> <span style="color:#96684e">TestLockFileExclusiveRejectsSecondHolder</span><span style="color:#717279">(</span><span style="color:#444449">t</span> <span style="color:#717279">*</span><span style="color:#444449">testing</span><span style="color:#717279">.</span><span style="color:#444449">T</span><span style="color:#717279">)</span></div>
+        <div class="rule"></div>
+        <div class="ui-font" style="color:#444449">TestLockFileExclusiveRejectsSecondHolder asserts the core mutual exclusion property: while one handle holds the lock, no other can take it.</div>
+      </div>
+    </div></div>
+  <div><p class="label"><b>After</b> · plain code words in editor <code>text #717279</code> · description in the editor font and <code>text</code> color · <code>code_bg</code></p>
+    <div class="scene" style="--bg:#e6e7ed;--text:#717279;--fg:#444449;--popup:#dcdde3;--code:#dcdde3;--rule:#909096;--edge:#aaaab0;--mut:#5f6064;">
+      <div class="card">
+        <div class="code"><span class="copy-icon"><svg><use href="#copy"/></svg></span><span style="color:#6e6380">func</span> <span style="color:#96684e">TestLockFileExclusiveRejectsSecondHolder</span><span style="color:#717279">(t *testing.T)</span></div>
+        <div class="rule"></div>
+        <div style="color:#717279">TestLockFileExclusiveRejectsSecondHolder asserts the core mutual exclusion property: while one handle holds the lock, no other can take it.</div>
+      </div>
+    </div></div>
+</div>
+
+<div class="changes">
+  <b>What the PR would change in rhun</b>
+  <ol>
+    <li><b>New theme key <code>code_bg</code></b> (<code>src/app/theme.s</code>): hover card and Markdown code-block background. Optional; default is the editor bg mixed toward the text color, 6% on light themes (darker) and 16% on dark themes (lighter).</li>
+    <li><b>Hover card</b> (<code>src/app/hovercard.s</code>): filled with <code>code_bg</code>; lines between sections drawn in <code>border</code> mixed 25% toward the text color.</li>
+    <li><b>Plain code words</b> (<code>src/app/markdown.s</code>): words the highlighter leaves uncolored use the theme's <code>text</code> color, as in the editor, instead of the interface <code>fg</code>.</li>
+    <li><b>Hover card text</b>: the description uses the editor font and the editor <code>text</code> color, so the whole card reads like code docs in the editor.</li>
+    <li><b>Copy button</b>: a new outline copy icon (<code>ic_copy</code>) replaces the "Copy" label, "Copy" as its tooltip.</li>
+  </ol>
+</div>
+</div></body></html>

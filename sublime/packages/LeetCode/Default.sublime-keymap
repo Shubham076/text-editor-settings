@@ -1,0 +1,12 @@
+[
+    {
+        "keys": ["ctrl+shift+t"],
+        "command": "leetcode_show_test_cases",
+        "context": [{ "key": "leetcode.solution" }]
+    },
+    {
+        "keys": ["ctrl+shift+r"],
+        "command": "leetcode_run_tests",
+        "context": [{ "key": "leetcode.solution" }]
+    }
+]

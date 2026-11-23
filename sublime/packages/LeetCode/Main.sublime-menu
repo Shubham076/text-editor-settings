@@ -1,0 +1,43 @@
+[
+    {
+        "id": "preferences",
+        "children": [
+            {
+                "id": "package-settings",
+                "children": [
+                    {
+                        "caption": "LeetCode",
+                        "children": [
+                            {
+                                "caption": "Settings",
+                                "command": "edit_settings",
+                                "args": {
+                                    "base_file": "${packages}/LeetCode/LeetCode.sublime-settings",
+                                    "default": "{\n\t$0\n}\n"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "tools",
+        "children": [
+            {
+                "caption": "LeetCode",
+                "id": "leetcode",
+                "children": [
+                    { "caption": "Search Problems", "command": "leetcode_search" },
+                    { "caption": "Show Problems Panel", "command": "leetcode_show_problems" },
+                    { "caption": "Refresh Problems", "command": "leetcode_refresh_problems" },
+                    { "caption": "-" },
+                    { "caption": "Show Test Cases", "command": "leetcode_show_test_cases" },
+                    { "caption": "Run Tests", "command": "leetcode_run_tests" },
+                    { "caption": "Submit Solution", "command": "leetcode_submit_solution" }
+                ]
+            }
+        ]
+    }
+]

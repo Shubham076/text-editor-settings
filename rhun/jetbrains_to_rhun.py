@@ -300,6 +300,10 @@ def build_theme(scheme, name, kind, ui_colors):
                                   or mix(bg, fg, 0.15), panel, BORDER_CONTRAST)
                   if kind == "light" else ensure_contrast(ensure_contrast(mix(panel, fg, 0.14), bg, 1.45),
                                                           panel, 1.45),
+        # hover card, menus and notifications: rhun's default goes lighter than bg on
+        # light themes (white on a white theme), so set it like panel, a step from the
+        # editor toward the text, darker on light themes and lighter on dark ones
+        "popup": mix(bg, fg, 15 / 256 if kind == "light" else 41 / 256),
         "selection": s.first("SELECTION_BACKGROUND") or mix(bg, fg, 0.18),
         "line_highlight": line_highlight,
         # rhun derives muted (inactive tabs, sidebar headers) as fg 43% toward bg,

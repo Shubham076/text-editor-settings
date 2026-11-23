@@ -1,0 +1,17 @@
+[
+    { "caption": "LeetCode: Search Problems", "command": "leetcode_search" },
+    { "caption": "LeetCode: Show Problems Panel", "command": "leetcode_show_problems" },
+    { "caption": "LeetCode: Refresh Problems", "command": "leetcode_refresh_problems" },
+    { "caption": "LeetCode: Show Test Cases", "command": "leetcode_show_test_cases" },
+    { "caption": "LeetCode: Add Test Case", "command": "leetcode_add_test_case" },
+    { "caption": "LeetCode: Run Tests", "command": "leetcode_run_tests" },
+    { "caption": "LeetCode: Submit Solution", "command": "leetcode_submit_solution" },
+    {
+        "caption": "Preferences: LeetCode Settings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/LeetCode/LeetCode.sublime-settings",
+            "default": "{\n\t$0\n}\n"
+        }
+    }
+]

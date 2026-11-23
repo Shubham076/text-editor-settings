@@ -1,0 +1,11 @@
+[
+    { "caption": "-" },
+    {
+        "caption": "LeetCode",
+        "children": [
+            { "caption": "Run Tests", "command": "leetcode_run_tests" },
+            { "caption": "Add Test Case", "command": "leetcode_add_test_case" },
+            { "caption": "Submit Solution", "command": "leetcode_submit_solution" }
+        ]
+    }
+]

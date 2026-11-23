@@ -3,16 +3,17 @@
 
 [ui]
 follow_system = false
-theme = carbon-light-pro
+theme = calm
 dark_theme = kanagawa
 light_theme = rhun-light
 scale = 1.1
 font_size = 14
 font = /Users/shubham.dogra/Library/Fonts/ComicMono.ttf
+file_icons = 
 sidebar = true
 sidebar_width = 240
 agents_panel = false
-agents_width = 322
+agents_width = 378
 tooltips = true
 auto_hide_scrollbars = true
 decorations = server
@@ -35,12 +36,31 @@ whitespace = false
 cursor_blink = true
 smooth_caret = true
 auto_pairs = true
+multi_cursor_paste = spread
+multi_cursor_modifier = alt
 scroll_past_end = true
 vim_mode = false
+complete_replace = false
+complete_commit_characters = true
+lightbulb = true
+format_on_type = false
+format_on_paste = false
+folding = true
+inline_complete = true
+inline_complete_delay = 300
+color_swatches = true
+highlight_occurrences = true
+code_lens = true
+inlay_hints = true
+semantic_highlighting = true
 
 [files]
 trim_trailing_whitespace = false
 final_newline = true
+format_on_save = false
+format_on_save_timeout = 2000
+code_actions_on_save = 
+code_actions_on_save_timeout = 2000
 restore_session = true
 restore_project = true
 exclude = .git node_modules target build .cache __pycache__ .venv .idea .DS_Store
@@ -52,22 +72,38 @@ grok = false
 opencode = true
 
 [terminal]
-shell =
+shell = 
 font_size = 14
-font =
+font = 
 line_height = 1.4
 scrollback = 10000
-height = 418
+height = 341
 
 [git]
 enabled = true
-commit_ai = off
+commit_ai = ollama
 commit_model = qwen2.5-coder:1.5b
+
+[extensions]
+secrets = system
 
 [updates]
 check = true
+extensions = install
+
+[debug]
+show_on_start = true
+keys_in_terminal = true
+console_lines = 10000
+
+[remote]
+agent_binary = 
+
+[testing]
+gutter = true
 
 [keys]
+# ctrl+shift+d = duplicate_line
 ctrl+t = select_theme
 ctrl+\ = toggle_sidebar
 ctrl+Backspace = delete_line

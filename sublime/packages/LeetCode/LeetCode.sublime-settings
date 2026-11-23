@@ -1,0 +1,35 @@
+{
+    // Language of the starter code for newly opened problems: python3, java, cpp, c, csharp,
+    // javascript, typescript, golang, rust, kotlin, swift, scala, php or ruby.
+    "default_language": "python3",
+
+    // true: open each problem as a file (leetcode_<number>_<title>.<ext>) in problems_directory.
+    // false: open it as an unsaved scratch buffer.
+    "save_problems_as_files": false,
+
+    // Folder for those files. Empty means the first folder of the window's project.
+    "problems_directory": "",
+
+    // Show the test case panel when a solution file gets focus. If you close the panel it
+    // stays closed for that file until you run LeetCode: Show Test Cases.
+    "auto_show_test_cases": true,
+
+    // Seconds the problem list and problem details stay cached (default: 1 day).
+    "cache_expiry": 86400,
+
+    // Your leetcode.com session, needed to run and submit. In the browser, signed in:
+    // Developer Tools > Network > any leetcode.com request > copy the whole Cookie header.
+    // It must contain csrftoken and LEETCODE_SESSION. Keep it in the User settings only.
+    "cookie_string": "",
+
+    // The User-Agent header of the browser the cookie came from. Only needed when LeetCode
+    // answers HTTP 499 or 403 to Run or Submit: its bot protection ties the cookie to the browser.
+    "user_agent": "",
+
+    // Extra root certificates (path to a .pem file) to trust for leetcode.com. Only needed
+    // when a company proxy inspects HTTPS and its certificate is not in the system keychain.
+    "ca_bundle": "",
+
+    // Log each request to the console (never the cookie).
+    "debug": false
+}
