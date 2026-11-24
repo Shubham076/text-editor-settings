@@ -535,6 +535,10 @@ class Debugger(core.Dispose, dap.Debugger):
 		if console_mode.mode(chosen) == console_mode.INTERNAL:
 			(console or self.callstack).open()
 
+	def stderr_is_output(self, session: dap.Session | None) -> bool:
+		'''Whether the stderr of a session is drawn as output rather than as errors'''
+		return bool(session) and test_buttons.stderr_is_output(session)
+
 	def console_for(self, session: dap.Session | None) -> ConsoleOutputPanel:
 		'''The console panel a sessions output belongs in, the debuggers own when it has no panel'''
 		if not self.session_panels:

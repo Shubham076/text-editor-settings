@@ -243,6 +243,22 @@ class TestButtonsTests(unittest.TestCase):
 		other.console.info.assert_not_called()
 		child.console.info.assert_not_called()
 
+	def test_the_stderr_of_a_jest_run_is_its_report_and_of_a_go_run_is_not(self):
+		runner = sys.modules['_tbt.modules.test_runner']
+		languages = {language.key: language for language in runner.LANGUAGES}
+		self.module.started.update({'adds (x.test.ts)': languages['jest'], 'TestPlugin (plugin)': languages['go']})
+		self.addCleanup(self.module.started.clear)
+
+		def session(name, parent=None):
+			return types.SimpleNamespace(configuration=types.SimpleNamespace(name=name), parent=parent)
+
+		jest = session('adds (x.test.ts)')
+		self.assertTrue(self.module.stderr_is_output(jest))
+		# what js-debug starts under it writes the results, and is the same run
+		self.assertTrue(self.module.stderr_is_output(session('child', parent=jest)))
+		self.assertFalse(self.module.stderr_is_output(session('TestPlugin (plugin)')))
+		self.assertFalse(self.module.stderr_is_output(session('Server')))
+
 	def test_a_running_test_shows_stop_and_a_click_stops_it(self):
 		self.running = {'TestOther (plugin)'}
 		self.sessions = {'TestOther (plugin)': object()}

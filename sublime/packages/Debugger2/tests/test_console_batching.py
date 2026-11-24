@@ -112,6 +112,17 @@ class ConsoleBatchingTests(unittest.TestCase):
 		written = [call.args[0] for call in self.console._write.call_args_list]
 		self.assertEqual(written, ['logpoint graph.go:118: [Go 40]: reached here\n', 'plain\n'])
 
+	def test_stderr_that_is_a_report_is_drawn_as_output(self):
+		session = Mock()
+		self.console.debugger = types.SimpleNamespace(stderr_is_output=lambda asked: asked is session)
+
+		self.console.program_output(session, self.output('PASS src/x.test.ts\n', category='stderr'))
+		self.console.program_output(Mock(), self.output('panic\n', category='stderr'))
+		self.console.flush_program_output()
+
+		self.assertEqual([(call.args[0], call.args[1]) for call in self.console._write.call_args_list],
+			[('PASS src/x.test.ts\n', 'foreground'), ('panic\n', 'red')])
+
 	def test_plain_program_output_is_combined_into_one_ui_write(self):
 		self.console.program_output(Mock(), self.output('first\n'))
 		self.console.program_output(Mock(), self.output('second\n'))

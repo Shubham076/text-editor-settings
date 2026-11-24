@@ -107,7 +107,19 @@ class ConsoleColorTests(unittest.TestCase):
 			with self.subTest(color=item['color']):
 				self.assertEqual(self.ansi.ansi_colorize('message', item['color']), '\u200c' + item['match'] + 'message')
 				for escape in item['escape']:
-					self.assertEqual(self.ansi.ansi_colorize(escape + 'message'), item['match'] + 'message')
+					self.assertEqual(self.ansi.ansi_colorize(escape + 'message'), '\u200c' + item['match'] + 'message')
+
+	def test_colours_that_follow_each_other_do_not_add_up_to_another_colour(self):
+		# how jest opens a line: reset, then green. One and four zero-width spaces, and five is yellow
+		reset, green = '\u001b[0m', '\u001b[32m'
+		marker = {item['color']: item['match'] for item in self.ansi.escape_codes}
+		text = self.ansi.ansi_colorize(reset + '\u001b[1m' + green + ' PASS ' + '\u001b[39m' + ' file\n' + green + 'ok' + '\u001b[39m' + ' name')
+
+		self.assertEqual(text,
+			'\u200c' + marker['foreground'] + '\u200c' + marker['green'] + ' PASS ' + '\u200c' + marker['foreground'] + ' file\n'
+			+ '\u200c' + marker['green'] + 'ok' + '\u200c' + marker['foreground'] + ' name')
+		# no run of zero-width spaces is as long as the marker of yellow
+		self.assertNotIn(marker['yellow'], text)
 
 	def test_default_output_resets_color_without_assigning_a_scope(self):
 		self.assertNotIn('scope', self.ansi.escape_codes_by_color['foreground'])

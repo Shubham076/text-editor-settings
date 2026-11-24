@@ -139,6 +139,12 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 			'important': 'magenta',
 		}
 
+		# the report of a test runner that writes it to stderr is not a list of errors
+		if type == 'stderr':
+			is_output = getattr(getattr(self, 'debugger', None), 'stderr_is_output', None)
+			if is_output and is_output(session):
+				type = 'stdout'
+
 		color = color_for_type.get(type) or 'foreground'
 
 		# Startup output commonly arrives as one DAP event per line. Rendering every one immediately

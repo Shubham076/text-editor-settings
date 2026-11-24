@@ -42,6 +42,9 @@ class Language:
 	# a configuration, with the users values laid over it and its variables filled in, to the lines
 	# that say what it runs. They are printed when it starts
 	command: Callable[[Any], 'list[str]']
+	# Whether what the runner writes to stderr is its report rather than errors. Jest writes every
+	# result there, and stderr in red made a run that passed read as one that failed
+	stderr_is_output: bool = False
 
 
 def above(directory: str, found: Callable[[str], bool]) -> str | None:
@@ -751,8 +754,10 @@ JEST_ESCAPES = {'n': '\n', 't': '\t'}
 JEST_INSIDE = ' › '
 JEST_GROUP = ' ›'
 
-JEST_ROOTS = ('jest.config.js', 'jest.config.ts', 'jest.config.mjs', 'jest.config.cjs', 'jest.config.json', 'package.json')
+JEST_ROOTS = ('jest.config.js', 'jest.config.ts', 'jest.config.mjs', 'jest.config.cjs', 'jest.config.mts', 'jest.config.cts', 'jest.config.json', 'package.json')
 JEST_BIN = os.path.join('node_modules', 'jest', 'bin', 'jest.js')
+# what marks the top of a repository, which is as far as the code a test runs is looked for
+JEST_WORKSPACES = ('.git', 'pnpm-workspace.yaml', 'lerna.json', 'nx.json', 'turbo.json')
 
 
 def jest_string(text: str, masked: str, at: int) -> tuple[str, int] | None:
@@ -858,12 +863,22 @@ def jest_configuration(file: str, name: str) -> dict[str, Any]:
 		'type': 'node',
 		'request': 'launch',
 		'program': os.path.join(installed, JEST_BIN),
-		# in this process: jest otherwise hands a file to a worker, which is not the process being debugged
-		'args': ['--runInBand', '--runTestsByPath', file, '-t', jest_pattern(name)],
+		# in this process: jest otherwise hands a file to a worker, which is not the process being debugged.
+		# `--colors`: it is not writing to a terminal and would drop them, the console draws them
+		'args': ['--runInBand', '--colors', '--runTestsByPath', file, '-t', jest_pattern(name)],
 		'cwd': root,
 		'console': 'internal',
 		# jest writes its results to stderr, and without this only what `console.log` prints is shown
 		'outputCapture': 'std',
+		# Where the source of what runs is looked for: the repository, not what is installed into it
+		# or generated in it. Unsaid, the adapter goes after the source map of every script that is
+		# loaded, and each one that names a map it was not shipped with is a `Could not read source
+		# map` in the middle of the results: typescript itself, the runtime of a generated client
+		'resolveSourceMapLocations': [
+			os.path.join(above(directory, has_any(*JEST_WORKSPACES)) or installed, '**'),
+			'!**/node_modules/**',
+			'!**/generated/**',
+		],
 	}
 
 
@@ -877,7 +892,7 @@ LANGUAGES: list[Language] = [
 	Language('go', lambda file: file.endswith('_test.go'), go_find, go_configuration, go_label, go_command),
 	Language('python', lambda file: bool(re.search(r'(^|[\\/])(test_\w*|\w*_test)\.py$', file)), python_find, python_configuration, python_label, python_command),
 	Language('java', lambda file: file.endswith('.java'), java_find, java_configuration, java_label, java_command),
-	Language('jest', lambda file: bool(JEST_FILE.search(file)), jest_find, jest_configuration, jest_label, jest_command),
+	Language('jest', lambda file: bool(JEST_FILE.search(file)), jest_find, jest_configuration, jest_label, jest_command, stderr_is_output=True),
 ]
 
 

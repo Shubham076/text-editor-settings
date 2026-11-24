@@ -427,7 +427,11 @@ class JestTests(unittest.TestCase):
 			self.assertEqual(configuration['type'], 'node')
 			self.assertEqual(configuration['cwd'], package)
 			self.assertEqual(configuration['program'], os.path.join(root, 'node_modules', 'jest', 'bin', 'jest.js'))
-			self.assertEqual(configuration['args'], ['--runInBand', '--runTestsByPath', file, '-t', '^math adds$'])
+			self.assertEqual(configuration['args'], ['--runInBand', '--colors', '--runTestsByPath', file, '-t', '^math adds$'])
+			# source maps are looked for in the repository, which here is as far up as jest is installed
+			self.assertEqual(configuration['resolveSourceMapLocations'], [os.path.join(root, '**'), '!**/node_modules/**', '!**/generated/**'])
+			self.assertTrue(runner.language_for(file).stderr_is_output)
+			self.assertFalse(runner.language_for('/a/b_test.go').stderr_is_output)
 			self.assertTrue(runner.jest_command(configuration)[0].endswith("-t '^math adds$'"))
 
 	def test_files(self):

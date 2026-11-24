@@ -37,7 +37,12 @@ def ansi_colorize(text: str, color: str | None = None, previous_color: str | Non
 
 	def replacement(x: Any):
 		try:
-			return escape_codes_by_code[x.group()]['match']
+			# Closed before it is opened, as a colour the console sets itself is (`escape_code`). A
+			# marker is a count of zero-width spaces, so two with nothing between them read as one
+			# longer marker, which is another colour: jest starts a line with a reset and then green,
+			# one and four, and five is yellow. And a colour that is open only ends at the closing
+			# character, so every line after it was yellow too
+			return '\u200c' + escape_codes_by_code[x.group()]['match']
 		except KeyError as e:
 			core.debug('Unhandled ansi escape', e)
 			return ''

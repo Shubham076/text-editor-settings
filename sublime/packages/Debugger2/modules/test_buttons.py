@@ -87,6 +87,19 @@ def session_started(session: dap.Session) -> None:
 		core.exception()
 
 
+def stderr_is_output(session: Any) -> bool:
+	'''Whether what a session writes to stderr is the report of a test runner, see `Language.stderr_is_output`'''
+	# no further up than a session can be nested, whatever it is that was handed in
+	for _ in range(16):
+		parent = getattr(session, 'parent', None)
+		if not parent:
+			break
+		session = parent
+
+	language = started.get(getattr(getattr(session, 'configuration', None), 'name', None))  # type: ignore[arg-type]
+	return bool(language and language.stderr_is_output)
+
+
 class TestButtons(ProjectButtons):
 	'''A play icon at the head of each test in a test file, which runs that one test
 
