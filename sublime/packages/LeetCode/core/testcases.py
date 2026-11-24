@@ -15,7 +15,6 @@ _OPENERS = "[{("
 _CLOSERS = "]})"
 _NAME_PREFIX = re.compile(r"^[A-Za-z_]\w*\s*=(?!=)\s*")
 _LINE_BREAK = re.compile(r"\s*\n\s*")
-LONG_INPUT = 80  # characters; past this an input is written over several lines
 ROW_INDENT = "  "  # in front of each row of a grid
 _EXAMPLE_OUTPUT = re.compile(r"^Output(?::[ \t]*\n?|[ \t]*\n)[ \t]*(\S.*)$", re.MULTILINE)
 
@@ -71,8 +70,8 @@ def parse_input(text, param_names):
     """Turn what the user typed into one value per parameter.
 
     Accepts ``nums = [3,2,4], target = 6``, the bare ``[3,2,4], 6``, or one value per line.
-    A value may itself run over several lines, as ``format_input`` writes a big array: a
-    line break inside brackets does not end the value.
+    A value may itself run over several lines, as a grid pasted from the panel or the
+    header comment does: a line break inside brackets does not end the value.
     Raises ValueError with a message fit to show the user.
     """
     text = text.strip()
@@ -95,19 +94,12 @@ def parse_input(text, param_names):
 def format_input(values, param_names):
     """Show values the way LeetCode's examples do: ``nums = [2,7,11,15], target = 9``.
 
-    A long input goes one parameter per line instead, with a grid spread over one row per
-    line, so it can be read and edited. ``parse_input`` reads both forms back.
+    Always one line, grids included: this is the text of the input prompt, which shows a
+    single row. The panel is where a grid is spread out (see ``layout``).
     """
-    named = len(param_names) == len(values)
-    parts = ["{} = {}".format(name, value) for name, value in zip(param_names, values)] if named else values
-    if len(", ".join(parts)) <= LONG_INPUT:
-        return ", ".join(parts)
-    lines = []
-    for index, value in enumerate(values):
-        prefix = "{} = ".format(param_names[index]) if named else ""
-        laid_out = layout(value)
-        lines += [prefix + laid_out[0]] + laid_out[1:]
-    return "\n".join(lines)
+    if len(param_names) != len(values):
+        return ", ".join(values)
+    return ", ".join("{} = {}".format(name, value) for name, value in zip(param_names, values))
 
 
 def layout(value):

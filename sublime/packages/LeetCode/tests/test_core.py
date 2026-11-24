@@ -74,10 +74,14 @@ class InputParsing(unittest.TestCase):
         self.assertEqual(testcases.layout('"' + "x" * 50 + '"'), ['"' + "x" * 50 + '"'])
         self.assertEqual(testcases.layout("[[1,2],[3,4]]"), ["[", "  [1,2],", "  [3,4]", "]"])
         self.assertEqual(testcases.layout("[]"), ["[]"])
+        # The prompt takes and gives a grid on one line; the panel is what spreads it out.
         text = testcases.format_input([board, "3"], ["board", "k"])
-        self.assertEqual(text.count("\n"), 5)
+        self.assertEqual(text, "board = {}, k = 3".format(board))
         self.assertEqual(testcases.parse_input(text, ["board", "k"]), [board, "3"])
-        self.assertEqual(testcases.parse_input(testcases.format_input([board], ["board"]), ["board"]), [board])
+        # A grid pasted over several lines is still read back as one value.
+        pasted = "board = " + "\n".join(grid) + "\nk = 3"
+        self.assertEqual(testcases.parse_input(pasted, ["board", "k"]), [board, "3"])
+        self.assertEqual(testcases.parse_input("\n".join(grid), ["board"]), [board])
 
 
 class Examples(unittest.TestCase):
