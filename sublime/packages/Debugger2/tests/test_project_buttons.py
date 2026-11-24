@@ -205,7 +205,7 @@ class ProjectButtonsTests(unittest.TestCase):
 		html = next(html for _, html, _ in self.view.phantoms.values() if 'run:0' in html)
 		# play alone: the bug that debugs it is on the bar
 		self.assertEqual(re.findall(r'href="([^"]*)"', html), ['run:0'])
-		self.assertIn('data:drawn-run-#5c6a72', html)
+		self.assertIn('data:drawn-run-filled-#5c6a72', html)
 		self.assertTrue(all('#5c6a72' in html for _, html, _ in self.view.phantoms.values()))
 
 		asyncio.run(buttons.navigate('run:0'))
@@ -216,7 +216,7 @@ class ProjectButtonsTests(unittest.TestCase):
 		self.refresh()
 		html = next(html for _, html, _ in self.view.phantoms.values() if ':0' in html)
 		self.assertEqual(re.findall(r'href="([^"]*)"', html), ['stop:0'])
-		self.assertIn('data:drawn-stop-#5c6a72', html)
+		self.assertIn('data:drawn-stop-filled-#5c6a72', html)
 
 	def test_icons_are_drawn_again_when_the_colour_of_the_text_changes(self):
 		self.refresh()

@@ -150,9 +150,9 @@ class ProjectButtons(core.Dispose):
 	def icons(self, is_running: bool, index: int) -> tuple[Icon, ...]:
 		'''The icon of the thing `targets[index]` starts: a stop while it runs, otherwise a play'''
 		if is_running:
-			return ((self.drawn('stop'), f'{ACTION_STOP}:{index}'),)
+			return ((self.drawn('stop-filled'), f'{ACTION_STOP}:{index}'),)
 
-		return ((self.drawn('run'), f'{ACTION_RUN}:{index}'),)
+		return ((self.drawn('run-filled'), f'{ACTION_RUN}:{index}'),)
 
 	def current(self) -> list[tuple[int, tuple[Icon, ...]]] | None:
 		'''What is drawn right now, in the same shape as `render()` wants it, or None if any icon is gone'''

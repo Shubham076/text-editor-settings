@@ -29,6 +29,11 @@ ICONS = {
 	'play': (('poly', ((5, 4), (15, 12), (5, 20)), True), ('line', (19, 5), (19, 19))),
 	# start, as opposed to go on from where it stopped: the triangle alone, without the bar of `play`
 	'run': (('poly', ((7, 4), (19, 12), (7, 20)), True),),
+	# The same two shapes filled in, for the icons at the head of a line in a file. On the bar an
+	# outline sits among other outlines, at the size of a button. In the margin of a file it is a
+	# third of that size next to text, where an outline is a few thin strokes that read as a bracket
+	'run-filled': (('solid', ((7, 4), (19, 12), (7, 20))),),
+	'stop-filled': (('srect', 4.5, 4.5, 19.5, 19.5, 2),),
 	'pause': (('rrect', 6, 4, 10, 20, 1), ('rrect', 14, 4, 18, 20, 1)),
 	'stop': (('rrect', 4.5, 4.5, 19.5, 19.5, 2),),
 	'restart': (('arc', (12, 12), 9, 0, 317), ('poly', ((21, 3), (21, 8), (16, 8)), False)),
@@ -91,6 +96,21 @@ def _icon_coverage(shapes, x, y, pixel):
 			(_, points, closed) = shape
 			pairs = list(zip(points, points[1:] + (points[:1] if closed else ())))
 			d = min(_segment_distance(x, y, a[0], a[1], b[0], b[1]) for a, b in pairs) - half
+		elif kind == 'solid':
+			# a polygon and everything inside it: the distance to its edge, negative on the inside
+			(_, points) = shape
+			pairs = list(zip(points, points[1:] + points[:1]))
+			d = min(_segment_distance(x, y, a[0], a[1], b[0], b[1]) for a, b in pairs)
+			# inside when a ray to the right crosses the edge an odd number of times
+			crossings = sum(1 for a, b in pairs if (a[1] > y) != (b[1] > y) and x < a[0] + (y - a[1]) * (b[0] - a[0]) / (b[1] - a[1]))
+			d = (-d if crossings % 2 else d) - half
+		elif kind == 'srect':
+			# a rounded rectangle and everything inside it
+			(_, x0, y0, x1, y1, rr) = shape
+			cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+			hx, hy = (x1 - x0) / 2 - rr, (y1 - y0) / 2 - rr
+			qx, qy = abs(x - cx) - hx, abs(y - cy) - hy
+			d = math.hypot(max(qx, 0), max(qy, 0)) + min(max(qx, qy), 0) - rr - half
 		elif kind == 'gear':
 			(_, (cx, cy), inner, outer) = shape
 			points = _gear_points(cx, cy, inner, outer)
