@@ -20,6 +20,14 @@ class LeetcodeSetTextCommand(sublime_plugin.TextCommand):
         self.view.sel().add(sublime.Region(0))
 
 
+class LeetcodeReplaceHeaderCommand(sublime_plugin.TextCommand):
+    """Replace the first ``length`` characters, the problem header, leaving the code and the
+    cursor where they are."""
+
+    def run(self, edit, text, length):
+        self.view.replace(edit, sublime.Region(0, length), text)
+
+
 def set_text(view, text, read_only=True):
     view.set_read_only(False)
     view.run_command("leetcode_set_text", {"text": text})

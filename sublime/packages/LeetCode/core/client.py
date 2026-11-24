@@ -48,6 +48,11 @@ def _ssl_context():
     bundle = config.get("ca_bundle", "") or ""
     if bundle not in _ssl_contexts:
         context = ssl.create_default_context()
+        # Python 3.13 made the default context strict about certificate formatting, which
+        # rejects the root of many HTTPS-inspecting proxies ("Basic Constraints of CA cert
+        # not marked critical"). Browsers accept those. The chain and the host name are
+        # still verified.
+        context.verify_flags &= ~ssl.VERIFY_X509_STRICT
         if sys.platform == "darwin":
             try:
                 pem = subprocess.run(["/usr/bin/security", "find-certificate", "-a", "-p"] + MACOS_KEYCHAINS,

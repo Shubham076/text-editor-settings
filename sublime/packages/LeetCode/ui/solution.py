@@ -6,7 +6,8 @@ import sublime
 import sublime_plugin
 
 from ..core import client, config, testcases
-from ..core.problem import DEFAULT_LANGUAGE, extract_code, file_name, render_template
+from ..core.problem import (DEFAULT_LANGUAGE, extract_code, file_name, refreshed_header,
+                            render_template)
 from . import test_panel
 from .tasks import run_async
 from .views import mark_solution, set_text, solution_info
@@ -44,6 +45,7 @@ class LeetcodeOpenProblemCommand(sublime_plugin.WindowCommand):
                 view.set_scratch(True)
         mark_solution(view, question.slug, language)
         self.window.focus_view(view)
+        _when_loaded(view, lambda: _refresh_header(view, question, language))
         test_panel.panel_for(self.window).show(view, question, language)
 
     def _folder(self):
@@ -61,6 +63,21 @@ class LeetcodeOpenProblemCommand(sublime_plugin.WindowCommand):
             view.assign_syntax(syntax)
         set_text(view, render_template(question, language), read_only=False)
         return view
+
+
+def _when_loaded(view, action):
+    if view.is_loading():
+        sublime.set_timeout(lambda: _when_loaded(view, action), 50)
+    elif view.is_valid():
+        action()
+
+
+def _refresh_header(view, question, language):
+    """Bring the problem header of an existing solution up to date; the code is not touched
+    and the file is not saved."""
+    change = refreshed_header(view.substr(sublime.Region(0, view.size())), question, language)
+    if change and not view.is_read_only():
+        view.run_command("leetcode_replace_header", {"text": change[0], "length": change[1]})
 
 
 class _SolutionCommand(sublime_plugin.WindowCommand):

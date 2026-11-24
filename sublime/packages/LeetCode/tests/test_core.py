@@ -60,6 +60,25 @@ class InputParsing(unittest.TestCase):
         values = ["[3,2,4]", "6"]
         self.assertEqual(testcases.parse_input(testcases.format_input(values, self.names), self.names), values)
 
+    def test_big_values_are_laid_out_and_read_back(self):
+        board = '[["5","3",".",".","7",".",".",".","."],["6",".",".","1","9","5",".",".","."],["8",".",".",".","6",".",".",".","3"]]'
+        grid = [
+            '[',
+            '  ["5","3",".",".","7",".",".",".","."],',
+            '  ["6",".",".","1","9","5",".",".","."],',
+            '  ["8",".",".",".","6",".",".",".","3"]',
+            ']']
+        self.assertEqual(testcases.layout(board), grid)
+        flat = "[" + ",".join(str(number) for number in range(40)) + "]"
+        self.assertEqual(testcases.layout(flat), [flat])  # only a grid is broken
+        self.assertEqual(testcases.layout('"' + "x" * 50 + '"'), ['"' + "x" * 50 + '"'])
+        self.assertEqual(testcases.layout("[[1,2],[3,4]]"), ["[", "  [1,2],", "  [3,4]", "]"])
+        self.assertEqual(testcases.layout("[]"), ["[]"])
+        text = testcases.format_input([board, "3"], ["board", "k"])
+        self.assertEqual(text.count("\n"), 5)
+        self.assertEqual(testcases.parse_input(text, ["board", "k"]), [board, "3"])
+        self.assertEqual(testcases.parse_input(testcases.format_input([board], ["board"]), ["board"]), [board])
+
 
 class Examples(unittest.TestCase):
     def test_cases_from_question(self):
@@ -218,13 +237,13 @@ class TestPanelHtml(unittest.TestCase):
         self.cases[0].status, self.cases[0].actual = "fail", "[0,2]"
         failed = self.html()
         self.assertIn('class="banner bad"><div class="headline">0 of 1 passed', failed)
-        self.assertIn('class="wrong">[0,2]', failed)
+        self.assertIn('class="box wrong"><div>[0,2]</div>', failed)
         self.cases[0].status = "pass"
         self.assertIn('class="banner ok"><div class="headline">All 1 passed', self.html())
 
     def test_error_banner_keeps_lines_and_indentation(self):
         html = self.html("Compile Error\nLine 3: error\n    int x = <y>;")
-        self.assertIn('class="banner bad"><div class="headline">Compile Error</div><div class="detail">', html)
+        self.assertIn('class="banner bad"><div class="headline"><div>Compile Error</div></div><div class="detail">', html)
         self.assertIn("<div>Line 3: error</div>", html)
         self.assertIn("<div>\u00a0\u00a0\u00a0\u00a0int x = &lt;y&gt;;</div>", html)
         self.assertLess(html.index("Compile Error"), html.index('class="card'))

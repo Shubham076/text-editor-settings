@@ -14,6 +14,9 @@ from .html_text import html_to_text
 _OPENERS = "[{("
 _CLOSERS = "]})"
 _NAME_PREFIX = re.compile(r"^[A-Za-z_]\w*\s*=(?!=)\s*")
+_LINE_BREAK = re.compile(r"\s*\n\s*")
+LONG_INPUT = 80  # characters; past this an input is written over several lines
+ROW_INDENT = "  "  # in front of each row of a grid
 _EXAMPLE_OUTPUT = re.compile(r"^Output(?::[ \t]*\n?|[ \t]*\n)[ \t]*(\S.*)$", re.MULTILINE)
 
 
@@ -68,18 +71,20 @@ def parse_input(text, param_names):
     """Turn what the user typed into one value per parameter.
 
     Accepts ``nums = [3,2,4], target = 6``, the bare ``[3,2,4], 6``, or one value per line.
+    A value may itself run over several lines, as ``format_input`` writes a big array: a
+    line break inside brackets does not end the value.
     Raises ValueError with a message fit to show the user.
     """
     text = text.strip()
     if not text:
         raise ValueError("The test input is empty.")
-    if "\n" in text:
-        values = [line.strip() for line in text.splitlines() if line.strip()]
-    elif len(param_names) == 1:
+    if len(param_names) == 1:
         values = [text]  # a single parameter takes the whole text, commas and all
+    elif "\n" in text:
+        values = split_top_level(text, "\n")
     else:
         values = split_top_level(text)
-    values = [_NAME_PREFIX.sub("", value) for value in values]
+    values = [_NAME_PREFIX.sub("", _LINE_BREAK.sub("", value)) for value in values]
     if param_names and len(values) != len(param_names):
         raise ValueError("Expected {} value{} ({}), got {}.".format(
             len(param_names), "" if len(param_names) == 1 else "s",
@@ -88,10 +93,35 @@ def parse_input(text, param_names):
 
 
 def format_input(values, param_names):
-    """Show values the way LeetCode's examples do: ``nums = [2,7,11,15], target = 9``."""
-    if len(param_names) != len(values):
-        return ", ".join(values)
-    return ", ".join("{} = {}".format(name, value) for name, value in zip(param_names, values))
+    """Show values the way LeetCode's examples do: ``nums = [2,7,11,15], target = 9``.
+
+    A long input goes one parameter per line instead, with a grid spread over one row per
+    line, so it can be read and edited. ``parse_input`` reads both forms back.
+    """
+    named = len(param_names) == len(values)
+    parts = ["{} = {}".format(name, value) for name, value in zip(param_names, values)] if named else values
+    if len(", ".join(parts)) <= LONG_INPUT:
+        return ", ".join(parts)
+    lines = []
+    for index, value in enumerate(values):
+        prefix = "{} = ".format(param_names[index]) if named else ""
+        laid_out = layout(value)
+        lines += [prefix + laid_out[0]] + laid_out[1:]
+    return "\n".join(lines)
+
+
+def layout(value):
+    """A value as the lines to show it on.
+
+    A grid, an array of arrays, gets its brackets on their own lines with one row per line
+    between them, indented. Everything else is one line however long it is, as is each row;
+    whatever shows the value grows or scrolls to fit.
+    """
+    items = split_top_level(value[1:-1]) if value.startswith("[") and value.endswith("]") else []
+    if not any(item.startswith("[") for item in items):
+        return [value]
+    rows = [ROW_INDENT + item + "," for item in items]
+    return ["["] + rows[:-1] + [rows[-1][:-1], "]"]
 
 
 def example_cases(example_inputs, example_outputs, param_count):

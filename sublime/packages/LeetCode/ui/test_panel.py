@@ -100,6 +100,14 @@ class TestPanel:
 
         self._prompt("Edit test case", case.values, update)
 
+    def copy(self, index, field):
+        """Put one value of a case on the clipboard, in full even when the panel cut it."""
+        case = self.cases[index]
+        text = {"input": "\n".join(case.values), "expected": case.expected,
+                "output": case.actual, "stdout": case.stdout}.get(field) or ""
+        sublime.set_clipboard(text)
+        sublime.status_message("LeetCode: copied test {} {}".format(index + 1, field))
+
     def delete(self, index):
         del self.cases[index]
         self._save_custom()
@@ -194,7 +202,10 @@ class TestPanel:
         title = test_panel_html.title(self.question, self.language)
         if self.view.substr(sublime.Region(0, self.view.size())) != title:
             set_text(self.view, title)  # the phantom hangs below this line
-        html = test_panel_html.render(self.question, self.cases, self.message, self.running)
+        # A little short of the view's width, so no horizontal scrollbar appears.
+        width = self.view.viewport_extent()[0] - 16
+        html = test_panel_html.render(self.question, self.cases, self.message, self.running,
+                                      width, self.view.em_width())
         self._phantoms.update([sublime.Phantom(sublime.Region(0), html, sublime.LAYOUT_BLOCK, self._navigate)])
         if scroll_to_top:
             self.view.set_viewport_position((0, 0), False)
@@ -205,6 +216,8 @@ class TestPanel:
             self.window.run_command("leetcode_submit_solution")
         elif action == "add":
             self.add()
+        elif action.startswith("copy-") and index.isdigit() and int(index) < len(self.cases):
+            self.copy(int(index), action[len("copy-"):])
         elif index.isdigit() and int(index) < len(self.cases):
             {"run": self.run, "edit": self.edit, "delete": self.delete}[action](int(index))
         elif action == "run":

@@ -62,7 +62,9 @@ class ProblemsPanel:
         self.window.run_command("show_panel", {"panel": "output." + PANEL_NAME})
 
     def render(self):
-        html = problem_list.render(_problems, self.state)
+        # A little short of the view's width, so no horizontal scrollbar appears.
+        width = self.view.viewport_extent()[0] - 16
+        html = problem_list.render(_problems, self.state, width)
         self.phantoms.update([sublime.Phantom(sublime.Region(0), html, sublime.LAYOUT_BLOCK, self.navigate)])
 
     def navigate(self, href):

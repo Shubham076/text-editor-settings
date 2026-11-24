@@ -1,35 +1,65 @@
 """The problem list: filtering, paging and its minihtml. Pure Python: no Sublime imports.
 
-Every row is a link, so the whole row is clickable and shows the pointer cursor.
+Look: two segmented filters, a search field and a refresh button, then one bordered table.
+Rows are separated by hairlines and every row is a link, so the whole row is clickable and
+shows the pointer cursor. Columns are lined up with non-breaking spaces, which works because
+the panel uses the editor's monospace font; minihtml has no table or column layout.
 """
 
 from dataclasses import dataclass
 from html import escape
 from typing import List
 
+from .minihtml import spacer
+
 PAGE_SIZE = 50
+SIDE_PADDING = 12
+MAX_TITLE_COLUMN = 64  # a longer title just pushes its own difficulty to the right
 DIFFICULTIES = ("All", "Easy", "Medium", "Hard")
 STATUSES = ("All", "Solved", "Todo")
 _LEVELS = {1: "Easy", 2: "Medium", 3: "Hard"}
 _NBSP = " "
+_PREMIUM = "premium"
 
 _CSS = """
-body { margin: 0; padding: 8px 0 12px; }
+body { margin: 0; padding: 8px 12px 16px; }
 a { text-decoration: none; }
-.bar { margin-bottom: 12px; white-space: nowrap; }
-.label, .muted { color: color(var(--foreground) alpha(0.55)); }
-.chip { padding: 1px 6px; border-radius: 4px; font-size: 0.9rem; color: var(--foreground);
-        background-color: color(var(--foreground) alpha(0.12)); }
-.chip.on { font-weight: bold; background-color: color(var(--bluish) alpha(0.28)); }
-.action { color: var(--bluish); font-weight: bold; }
-.head { padding: 4px 8px; font-weight: bold; color: color(var(--foreground) alpha(0.55)); }
-a.row { display: block; padding: 4px 8px; border-radius: 4px; color: var(--foreground); }
-a.alt { background-color: color(var(--foreground) alpha(0.045)); }
+.bar { margin-bottom: 16px; white-space: nowrap; }
+.muted { color: color(var(--foreground) alpha(0.5)); }
+.label { color: color(var(--foreground) alpha(0.7)); }
+.seg { padding: 4px 3px; border-radius: 7px;
+       border-style: solid; border-width: 1px;
+       border-color: color(var(--foreground) alpha(0.2));
+       background-color: color(var(--foreground) alpha(0.1)); }
+a.chip { padding: 1px 8px; border-radius: 5px; font-size: 0.9rem;
+         border-style: solid; border-width: 1px;
+         border-color: color(var(--foreground) alpha(0));
+         color: color(var(--foreground) alpha(0.9)); }
+a.chip.on { color: var(--foreground); background-color: var(--background);
+            border-color: color(var(--foreground) alpha(0.3)); }
+a.btn { padding: 4px 10px; border-radius: 7px; font-size: 0.9rem; color: var(--foreground);
+        border-style: solid; border-width: 1px;
+        border-color: color(var(--foreground) alpha(0.24));
+        background-color: var(--background); }
+a.field { color: color(var(--foreground) alpha(0.65)); }
+.table { border-radius: 8px; border-style: solid; border-width: 1px;
+         border-color: color(var(--foreground) alpha(0.14)); }
+.head, a.row, .empty { padding: 10px 12px; white-space: nowrap;
+         border-style: solid; border-width: 0 0 1px 0;
+         border-color: color(var(--foreground) alpha(0.04)); }
+.head { font-weight: bold; color: color(var(--foreground) alpha(0.5));
+        background-color: color(var(--foreground) alpha(0.05));
+        border-top-left-radius: 7px; border-top-right-radius: 7px;
+        border-color: color(var(--foreground) alpha(0.08)); }
+a.row { display: block; color: var(--foreground); }
+a.last, .empty { border-width: 0; }
+.num { color: color(var(--foreground) alpha(0.5)); }
 .easy { color: var(--greenish); }
 .medium { color: var(--yellowish); }
 .hard { color: var(--redish); }
 .solved { color: var(--greenish); }
-.pager { margin-top: 8px; }
+.pager { margin-top: 12px; }
+a.page { color: var(--foreground); }
 .off { color: color(var(--foreground) alpha(0.3)); }
 """
 
@@ -74,52 +104,70 @@ def page_count(total):
     return max(1, -(-total // PAGE_SIZE))
 
 
-def render(problems, state):
-    """The panel's HTML. Links: ``open:<slug>``, ``difficulty:<name>``, ``status:<name>``,
+def render(problems, state, width=0):
+    """The panel's HTML. ``width`` is the room the panel has, in pixels; the table stretches
+    to fill it. Links: ``open:<slug>``, ``difficulty:<name>``, ``status:<name>``,
     ``page:<index>``, ``search`` and ``refresh``."""
     shown = matching(problems, state)
     pages = page_count(len(shown))
     page = min(state.page, pages - 1)
     rows = shown[page * PAGE_SIZE:(page + 1) * PAGE_SIZE]
-    body = [
-        '<div class="bar">{}{}{}{}</div>'.format(
-            _chips("Difficulty", "difficulty", DIFFICULTIES, state.difficulty),
-            _chips("Status", "status", STATUSES, state.status),
-            '<a class="action" href="search">Search…</a>' + _NBSP * 3,
-            '<a class="action" href="refresh">Refresh</a>'),
-        '<div class="head">{}</div>'.format(_cells("", "#", "Difficulty") + "Title"),
-    ]
+    title_column = min(MAX_TITLE_COLUMN, max([len("TITLE")] + [_title_length(p) for p in rows]))
+
+    table = ['<div class="head">{}</div>'.format(
+        _columns("", "#", "TITLE", len("TITLE"), title_column) + "DIFFICULTY")]
     for index, problem in enumerate(rows):
-        body.append('<a class="row{}" href="open:{}">{}{}{}</a>'.format(
-            " alt" if index % 2 else "", escape(problem.slug),
-            _cells('<span class="solved">✓</span>' if problem.solved else "", str(problem.number),
-                   problem.difficulty, problem.difficulty.lower()),
-            escape(problem.title),
-            '{}<span class="muted">premium</span>'.format(_NBSP * 2) if problem.premium else ""))
+        title = escape(problem.title)
+        if problem.premium:
+            title += '{}<span class="muted">{}</span>'.format(_NBSP * 2, _PREMIUM)
+        table.append('<a class="row{}" href="open:{}">{}<span class="{}">{}</span></a>'.format(
+            " last" if index == len(rows) - 1 else "", escape(problem.slug),
+            _columns('<span class="solved">✓</span>' if problem.solved else "",
+                     str(problem.number), title, _title_length(problem), title_column),
+            problem.difficulty.lower(), problem.difficulty))
     if not rows:
-        body.append('<div class="row muted">No problems match these filters.</div>')
-    body.append('<div class="pager">{}{}{}{}</div>'.format(
-        _page_link("‹ Prev", page - 1, page > 0),
-        '<span class="label">{0}Page {1} of {2}{0}</span>'.format(_NBSP * 3, page + 1, pages),
-        _page_link("Next ›", page + 1, page < pages - 1),
-        '<span class="muted">{}{} problems</span>'.format(_NBSP * 4, len(shown))))
+        table.append('<div class="empty muted">No problems match these filters.</div>')
+
+    body = [
+        spacer(width - 2 * SIDE_PADDING),
+        '<div class="bar">{}{}{}{}</div>'.format(
+            _segments("Difficulty", "difficulty", DIFFICULTIES, state.difficulty),
+            _segments("Status", "status", STATUSES, state.status),
+            '<a class="btn field" href="search">⌕{}Search…{}</a>{}'.format(
+                _NBSP, _NBSP * 18, _NBSP * 2),
+            '<a class="btn" href="refresh">↻{}Refresh</a>'.format(_NBSP)),
+        '<div class="table">{}</div>'.format("".join(table)),
+        '<div class="pager">{}{}{}{}</div>'.format(
+            _page_link("‹ Prev", page - 1, page > 0),
+            '<span class="label">{0}Page {1} of {2}{0}</span>'.format(_NBSP * 3, page + 1, pages),
+            _page_link("Next ›", page + 1, page < pages - 1),
+            '<span class="muted">{}{} problems</span>'.format(_NBSP * 4, len(shown))),
+    ]
     return '<body id="leetcode-problems"><style>{}</style>{}</body>'.format(_CSS, "".join(body))
 
 
-def _cells(mark, number, difficulty, difficulty_class=""):
-    """The fixed-width columns before the title, padded with non-breaking spaces."""
-    return "{}{}{}{}<span class=\"{}\">{}</span>{}".format(
-        mark or _NBSP, _NBSP, _NBSP * (5 - len(number)), number + _NBSP * 3,
-        difficulty_class, difficulty, _NBSP * (12 - len(difficulty)))
+def _title_length(problem):
+    return len(problem.title) + (2 + len(_PREMIUM) if problem.premium else 0)
 
 
-def _chips(label, kind, names, active):
-    chips = (_NBSP).join('<a class="chip{}" href="{}:{}">{}</a>'.format(
+def _columns(mark, number, title, title_length, title_column):
+    """Solved mark, number and title, each padded to its column with non-breaking spaces.
+    ``title`` is HTML, so its visible length is passed separately."""
+    return '{}{}<span class="num">{}{}</span>{}{}{}'.format(
+        mark or _NBSP, _NBSP * 2, _NBSP * (5 - len(number)), number, _NBSP * 3,
+        title, _NBSP * (max(0, title_column - title_length) + 4))
+
+
+def _segments(label, kind, names, active):
+    """A labelled segmented control: one tinted group, the active choice raised inside it."""
+    chips = "".join('<a class="chip{}" href="{}:{}">{}</a>'.format(
         " on" if name == active else "", kind, name, name) for name in names)
-    return '<span class="label">{}{}</span>{}{}'.format(label, _NBSP, chips, _NBSP * 4)
+    return '<span class="label">{}{}</span><span class="seg">{}</span>{}'.format(
+        label, _NBSP * 2, chips, _NBSP * 4)
 
 
 def _page_link(text, page, enabled):
+    text = text.replace(" ", _NBSP)
     if not enabled:
-        return '<span class="off">{}</span>'.format(text)
-    return '<a class="action" href="page:{}">{}</a>'.format(page, text)
+        return '<span class="btn off">{}</span>'.format(text)
+    return '<a class="btn page" href="page:{}">{}</a>'.format(page, text)

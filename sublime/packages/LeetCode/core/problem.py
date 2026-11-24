@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 from .html_text import html_to_text
+from .testcases import layout
 
 
 @dataclass(frozen=True)
@@ -68,7 +69,7 @@ DEFAULT_LANGUAGE = "python3"
 
 CODE_START = "Do not remove code start"
 CODE_END = "Do not remove code end"
-HEADER_WIDTH = 100  # description lines are wrapped to this many columns
+HEADER_WIDTH = 80  # description lines are wrapped to this many columns
 
 _HEADER_SCAN = 4000  # the header is at the top; no need to read a whole file to find it
 _TAG_LINE = re.compile(r"@leetcode\s+(.+)")
@@ -199,10 +200,30 @@ def render_template(question, language):
         "", spec.comment + " " + CODE_START, code.rstrip(), "", spec.comment + " " + CODE_END, ""])
 
 
+def refreshed_header(text, question, language):
+    """The header a solution file would get today, when the one in ``text`` is different.
+
+    Returns ``(header, length)``: the new header and how many characters at the start of
+    ``text`` it replaces, everything above the code-start marker. Returns None when the
+    header is already current or ``text`` has no marker, so the code is never touched.
+    """
+    fresh = render_template(question, language)
+    old_marker, new_marker = _START.search(text), _START.search(fresh)
+    if not old_marker or not new_marker:
+        return None
+    header = fresh[:new_marker.start()]
+    if text[:old_marker.start()] == header:
+        return None
+    return header, old_marker.start()
+
+
 def _block_comment(paragraphs, block):
     text = "\n".join(paragraphs).replace(block.forbidden, block.replacement)
     lines = [block.opening]
     for line in text.splitlines():
         wrapped = textwrap.wrap(line, HEADER_WIDTH, break_long_words=False, break_on_hyphens=False)
+        # A big grid has no spaces to wrap at; give it one row per line.
+        wrapped = [piece for part in wrapped
+                   for piece in (layout(part) if len(part) > HEADER_WIDTH else [part])]
         lines += [(block.line_prefix + part).rstrip() for part in wrapped or [""]]
     return lines + [block.closing]
