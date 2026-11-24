@@ -141,6 +141,9 @@ class PanelUI(Renderer):
 			self.dispose()
 			return
 		if self.panel.is_open():
+			# a drag of the panel's edge sets the height the next panels are created at
+			if track := getattr(self.panel, 'track_height', None):
+				track()
 			preferences = sublime.load_settings('Preferences.sublime-settings')
 			signature = (self.panel.view.viewport_extent(), str(self.view.style()), Settings.font_size, Settings.font_face, Settings.line_padding,
 				preferences.get('font_size'), preferences.get('font_face'),

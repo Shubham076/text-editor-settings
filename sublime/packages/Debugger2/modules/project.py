@@ -25,9 +25,6 @@ class Project:
 		self.configurations: list[Configuration] = []
 
 		self.configuration_or_compound: Configuration | ConfigurationCompound | None = None
-		# Last tab explicitly chosen while each configuration/compound was selected. Automatic
-		# launch and pause focus read this state but never write it.
-		self.configuration_tabs: dict[str, str] = {}
 
 	def dispose(self): ...
 
@@ -55,16 +52,11 @@ class Project:
 		return {
 			'configuration_name': self.configuration_or_compound and self.configuration_or_compound.name,
 			'configuration_id_ish': self.configuration_or_compound and self.configuration_or_compound.id_ish,
-			'configuration_tabs': self.configuration_tabs,
 		}
 
 	def load_from_json(self, json: dict[str, Any]) -> Configuration | ConfigurationCompound | None:
 		configuration_name: str | None = json.get('configuration_name')
 		configuration_id_ish: str | None = json.get('configuration_id_ish')
-		tabs = json.get('configuration_tabs')
-		if isinstance(tabs, dict):
-			self.configuration_tabs = {key: value for key, value in tabs.items()
-				if isinstance(key, str) and isinstance(value, str) and value != 'breakpoints'}
 
 		if configuration_name and configuration_id_ish:
 			self.load_configuration(configuration_name, configuration_id_ish)

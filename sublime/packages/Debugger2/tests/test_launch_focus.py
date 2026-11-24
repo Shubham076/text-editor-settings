@@ -70,6 +70,7 @@ class LaunchFocusTests(unittest.TestCase):
 		session = Session()
 		session.dispose, session.stopped_unexpectedly, session.threads = Mock(), False, []
 		self.debugger.memory_views, self.debugger.sessions, self.debugger.session = [], [session], session
+		self.debugger.paused_sessions = {session}
 		self.debugger.on_session_removed, self.debugger.on_session_active = Mock(), Mock()
 		self.debugger.console.protocol.logs = []
 		self.debugger.open_session_output = Mock()

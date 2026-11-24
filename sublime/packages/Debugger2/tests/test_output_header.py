@@ -57,6 +57,8 @@ class BufferView:
 		for name in ('assign_syntax', 'show', 'run_command', 'set_viewport_position', 'window'):
 			setattr(self, name, Mock())
 		self.style = Mock(return_value={'background': '#fafafa', 'foreground': '#606060'})
+		# not a number: there is no layout to measure a panel's height with here
+		self.line_height = Mock()
 		self.viewport_extent = Mock(return_value=(1200, 400))
 		self.layout_extent = Mock(return_value=(1200, 400))
 		self.viewport_position = Mock(return_value=(0, 0))
@@ -136,10 +138,12 @@ class OutputHeaderTests(unittest.TestCase):
 		self.assertNotIn('strip continued', html)
 		self.assertNotIn('>Call Stack / Variables</a>', html)
 		self.assertIn('Back to call stack', html)
-		self.assertIn('class="breakpoints-control" title="Show breakpoints">Breakpoints</a>', html)
+		# the breakpoints view is an icon beside the settings, not a labelled button
+		self.assertIn('class="tool" title="Show breakpoints"', html)
+		self.assertNotIn('>Breakpoints</a>', html)
 		self.assertLess(html.index('Back to call stack'), html.index('Select run configuration'))
-		self.assertLess(html.index('Select run configuration'), html.index('Breakpoints'))
-		self.assertLess(html.index('Breakpoints'), html.index('Debugger settings'))
+		self.assertLess(html.index('Select run configuration'), html.index('Show breakpoints'))
+		self.assertLess(html.index('Show breakpoints'), html.index('Debugger settings'))
 		# the tab row is its own phantom above the output's first line, as on the other panels
 		tabs = tabs_set.update.call_args.args[0]
 		self.assertEqual(len(tabs), 1)
@@ -271,7 +275,8 @@ class OutputHeaderTests(unittest.TestCase):
 			panels.WatchOutputPanel.__init__(panel, self.backend)
 		# an io panel whose strip holds the toolbar, like the other dashboards; the prompt is the
 		# last line of the view, after the phantom anchors, with a marker in front of it
-		self.window.create_io_panel.assert_called_once()
+		# twice: the name is tried out with a throwaway panel first (`_clean_output_panel_name`)
+		self.assertEqual(self.window.create_io_panel.call_count, 2)
 		tabs.assert_called_once_with(panel, view, body=True, header_view=strip, layout='watch')
 		self.assertIsNone(panel.prompt_view)
 		self.assertTrue(panel.input_line)
@@ -418,7 +423,8 @@ class OutputHeaderTests(unittest.TestCase):
 		panel.update_settings = Mock()
 		with patch.dict(sys.modules, dependencies):
 			module.OutputPanel.__init__(panel, self.backend, 'Console', bottom_bar=True)
-		self.window.create_io_panel.assert_called_once()
+		# twice: the name is tried out with a throwaway panel first (`_clean_output_panel_name`)
+		self.assertEqual(self.window.create_io_panel.call_count, 2)
 		self.assertEqual(self.window.create_io_panel.call_args.args[0], 'Console')
 		self.window.create_output_panel.assert_not_called()
 		self.assertIs(panel.input_view, strip)

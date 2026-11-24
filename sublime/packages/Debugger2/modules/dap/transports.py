@@ -110,11 +110,20 @@ class Process:
 		return self._read(pipe, nbytes)
 
 	def dispose(self):
+		'''Ends the adapter and whatever it started
+
+		An adapter that is only terminated leaves the program it launched behind: the program is a
+		child of the adapter, and once the adapter is gone it belongs to init and runs on with its
+		port taken. That is what closing a window, or quitting Sublime (which closes the windows
+		first), used to leave: every service that was being debugged. So the whole tree goes, read
+		from the process table while the adapter still holds it together. A program the adapter
+		only attached to is not its child and is not touched.
+		'''
 		self.closed = True
 		try:
-			self.process.terminate()
-			self.process.wait(0.5)
-			self.process.kill()
+			if self.process.poll() is None:
+				from ..exit_cleanup import end_process_trees
+				end_process_trees([self.process.pid], grace=0.5, reason='adapter disposed')
 		except Exception:
 			core.exception()
 

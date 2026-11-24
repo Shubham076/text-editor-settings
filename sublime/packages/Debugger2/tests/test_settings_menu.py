@@ -66,17 +66,17 @@ class SettingsMenuTests(unittest.TestCase):
 		ui.toolbar.picker.show()
 		self.assertEqual(self.shown().index, 0)
 
-	def test_picking_a_row_selects_that_configuration_and_restores_its_tab(self):
+	def test_picking_a_row_selects_that_configuration_and_keeps_the_open_tab(self):
 		api, worker = self.two_configurations()
-		self.backend.project.configuration_tabs = {'config-2': 'console'}
 		picker_module = self.loaded['_live_test.modules.ui.configuration_picker']
 		picker_module.configurations.select = Mock()
 		ui = self.make_ui(body=True)
 		ui.toolbar.select_tab = Mock()
+		ui.state.tab = 'console'
 		ui.toolbar.picker.show()
 		next(row for row in self.shown().values if row.text == 'worker').run()
 		picker_module.configurations.select.assert_called_once_with(self.backend, 'worker')
-		ui.toolbar.select_tab.assert_called_once_with('console', remember=False)
+		ui.toolbar.select_tab.assert_called_once_with('console')
 
 	def test_edit_row_opens_the_project_configurations(self):
 		self.two_configurations()

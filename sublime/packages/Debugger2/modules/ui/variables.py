@@ -35,7 +35,8 @@ class VariablesPane:
 				rows.extend(self.variable_rows(variable, width, on_edit=partial(self.edit_watch, expression), on_remove=partial(self.remove_watch, expression),
 					key='watch:' + expression.value))
 			else:
-				content = ui.expression(expression.value, str(result) if isinstance(result, Exception) else 'Not available', 'muted', width - 2 * ACTION)
+				# the empty slot is where an evaluated watch has its chevron, so the expressions line up
+				content = ui.slot('', CONTROL) + ui.expression(expression.value, str(result) if isinstance(result, Exception) else 'Not available', 'muted', width - CONTROL - 2 * ACTION)
 				content += ui.button('edit', 'Edit expression', partial(self.edit_watch, expression)) + ui.button('close', 'Remove expression', partial(self.remove_watch, expression))
 				rows.append(ui.row(content))
 		if not expressions:
@@ -111,8 +112,10 @@ class VariablesPane:
 		if not variable.has_children or not expanded:
 			return rows
 		children = ui.tree.get(variable)
+		# a row about the children starts where their names do: one level in, past the chevron slot
+		inset = min((depth + 1) * CONTROL, max(0, width - 8)) + CONTROL
 		if children is None or isinstance(children, str):
-			return rows + [ui.row(ui.text(children or 'Loading…', width, 'muted'))]
+			return rows + [ui.row(ui.slot('', inset) + ui.text(children or 'Loading…', max(1, width - inset), 'muted'))]
 		# debugpy sends its group rows first; what the object holds reads better in front of what it is made of
 		children = [child for child in children if child.name not in PYTHON_GROUPS] + [child for child in children if child.name in PYTHON_GROUPS]
 		# the first page of children; None once the reader has asked for the rest (`show_more`)
@@ -120,7 +123,7 @@ class VariablesPane:
 		for child in children[:count]:
 			rows.extend(self.variable_rows(child, width, depth + 1, key='{}/{}'.format(key, child.name)))
 		if count is not None and len(children) > count:
-			rows.append(ui.row(ui.link('{} more items…'.format(len(children) - count), partial(self.show_more, key), 'Show all variables', 'muted')))
+			rows.append(ui.row(ui.slot('', inset) + ui.link('{} more items…'.format(len(children) - count), partial(self.show_more, key), 'Show all variables', 'muted')))
 		return rows
 
 	def variable_changed(self, variable):

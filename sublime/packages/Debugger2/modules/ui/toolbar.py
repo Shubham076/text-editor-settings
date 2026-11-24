@@ -9,10 +9,30 @@ from ..views.session_scope import root_of
 from .configuration_picker import ConfigurationPicker
 from .output_tabs import console_panels, terminal_panels
 from .state import session_status
-from .style import ACTION, CH, DASHBOARDS, PAD, TAB_PAD, TABS, TOOL, ZW
+from .style import CH, CHIP_DOT_GAP, CHIP_GAP, CHIP_NAME, CHIP_PAD, CHIP_SHORT, DASHBOARDS, PAD, TABS, TOOL, ZW
 
 if TYPE_CHECKING:
 	from .panel import PanelUI
+
+
+def short_names(names):
+	"""The names with the words they all start with taken off: `ps-backend`, `ps-agentic` to `backend`, `agentic`
+
+	Configurations of one project tend to share a prefix, which says nothing on a chip beside the
+	others and costs the room of a whole chip. Only whole words go (the cut is after a separator),
+	and nothing is cut when that would leave a name empty.
+	"""
+	names = list(names)
+	if len(names) < 2:
+		return names
+	prefix = names[0]
+	for name in names[1:]:
+		while not name.startswith(prefix):
+			prefix = prefix[:-1]
+	cut = max(prefix.rfind(separator) for separator in '-_ /.:') + 1
+	if not cut or any(len(name) <= cut for name in names):
+		return names
+	return [name[cut:] for name in names]
 
 
 class Toolbar:
@@ -22,6 +42,8 @@ class Toolbar:
 
 	def render(self):
 		ui = self.ui
+		if ui.header_view:
+			return self.strip(), ''
 		session = ui.active_session
 		status = session_status(session)
 		action = 'pause' if session and session.is_running else 'continue' if session and session.is_paused else 'start'
@@ -35,27 +57,156 @@ class Toolbar:
 		gear = ui.tool('settings', 'Debugger settings', self.settings)
 		breakpoints, breakpoints_width = self.breakpoints_control()
 		name = ui.backend.project.name or 'Select configuration'
-		if ui.header_view:
-			# the fixed strip: one row, no brand label or tab row (the tabs are above the panel's
-			# content). A back arrow at the very left, in front of the picker, returns to the call
-			# stack; on the call stack itself the brand mark holds that slot instead, so the picker
-			# sits at the same place on every tab
-			if ui.body and ui.layout == 'debugger':
-				lead = ui.slot('<span class="brand" title="Debugger">{}</span>'.format(ui.icon('bug', 'muted')), TOOL, 'center')
-			else:
-				lead = ui.tool('back', 'Back to call stack', partial(self.select_tab, 'debugger'))
-			return ui.toolbar_layout(name, status, self.picker.show, controls, gear, split=False, brand=False,
-				lead=lead + ui.slot('', 0.4), lead_width=TOOL + 0.4, extra=breakpoints,
-				extra_width=breakpoints_width, css='strip')
 		return ui.toolbar_layout(name, status, self.picker.show, controls, gear, split=ui.body,
 			extra=breakpoints, extra_width=breakpoints_width)
+
+	# -- the fixed strip -------------------------------------------------------------------
+
+	def strip(self):
+		"""The toolbar in the fixed strip under the output: one row, no brand label or tab row
+
+		Left to right: a back arrow to the call stack (on the call stack itself the brand mark holds
+		that slot, so the chips start at the same place on every tab), a chip for every configuration
+		that is running, the controls of the selected one, and at the far end the breakpoints view
+		and the settings.
+
+		The chips are what the picker and the status badge were: with several configurations running
+		each is one click away, and the dot of a chip is its status. The strip is one line and cannot
+		grow, so everything that is not usable right now stays off it: the step buttons while nothing
+		is paused, restart and stop while nothing runs.
+		"""
+		ui = self.ui
+		if ui.body and ui.layout == 'debugger':
+			lead = ui.slot('<span class="brand" title="Debugger">{}</span>'.format(ui.icon('bug', 'muted')), TOOL, 'center')
+		else:
+			lead = ui.tool('back', 'Back to call stack', partial(self.select_tab, 'debugger'))
+		lead += ui.slot('', 0.4)
+		lead_width = TOOL + 0.4
+		controls, controls_width = self.strip_controls()
+		tail = ui.tool('breakpoints', 'Show breakpoints', partial(self.select_tab, 'breakpoints'), primary=ui.state.tab == 'breakpoints')
+		tail += ui.tool('settings', 'Debugger settings', self.settings)
+		tail_width = 2 * TOOL + 0.6
+		width = ui.total - 2 * PAD
+		cell = 'toolbar joined strip'
+		style = 'style="width:{}px;"'.format(ui.px(width))
+		room = width - lead_width - 1.5 - controls_width - tail_width
+		chips, chips_width = self.chips(room)
+		if chips_width <= room:
+			return '<div class="{}" {}>{}{}{}{}{}{}</div>'.format(
+				cell, style, lead, chips, ui.separator(), controls, ui.slot('', room - chips_width), tail)
+		# too narrow even for the selected chip alone: the chips get a row to themselves
+		chips, _ = self.chips(width - lead_width)
+		gap = max(0, width - controls_width - tail_width)
+		return '<div class="{}" {}>{}{}</div><div class="{} continued" {}>{}{}{}</div>'.format(
+			cell, style, lead, chips, cell, style, controls, ui.slot('', gap), tail)
+
+	def strip_controls(self):
+		"""The transport buttons of the selected configuration that can be pressed right now, and their width in rem"""
+		ui = self.ui
+		session = ui.active_session
+		action = 'pause' if session and session.is_running else 'continue' if session and session.is_paused else 'start'
+		enabled = not session or session.is_running or session.is_paused
+		controls = ui.tool('pause' if action == 'pause' else 'play', action.title(), partial(self.transport, action), enabled, primary=True)
+		width = TOOL
+		if session and session.is_paused:
+			for icon, label, method in (('over', 'Step over', 'step_over'), ('into', 'Step into', 'step_in'), ('out', 'Step out', 'step_out')):
+				controls += ui.tool(icon, label, partial(self.step, method))
+			controls += ui.separator()
+			width += 3 * TOOL + 1.5
+		if session:
+			controls += ui.tool('restart', 'Restart', partial(self.transport, 'restart'), session.is_stoppable)
+			controls += ui.tool('stop', 'Stop', partial(self.transport, 'stop'), session.is_stoppable, css='stop')
+			width += 2 * TOOL
+		return controls, width
+
+	def chip_items(self):
+		"""(item, status, selected) for each chip, in the order the project lists them
+
+		A chip for each configuration that is running or paused, and one for the selection whatever
+		it is doing, so the controls always have a name beside them. A compound is only a chip while
+		it is the selection: what it started are chips of their own.
+		"""
+		backend = self.ui.backend
+		selection = backend.project.configuration_or_compound
+		# `is not None`: a configuration is a dict, and an empty one is still a selection
+		selected_id = selection.id_ish if selection is not None else None
+		rows = []
+		for item in (*backend.project.compounds, *backend.project.configurations):
+			selected = item.id_ish == selected_id
+			status = configurations.status_of(backend, item)
+			if selected or (status != 'Stopped' and item not in backend.project.compounds):
+				rows.append((item, status, selected))
+		if selection is not None and not any(selected for _, _, selected in rows):
+			# a selection the project no longer lists still names what the controls act on
+			rows.append((selection, configurations.status_of(backend, selection), True))
+		return rows
+
+	def chips(self, room):
+		"""The chips and the list button that fit in `room` rem, and the width they take
+
+		The selected chip is always drawn, under its whole name; the others drop the words all the
+		names start with. When they do not all fit, chips go from the far end and the list button
+		counts them (`+2`): the list has every configuration. A selected chip too long for the room
+		is clipped, and when even that is too wide the caller wraps the strip.
+		"""
+		ui = self.ui
+		rows = self.chip_items()
+		short = short_names([item.name for item, _, _ in rows])
+		entries = [(item, status, selected, self.chip_label(item.name if selected else name, CHIP_NAME if selected else CHIP_SHORT))
+			for (item, status, selected), name in zip(rows, short)]
+
+		def chip_width(label):
+			return 2 * CHIP_PAD + CH + CHIP_DOT_GAP + len(label) * CH + 0.15 + CHIP_GAP
+
+		def more_label(hidden):
+			return '+{}'.format(hidden) if hidden else '' if entries else 'Select configuration'
+
+		def more_width(hidden):
+			label = more_label(hidden)
+			return 2 * CHIP_PAD + 0.8 + (len(label) * CH + CHIP_DOT_GAP if label else 0) + 0.15
+
+		def total(hidden):
+			return sum(chip_width(entry[3]) for entry in entries) + more_width(hidden)
+
+		hidden = 0
+		while total(hidden) > room and any(not entry[2] for entry in entries):
+			entries.pop(max(index for index, entry in enumerate(entries) if not entry[2]))
+			hidden += 1
+		if entries and total(hidden) > room:
+			item, status, selected, label = entries[0]
+			keep = max(4, len(label) - int((total(hidden) - room) / CH) - 1)
+			entries[0] = (item, status, selected, self.chip_label(label, keep))
+
+		html = ''
+		for item, status, selected, label in entries:
+			# The dot is a glyph coloured by the stylesheet, as the status badge it replaces was, so
+			# it is the very green and yellow the rest of the debugger uses: `var(--greenish)` held
+			# to a readable contrast by minihtml. A rasterised icon would have to resolve that colour
+			# itself, and what `view.style()` reports for it is not what the stylesheet draws.
+			kind = {'Paused': 'warnish', 'Running': 'infoish'}.get(status, 'faint')
+			dot = '<span class="{}">{}</span>'.format(kind, '&#9679;' if kind != 'faint' else '&#9675;')
+			content = dot + ui.slot('', CHIP_DOT_GAP) + escape(label).replace(' ', '&nbsp;')
+			# the selected chip opens the list, as the picker it replaces did
+			callback = self.picker.show if selected else partial(self.picker.select, item.id_ish)
+			html += ui.link(content, callback, '{} · {}'.format(item.name, status), 'cfg' + (' active' if selected else ''))
+			html += ui.slot('', CHIP_GAP)
+		label = more_label(hidden)
+		# the zero-width text gives a chip holding nothing but the chevron the line box, and so the
+		# height, of the chips with a name
+		content = ZW + (escape(label).replace(' ', '&nbsp;') + ui.slot('', CHIP_DOT_GAP) if label else '') + ui.icon('down', 'muted')
+		html += ui.link(content, self.picker.show, 'Select run configuration', 'cfg')
+		return html, total(hidden)
+
+	@staticmethod
+	def chip_label(name, length):
+		return name if len(name) <= length else name[:max(1, length - 1)] + '…'
 
 	def breakpoints_control(self):
 		"""The global Breakpoints view belongs beside the global settings control, not session tabs."""
 		ui = self.ui
 		width = len('Breakpoints') * CH + 1.7
 		active = ui.state.tab == 'breakpoints'
-		button = ui.link('Breakpoints', partial(self.select_tab, 'breakpoints', False), 'Show breakpoints',
+		button = ui.link('Breakpoints', partial(self.select_tab, 'breakpoints'), 'Show breakpoints',
 			'breakpoints-control' + (' active' if active else ''))
 		return ui.slot(button, width, 'center'), width
 
@@ -86,16 +237,14 @@ class Toolbar:
 		backend = self.ui.backend
 		return panel is getattr(backend, 'console', None) and panel not in console_panels(backend)
 
-	def select_tab(self, tab, remember=True):
+	def select_tab(self, tab):
 		ui = self.ui
-		selected_tab = tab
 		if tab in ('console', 'terminal'):
 			panels = console_panels(ui.backend) if tab == 'console' else self.terminals()
 			if panels:
 				panels[0].open()
 			else:
 				ui.backend.callstack.open()
-				selected_tab = 'debugger'
 		elif dashboard := self.dashboards().get(tab):
 			dashboard.open()
 		elif tab == 'debugger_console':
@@ -109,18 +258,6 @@ class Toolbar:
 				if panel.output_panel_name == tab:
 					panel.open()
 					break
-		# Breakpoints are shared by every configuration. Opening that global view must not replace a
-		# configuration's remembered session tab.
-		if remember and selected_tab != 'breakpoints' and selected_tab != ui.state.tab:
-			selection = ui.backend.project.configuration_or_compound
-			if selection:
-				tabs = getattr(ui.backend.project, 'configuration_tabs', None)
-				if tabs is None:
-					tabs = {}
-					ui.backend.project.configuration_tabs = tabs
-				tabs[selection.id_ish] = selected_tab
-				if save := getattr(ui.backend, 'save_data', None):
-					save()
 
 	def tab_items(self):
 		from ..output_panel_console import ConsoleOutputPanel
@@ -154,24 +291,26 @@ class Toolbar:
 		return None
 
 	def tabs(self):
+		"""The tab row, the open tab underlined
+
+		The underline is the open tab's own bottom border, so it is exactly as wide as the tab
+		whatever the font. It used to be a bar of its own, placed by adding up the widths of the
+		tabs before it from an assumed character width; with a font narrower than that assumption
+		it drifted to the right, further with every tab, until it sat between two of them. A tab's
+		padding reaches down to the bottom of the row (inline padding paints without taking room),
+		which puts the border on the spacer that keeps the row the height it had with the bar.
+		"""
 		ui = self.ui
-		items = self.tab_items()
-		row, offset, underline = ZW, 0.0, (0.0, 0.0)
-		for key, label in items:
-			width = len(label) * CH + 2 * TAB_PAD
+		row = ZW
+		for key, label in self.tab_items():
 			active = key == ui.state.tab
 			row += ui.link(escape(label), partial(self.select_tab, key), label, 'tab' + (' active' if active else ''))
 			if key == 'console' and (record := self.closable_console()):
 				row += ui.button('close', 'Close console output', partial(self.close_console, record))
-				width += ACTION
 			if key == 'terminal' and (terminal := self.closable_terminal()):
 				row += ui.button('close', 'Close finished terminal', terminal.dispose)
-				width += ACTION
-			if active:
-				underline = offset, width
-			offset += width
-		return '<div class="tabs" style="width:{}px;"><div class="tabrow">{}</div><div class="underline" style="margin-left:{}px;width:{}px;"></div></div>'.format(
-			ui.px(ui.total - 2 * PAD), row, ui.px(underline[0]), ui.px(underline[1]))
+		return '<div class="tabs" style="width:{}px;"><div class="tabrow">{}</div><div class="underline"></div></div>'.format(
+			ui.px(ui.total - 2 * PAD), row)
 
 	def closable_terminal(self):
 		"""The terminal whose close button the terminal tab shows: the one open, or the selection's first, once its process has ended

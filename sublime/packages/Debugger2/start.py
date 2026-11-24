@@ -33,6 +33,7 @@ from .modules import dap
 from .modules.project import Project
 
 from .modules.debugger import Debugger
+from .modules import exit_cleanup
 from .modules import hover
 from .modules.hover import DebuggerShowHoverPopupCommand
 from .modules.output_panel import OutputPanel
@@ -149,12 +150,19 @@ class EventListener(sublime_plugin.EventListener):
 
 	def on_pre_close_window(self, window: sublime.Window):
 		if debugger := Debugger.get(window):
+			exit_cleanup.log('window {} closing: {} sessions'.format(window.id(), len(debugger.sessions)))
 			debugger.dispose()
 
 	def on_exit(self):
 		core.info('saving project data: {}'.format(Debugger.debuggers()))
 		for debugger in Debugger.debuggers():
-			debugger.save_data()
+			try:
+				debugger.save_data()
+			except Exception:
+				core.exception()
+
+		# quitting does not unload the plugin, so nothing else ends what the sessions started
+		exit_cleanup.end_everything()
 
 	def on_post_save(self, view: sublime.View):
 		if debugger := Debugger.get(view):

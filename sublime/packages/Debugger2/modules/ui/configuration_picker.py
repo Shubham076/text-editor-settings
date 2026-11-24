@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .. import configurations, core, dap
+from .. import configurations, core
 from ..ui import InputList, InputListItem
 
 if TYPE_CHECKING:
@@ -14,7 +14,7 @@ class ConfigurationPicker:
 
 	The same rows as the gear's list (`configurations.items`): paused first, then running, then
 	stopped, the status as the coloured badge and the annotation, opened on the selection. Choosing
-	one also restores the tab remembered for it.
+	one keeps the tab that is open, now about that configuration.
 	"""
 
 	def __init__(self, ui: PanelUI):
@@ -32,23 +32,13 @@ class ConfigurationPicker:
 			return
 		for item in (*ui.backend.project.compounds, *ui.backend.project.configurations):
 			if item.id_ish == value:
-				# A configuration gets a remembered tab only from an explicit tab click. Untouched
-				# configurations start independently on Call Stack / Variables rather than inheriting
-				# whichever tab the previously selected configuration left visible. A paused selection
-				# must remain on its call stack; this automatic focus does not overwrite its preference.
-				tabs = getattr(ui.backend.project, 'configuration_tabs', {})
-				if isinstance(item, dap.ConfigurationCompound):
-					session = configurations.session_for_names(ui.backend, item.configurations)
-				else:
-					session = configurations.session_for(ui.backend, item.name)
-				paused = bool(session and session.is_paused)
-				tab = 'debugger' if paused else tabs.get(item.id_ish, 'debugger')
-				# Older versions stored the global Breakpoints view per configuration. Do not restore
-				# that stale value now that Breakpoints has moved out of the session tab row.
-				if tab == 'breakpoints':
-					tab = 'debugger'
+				# The tab stays the one that is open: on the console, picking another configuration shows
+				# that one's console, on the call stack its frames. Read before the selection changes,
+				# which can open a panel of its own. A tab the new selection has nothing for (a console
+				# before its first run) falls back to the call stack in `select_tab`.
+				tab = ui.state.tab
 				configurations.select(ui.backend, item.name)
-				ui.toolbar.select_tab(tab, remember=False)
+				ui.toolbar.select_tab(tab)
 				return
 
 	def edit(self):

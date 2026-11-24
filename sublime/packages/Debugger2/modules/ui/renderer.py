@@ -5,7 +5,7 @@ from html import escape
 
 from .icons import ICON_SIZES, TONES, icon_data_uri
 from .style import (
-	ACTION, CH, COLORS, CONTROL, CSS, HEADING_LINE, LINE, PAD, PANE_PAD, ROW,
+	ACTION, CH, CHIP_PAD, COLORS, CONTROL, CSS, HEADING_LINE, LINE, PAD, PANE_PAD, ROW,
 	TAB_PAD, TABS_HEIGHT, TEXT_LINE, TOOL, TOOLBAR_PAD, ZW,
 )
 
@@ -177,7 +177,7 @@ class Renderer:
 			'$padrem': '{}rem'.format(PAD), '$panepadrem': '{}rem'.format(PANE_PAD),
 			'$rowpadrem': '{:.3f}rem'.format((row - TEXT_LINE) / 2), '$headpadrem': '{:.3f}rem'.format((row - HEADING_LINE) / 2),
 			'$linepadrem': '{:.3f}rem'.format((LINE - TEXT_LINE) / 2), '$tabpadrem': '{:.3f}rem'.format((TABS_HEIGHT - 0.07 - TEXT_LINE) / 2),
-			'$tabsiderem': '{}rem'.format(TAB_PAD), '$toolpadrem': '{:.3f}rem'.format(TOOLBAR_PAD),
+			'$tabsiderem': '{}rem'.format(TAB_PAD), '$chippadrem': '{}rem'.format(CHIP_PAD), '$toolpadrem': '{:.3f}rem'.format(TOOLBAR_PAD),
 		}.items():
 			css = css.replace(key, value)
 		for key, value in COLORS.items():

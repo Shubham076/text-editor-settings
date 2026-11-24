@@ -47,7 +47,7 @@ class CallstackPane:
 				continue
 			frames = ui.tree.get(thread)
 			if frames is None or isinstance(frames, str):
-				rows.append(ui.row(ui.text(frames or 'Loading…', width, 'muted')))
+				rows.append(ui.row(ui.slot('', 0.9) + ui.text(frames or 'Loading…', width - 0.9, 'muted')))
 				continue
 			for frame in frames:
 				location = '{}:{}'.format(os.path.basename(frame.source.name or frame.source.path or ''), frame.line) if frame.source else ''
@@ -57,7 +57,8 @@ class CallstackPane:
 				rows.append('<div class="frame{}">{}{}</div>'.format(' selected' if selected else '', ZW,
 					ui.link(content, partial(self.select_frame, session, thread, frame), frame.name + ' · ' + location)))
 				if selected and frame.instructionPointerReference:
-					rows.append(ui.row(ui.link('Disassembly', ui.backend.show_disassembly, 'Open disassembly', 'muted')))
+					# inset like the frame it belongs to (`.frame` pads its text by 0.9rem)
+					rows.append(ui.row(ui.slot('', 0.9) + ui.link('Disassembly', ui.backend.show_disassembly, 'Open disassembly', 'muted')))
 		for child in session.children:
 			rows.extend(self.session_rows(child, width, depth + 1))
 		return rows

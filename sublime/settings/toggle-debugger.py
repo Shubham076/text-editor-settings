@@ -22,32 +22,19 @@ class ToggleDebuggerPanelCommand(sublime_plugin.WindowCommand):
 			self.window.run_command('debugger', {'action': 'open'})
 
 	def _is_debugger_panel_open(self):
-		"""Check if any debugger panel is currently open using Sublime's panel system."""
+		"""Whether the panel that is open belongs to the debugger
+
+		Asked of the panel's view rather than of its name: the debugger marks every panel it
+		creates (console, call stack, breakpoints, watch, terminals) with the `debugger.output`
+		setting, while the names vary (`Debugger Callstack 1`, a task's own name, ...).
+		"""
 		active_panel = self.window.active_panel()
 
-		if not active_panel:
+		if not active_panel or not active_panel.startswith('output.'):
 			return False
 
-		# Check for known debugger panel names
-		debugger_panels = [
-			'output.Debugger',           # Console panel
-			'output.Debugger Callstack', # Callstack panel
-		]
-
-		# Also check for numbered variants (e.g., 'output.Debugger2', 'output.Debugger3')
-		# since the debugger creates numbered panels for multiple instances
-		if active_panel in debugger_panels:
-			return True
-
-		# Check for numbered variants
-		for panel_base in ['output.Debugger', 'output.Debugger Callstack']:
-			if active_panel.startswith(panel_base):
-				# Check if it's a numbered variant (e.g., 'output.Debugger2')
-				suffix = active_panel[len(panel_base):]
-				if suffix == '' or (suffix.isdigit() and len(suffix) <= 2):
-					return True
-
-		return False
+		view = self.window.find_output_panel(active_panel[len('output.'):])
+		return bool(view and view.settings().get('debugger.output'))
 
 	def is_enabled(self):
 		"""Enable the command only if we have a valid window."""

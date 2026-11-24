@@ -4,7 +4,7 @@ import re
 import sys
 import types
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, call, patch
 
 import test_live_ui as fixtures
 from test_live_ui import ROOT, load_module
@@ -29,7 +29,7 @@ class DashboardLayoutTests(unittest.TestCase):
 		self.assertEqual((point, layout), (0, self.sublime.LAYOUT_INLINE))
 		self.assertIn('toolbar joined strip', html)
 		self.assertIn('Select run configuration', html)
-		self.assertIn('class="breakpoints-control"', html)
+		self.assertIn('class="tool" title="Show breakpoints"', html)
 		self.assertNotIn('class="tabs"', html)
 		# the call stack is where the back arrow leads, so its strip carries the brand mark instead
 		self.assertNotIn('Back to call stack', html)
@@ -49,7 +49,7 @@ class DashboardLayoutTests(unittest.TestCase):
 		ui.render()
 		strip_html = ui.phantoms.update.call_args.args[0][0][1]
 		self.assertIn('Back to call stack', strip_html)
-		self.assertIn('class="breakpoints-control active"', strip_html)
+		self.assertIn('class="tool primary" title="Show breakpoints"', strip_html)
 		self.assertEqual([item[0] for item in ui.view_phantoms.update.call_args.args[0]], [2, 3])
 
 	def test_dashboard_renders_toolbar_tabs_then_call_stack_beside_variables(self):
@@ -140,59 +140,30 @@ class DashboardLayoutTests(unittest.TestCase):
 		ui.toolbar.select_tab('debugger')
 		self.backend.callstack.open.assert_called_once_with()
 
-	def test_explicit_session_tabs_are_remembered_but_global_breakpoints_are_not(self):
-		self.backend.project.configuration_tabs = {}
-		self.backend.save_data = Mock()
-		ui = self.make_ui(body=True)
-		ui.toolbar.select_tab('debugger')
-		self.assertEqual(self.backend.project.configuration_tabs, {})
-		ui.toolbar.select_tab('breakpoints')
-		self.assertEqual(self.backend.project.configuration_tabs, {})
-		second = types.SimpleNamespace(name='Second', id_ish='config-2')
-		self.backend.project.configuration_or_compound = second
-		ui.toolbar.select_tab('watch')
-		self.assertEqual(self.backend.project.configuration_tabs, {'config-2': 'watch'})
-		ui.toolbar.select_tab('debugger', remember=False)
-		self.assertEqual(self.backend.project.configuration_tabs['config-2'], 'watch')
-		self.assertEqual(self.backend.save_data.call_count, 1)
-
-	def test_configuration_switch_restores_each_saved_tab_or_uses_call_stack(self):
-		first = types.SimpleNamespace(name='First', id_ish='config-1')
-		second = types.SimpleNamespace(name='Second', id_ish='config-2')
-		third = types.SimpleNamespace(name='Third', id_ish='config-3')
-		self.backend.project.configurations = [first, second, third]
-		self.backend.project.configuration_tabs = {'config-1': 'console', 'config-3': 'breakpoints'}
-		picker_module = self.loaded['_live_test.modules.ui.configuration_picker']
-		picker_module.configurations.select = Mock()
-		ui = self.make_ui(body=True)
-		ui.toolbar.select_tab = Mock()
-		ui.state.tab = 'console'
-		ui.toolbar.picker.select('config-1')
-		ui.toolbar.select_tab.assert_called_once_with('console', remember=False)
-		ui.toolbar.select_tab.reset_mock()
-		ui.toolbar.picker.select('config-2')
-		ui.toolbar.select_tab.assert_called_once_with('debugger', remember=False)
-		ui.toolbar.select_tab.reset_mock()
-		ui.toolbar.picker.select('config-3')
-		ui.toolbar.select_tab.assert_called_once_with('debugger', remember=False)
-
-	def test_switching_to_paused_configuration_keeps_its_call_stack_visible(self):
+	def test_configuration_switch_keeps_the_tab_that_is_open(self):
 		first = types.SimpleNamespace(name='First', id_ish='config-1')
 		second = types.SimpleNamespace(name='Second', id_ish='config-2')
 		self.backend.project.configurations = [first, second]
-		self.backend.project.configuration_or_compound = second
-		self.backend.project.configuration_tabs = {'config-1': 'console', 'config-2': 'breakpoints'}
-		self.backend.sessions = [
-			types.SimpleNamespace(configuration=types.SimpleNamespace(name='First'), is_paused=True),
-			types.SimpleNamespace(configuration=types.SimpleNamespace(name='Second'), is_paused=False),
-		]
+		# paused or not makes no difference: the tab is the user's choice, not the session's
+		self.backend.sessions = [types.SimpleNamespace(configuration=types.SimpleNamespace(name='Second'), is_paused=True)]
 		picker_module = self.loaded['_live_test.modules.ui.configuration_picker']
-		picker_module.configurations.select = Mock()
 		ui = self.make_ui(body=True)
 		ui.toolbar.select_tab = Mock()
-		ui.toolbar.picker.select('config-1')
-		ui.toolbar.select_tab.assert_called_once_with('debugger', remember=False)
-		self.assertEqual(self.backend.project.configuration_tabs['config-1'], 'console')
+		for tab in ('console', 'debugger', 'watch', 'breakpoints', 'terminal'):
+			with self.subTest(tab=tab):
+				ui.state.tab = tab
+				# selecting can open a panel and redraw; the tab asked for is the one open before it
+				picker_module.configurations.select = Mock(side_effect=lambda *args: setattr(ui.state, 'tab', 'debugger'))
+				ui.toolbar.select_tab.reset_mock()
+				ui.toolbar.picker.select('config-2')
+				picker_module.configurations.select.assert_called_once_with(self.backend, 'Second')
+				ui.toolbar.select_tab.assert_called_once_with(tab)
+
+	def test_a_console_tab_falls_back_to_the_call_stack_when_the_selection_has_no_console(self):
+		ui = self.make_ui(body=True)
+		self.backend.session_panels = None
+		ui.toolbar.select_tab('console')
+		self.backend.callstack.open.assert_called_once()
 
 	def test_watch_with_the_toolbar_in_the_strip_ends_in_a_line_of_input(self):
 		strip_set, view_set = Mock(), Mock()
@@ -278,7 +249,9 @@ class DashboardLayoutTests(unittest.TestCase):
 		with patch.dict(sys.modules, dependencies):
 			module.OutputPanel.__init__(panel, self.backend, 'Dashboard', dashboard=True, unlisted=True)
 		self.window.create_io_panel.assert_not_called()
-		self.window.create_output_panel.assert_called_once_with('Dashboard', unlisted=True)
+		# created twice: the name is tried out with a throwaway panel first (`_clean_output_panel_name`)
+		self.assertEqual(self.window.create_output_panel.call_args_list, [call('Dashboard', unlisted=True)] * 2)
+		self.window.destroy_output_panel.assert_called_once_with('Dashboard')
 		self.assertIsNone(panel.input_view)
 		tabs.assert_called_once_with(panel, self.view, body=True, header_view=None, layout='debugger')
 		self.window.find_output_panel.side_effect = [self.view, None]

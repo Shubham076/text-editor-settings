@@ -44,7 +44,7 @@ class OutputPanel(core.Dispose):
 		layout='debugger',
 	):
 		super().__init__()
-		self.panel_name = self._get_free_output_panel_name(debugger.window, panel_name) if create else panel_name
+		self.panel_name = self._clean_output_panel_name(debugger, panel_name, bottom_bar or prompt_strip) if create else panel_name
 		self.output_panel_name = f'output.{self.panel_name}'
 		self.name = name or panel_name
 
@@ -108,13 +108,8 @@ class OutputPanel(core.Dispose):
 		settings.set('scroll_past_end', False)
 		settings.set('gutter', False)
 
-		# this is just a hack to get the output panel to have a bigger height
 		self.update_settings()
-		font_size = cast(float, settings.get('font_size') or 12)
-		scaled_font = font_size * (Settings.console_minimum_height + 1.75) / 5
-		settings.set('font_size', scaled_font)  # this will be removed in update_settings()
-		self.open()
-
+		self.open_at_shared_height()
 		self.update_settings()
 
 		if not show_panel:
@@ -129,6 +124,158 @@ class OutputPanel(core.Dispose):
 			self.dispose_live_settings,
 			lambda: self.debugger.remove_output_panel(self),
 		)
+
+	# -- height ------------------------------------------------------------------------------
+	#
+	# Sublime has no way to set the height of a panel. It gives a panel its height once, the first
+	# time it is shown: `PANEL_LINES` lines of the view's font plus `PANEL_EXTRA` pixels for the
+	# output, and the input strip of an io panel on top of that. From then on the height belongs to
+	# that panel alone: dragging the edge changes the one panel that is showing. The height is
+	# also written to the workspace under the panel's name, and a panel created under a name found
+	# there gets that height back whatever its font is. Destroying the panel does not clear it,
+	# hidden or shown, at once or later (all of this measured, not documented).
+	#
+	# Each tab of the debugger is a panel of its own, so left to itself every tab ends up a
+	# different height: the one it was last dragged to, weeks ago. Two things keep them the same.
+	# A panel is created under a name that either has no height saved or has the right one
+	# (`_clean_output_panel_name`), and it is first shown with a font picked to come out at the
+	# height the other tabs have: `Debugger.panel_height`, the output and its strip together.
+	# That height follows a drag of whichever tab is showing and is kept with the project's data,
+	# so panels created after the drag, and after a restart, match it. The panels that already
+	# exist cannot be made to follow: there is nothing to resize them with.
+	PANEL_LINES = 6
+	PANEL_EXTRA = 6
+	# how far, in pixels, a panel has to move from the height it was last seen at to count as dragged
+	DRAG_TOLERANCE = 4
+	# how close a height has to be to the one wanted, or to a fresh panel's, to be taken for it
+	HEIGHT_TOLERANCE = 3
+	# the font a name is tried out with: small, so a fresh panel's height is one no drag leaves behind
+	PROBE_FONT = 7
+	# names tried before settling for one with the wrong height
+	NAME_ATTEMPTS = 40
+
+	def _clean_output_panel_name(self, debugger: Debugger, name: str, io: bool) -> str:
+		'''The first free name whose panel will come out at the height the others have
+
+		Each candidate is tried with a throwaway panel of the same kind, shown and destroyed on the
+		spot: it either gets a fresh panel's height (nothing is saved under the name, so the real
+		panel can be given any height) or the saved one (usable only if it is the height wanted).
+		A name that has been through a drag is skipped from then on; the workspace keeps its entry,
+		which is a line of json. Without a height to match yet, only a fresh name will do, so the
+		first panel sets the height from the settings rather than from whatever its name remembers.
+		'''
+		window = debugger.window
+		wanted = self._pixels(getattr(debugger, 'panel_height', None))
+		previous = window.active_panel()
+		chosen = None
+		first_free = None
+		index = 0
+		for _ in range(self.NAME_ATTEMPTS):
+			candidate = name if not index else f'{name} {index}'
+			index += 1
+			if window.find_output_panel(candidate):
+				continue
+			first_free = first_free or candidate
+			if io:
+				view, strip = window.create_io_panel(candidate, lambda text: None, unlisted=True)
+			else:
+				view, strip = window.create_output_panel(candidate, unlisted=True), None
+			view.settings().set('font_size', self.PROBE_FONT)
+			fresh = self._pixels(view.line_height())
+			window.run_command('show_panel', {'panel': f'output.{candidate}'})
+			try:
+				height = self._pixels(view.viewport_extent()[1])
+				total = height + (self._pixels(strip.viewport_extent()[1]) or 0 if strip else 0) if height else None
+			except (TypeError, IndexError):
+				height = total = None
+			window.destroy_output_panel(candidate)
+			if not fresh or not height:
+				# nothing to measure with (no layout yet): the name is as good as any
+				chosen = candidate
+				break
+			if abs(height - (self.PANEL_LINES * fresh + self.PANEL_EXTRA)) <= self.HEIGHT_TOLERANCE:
+				chosen = candidate
+				break
+			if wanted and total and abs(total - wanted) <= self.HEIGHT_TOLERANCE:
+				chosen = candidate
+				break
+
+		if previous:
+			window.run_command('show_panel', {'panel': previous})
+		else:
+			window.run_command('hide_panel')
+		return chosen or first_free or self._get_free_output_panel_name(window, name)
+
+	@staticmethod
+	def _pixels(value) -> float | None:
+		return float(value) if isinstance(value, (int, float)) and value > 0 else None
+
+	def total_height(self) -> float | None:
+		'''The height of the panel on screen: the output and, for an io panel, its strip'''
+		try:
+			height = self._pixels(self.view.viewport_extent()[1])
+			strip = self._pixels(self.input_view.viewport_extent()[1]) if self.input_view else 0
+		except (TypeError, IndexError):
+			return None
+		return height + strip if height and strip is not None else None
+
+	def font_for_line_height(self, line_height: float) -> float | None:
+		'''The font size at which a line of this view is `line_height` pixels tall
+
+		Line height is a straight line in the font size, offset by the view's line padding, so two
+		readings give it. Read from this view rather than worked out, because the face and the
+		padding differ between a console, a terminal and a dashboard.
+		'''
+		settings = self.view.settings()
+		low, high = 20, 60
+		settings.set('font_size', low)
+		at_low = self._pixels(self.view.line_height())
+		settings.set('font_size', high)
+		at_high = self._pixels(self.view.line_height())
+		if not at_low or not at_high or at_high <= at_low:
+			return None
+		return max(1.0, low + (line_height - at_low) * (high - low) / (at_high - at_low))
+
+	def open_at_shared_height(self):
+		'''Shows the panel for the first time, at the height the debugger's other panels have
+
+		With no height to match yet, the first panel of a window sets it: `console_minimum_height`
+		lines, by the scaling the debugger has always used. The font set here is only there for the
+		moment the panel is sized; `update_settings` puts the real one back right after.
+		'''
+		settings = self.view.settings()
+		shared = self._pixels(getattr(self.debugger, 'panel_height', None)) if self.create else None
+		font = None
+		if shared:
+			# the strip is one line of its own font tall, plus a pixel of border
+			strip = (self._pixels(self.input_view.line_height()) or 0) + 1 if self.input_view else 0
+			font = self.font_for_line_height((shared - strip - self.PANEL_EXTRA) / self.PANEL_LINES)
+		if not font:
+			font_size = cast(float, settings.get('font_size') or 12)
+			font = font_size * (Settings.console_minimum_height + 1.75) / 5
+		settings.set('font_size', font)
+		self.open()
+		# the extents are right as soon as the panel is shown
+		self.seen_height = self.total_height()
+		if self.create and not shared and self.seen_height:
+			self.debugger.panel_height = self.seen_height
+
+	def track_height(self):
+		'''Called while the panel is showing: a change in its height is the user dragging its edge
+
+		Only a change counts. A panel that is simply taller or shorter than the rest (one Terminus
+		recreated, one from before a drag) must not pass its height on to the panels made after it.
+		'''
+		height = self.total_height()
+		if not height:
+			return
+		seen = getattr(self, 'seen_height', None)
+		if seen and abs(height - seen) > self.DRAG_TOLERANCE:
+			self.debugger.panel_height = height
+			# kept with the project's data, so the height is the same after a restart
+			if save := getattr(self.debugger, 'save_data', None):
+				save()
+		self.seen_height = height
 
 	DEFAULT_PROMPT = 'Expression to watch'
 

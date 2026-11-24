@@ -109,6 +109,10 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.run_to_current_line_breakpoint: dap.SourceBreakpoint | None = None
 
 		self.output_panels: list[OutputPanel] = []
+		# the sessions already seen at a breakpoint; see `_on_session_updated`
+		self.paused_sessions: set[dap.Session] = set()
+		# the height, in pixels, the debugger's panels are created at; see `OutputPanel.open_at_shared_height`
+		self.panel_height: float | None = None
 
 		self.external_terminals: dict[dap.Session, list[ExternalTerminal]] = {}
 		self.integrated_terminals: dict[dap.Session, list[TerminusOutputPanel]] = {}
@@ -116,6 +120,7 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.disassembly_view: DisassembleView | None = None
 
 		self.project = Project(window)
+		self.panel_height = self.load_panel_height()
 		self.breakpoints = dap.Breakpoints()
 		self.watch = Watch(self)
 
@@ -420,6 +425,16 @@ class Debugger(core.Dispose, dap.Debugger):
 		return await response
 
 	def _on_session_updated(self, session: dap.Session):
+		# `on_session_updated` fires for many things while a session sits at a breakpoint, so the
+		# moment it stopped is found by remembering which sessions were already seen paused
+		if session.state == dap.Session.State.PAUSED:
+			if session not in self.paused_sessions:
+				self.paused_sessions.add(session)
+				if not session.stepping:
+					self.focus_paused_session(session)
+		else:
+			self.paused_sessions.discard(session)
+
 		if self.session and self.session != session:
 			return
 
@@ -430,6 +445,41 @@ class Debugger(core.Dispose, dap.Debugger):
 		if session.state.previous == dap.Session.State.PAUSED and session.state == dap.Session.State.RUNNING:
 			if not session.stepping:
 				self.open_session_output(session)
+
+	def focus_paused_session(self, session: dap.Session):
+		'''A session just stopped at a breakpoint: make it the one the debugger is about
+
+		With several configurations running, the one that stops is rarely the one being looked at,
+		and finding it meant going through them one by one. Its configuration becomes the selection,
+		so the bar, the call stack and the variables are its, and `_on_session_updated` then opens
+		the call stack as it does for the selected session.
+
+		Not while another session of the selection is itself paused: that is someone in the middle
+		of reading a frame, and taking the panel from under them is worse than a yellow dot on the
+		other configuration's chip, which is what they get instead.
+		'''
+		root = session
+		while root.parent:
+			root = root.parent
+
+		selection = self.project.configuration_or_compound
+		names = selection.configurations if isinstance(selection, dap.ConfigurationCompound) else [self.project.name]
+
+		for other in self.sessions:
+			if other is session or not other.is_paused:
+				continue
+			other_root = other
+			while other_root.parent:
+				other_root = other_root.parent
+			if other_root.configuration.name in names:
+				return
+
+		if root.configuration.name not in names:
+			self.project.load_configuration(root.configuration.name)
+
+		if self.session is not session:
+			self.session = session
+			self.on_session_active(session)
 
 	def open_session_output(self, session: dap.Session):
 		if session.is_paused:
@@ -482,6 +532,7 @@ class Debugger(core.Dispose, dap.Debugger):
 		session.dispose()
 
 		self.sessions.remove(session)
+		self.paused_sessions.discard(session)
 		self.on_session_removed(session)
 
 		# select a new session if there is one
@@ -583,6 +634,14 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.breakpoints.load_from_json(json.get('breakpoints', {}))
 		self.watch.load_json(json.get('watch', []))
 
+	def load_panel_height(self) -> float | None:
+		'''The height the panels were last dragged to, read before the first panel is created'''
+		location = self.project.location
+		if not location:
+			return None
+		height = core.json.load_json_from_package_data(location).get('panel_height')
+		return float(height) if isinstance(height, (int, float)) and height > 0 else None
+
 	def save_data(self):
 		location = self.project.location
 		if not location:
@@ -593,6 +652,7 @@ class Debugger(core.Dispose, dap.Debugger):
 			'project': self.project.into_json(),
 			'breakpoints': self.breakpoints.into_json(),
 			'watch': self.watch.into_json(),
+			'panel_height': self.panel_height,
 		}
 		core.json.save_json_to_package_data(location, json)
 

@@ -18,6 +18,13 @@ TOOLBAR = 3.8
 TABS_HEIGHT = 3.4
 FOOTER = 2.75
 TAB_PAD = 1.0
+# A configuration chip in the fixed strip: side padding, the air after its status dot, the
+# air between two chips, and the longest name drawn on the selected chip and on the others
+CHIP_PAD = 0.7
+CHIP_DOT_GAP = 0.4
+CHIP_GAP = 0.45
+CHIP_NAME = 24
+CHIP_SHORT = 14
 ZW = '<span>&#8203;</span>'  # zero-width text that keeps a row's line box at the 1rem text height
 TEXT_LINE = 1.46     # minihtml's natural line box for 1rem Menlo text (measured)
 HEADING_LINE = 1.54  # the same for the 1.15rem section headings
@@ -57,6 +64,8 @@ a { color: var(--foreground); text-decoration: none; }
 .toolbar.strip { border-left: none; border-right: none; border-top: none; border-bottom: none; border-radius: 0; }
 .brand { color: color(var(--foreground) alpha(0.72)); }
 .picker { padding: 0.43rem 0.95rem; border: 1px solid color(var(--foreground) alpha(0.16)); border-radius: 0.4rem; background-color: color(var(--foreground) alpha(0.08)); font-weight: bold; }
+.cfg { padding: 0.43rem $chippadrem; border: 1px solid color(var(--foreground) alpha(0.16)); border-radius: 0.4rem; color: color(var(--foreground) alpha(0.72)); }
+.cfg.active { border: 1px solid color(var(--foreground) alpha(0.3)); background-color: color(var(--foreground) alpha(0.08)); color: var(--foreground); font-weight: bold; }
 .state { padding: 0.27rem 0.5rem; border-radius: 1rem; font-weight: bold; }
 .paused { color: color(var(--yellowish) min-contrast(var(--background) 4)); background-color: color(var(--yellowish) alpha(0.15)); }
 .running { color: color(var(--greenish) min-contrast(var(--background) 4)); background-color: color(var(--greenish) alpha(0.15)); }
@@ -69,9 +78,9 @@ a { color: var(--foreground); text-decoration: none; }
 .icon-button { padding: 0.2rem 0.3rem; border-radius: 0.3rem; }
 .tabs { padding-left: $padrem; padding-right: $padrem; border-top: 1px solid $line; border-left: 1px solid $line; border-right: 1px solid $line; border-bottom: 1px solid $line; white-space: nowrap; }
 .tabrow { padding-top: $tabpadrem; padding-bottom: $tabpadrem; white-space: nowrap; }
-.tab { padding-left: $tabsiderem; padding-right: $tabsiderem; color: color(var(--foreground) alpha(0.72)); }
-.tab.active { color: var(--foreground); font-weight: bold; }
-.underline { height: 2px; background-color: var(--foreground); }
+.tab { padding-left: $tabsiderem; padding-right: $tabsiderem; padding-bottom: $tabpadrem; border-bottom: 2px solid var(--background); color: color(var(--foreground) alpha(0.72)); }
+.tab.active { color: var(--foreground); font-weight: bold; border-bottom: 2px solid var(--foreground); }
+.underline { height: 2px; }
 .bar { padding-top: 1.17rem; padding-bottom: 1.17rem; padding-left: 1.25rem; padding-right: 1.25rem; border-left: 1px solid $line; border-right: 1px solid $line; border-bottom: 1px solid $line; white-space: nowrap; }
 .bar.tall { padding-top: 1.08rem; padding-bottom: 1.08rem; }
 .chip { padding: 0.27rem 0.85rem; border: 1px solid color(var(--foreground) alpha(0.18)); border-radius: 1rem; color: color(var(--foreground) alpha(0.85)); background-color: $field; }

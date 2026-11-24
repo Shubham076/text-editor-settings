@@ -301,5 +301,16 @@ class OutputTabsTests(unittest.TestCase):
 		self.assertEqual(expanded.id_ish, configuration.id_ish)
 
 
+	def test_the_open_tab_is_underlined_by_its_own_border_not_a_bar_placed_by_character_count(self):
+		ui = self.make_ui()
+		ui.render()
+		html = ui.phantoms.update.call_args.args[0][0][1]
+		# no offset or width worked out from the labels: the border belongs to the tab
+		self.assertIn('<div class="underline"></div>', html)
+		self.assertNotIn('margin-left', html.split('class="tabs"', 1)[1])
+		self.assertIn('.tab.active { color: var(--foreground); font-weight: bold; border-bottom: 2px solid var(--foreground); }', html)
+		self.assertEqual(html.count('class="tab active"'), 1)
+
+
 if __name__ == '__main__':
 	unittest.main()
