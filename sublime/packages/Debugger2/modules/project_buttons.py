@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import ClassVar, Tuple
 
-import base64
 import re
 
 import sublime
@@ -20,14 +19,14 @@ ICON_SIZE = '1.1rem'
 
 ACTION_SETTINGS = 'settings'
 ACTION_RUN = 'run'
-ACTION_DEBUG = 'debug'
 ACTION_STOP = 'stop'
 
-# an icon that is drawn rather than read from a file is named `DRAWN` + its name + `:` + its colour
-DRAWN = 'drawn:'
-# the pixels a drawn icon is made of, the size of the files the others are read from
+# The icons are drawn, in the colour the text of the file is. They were files once, a black shape
+# and a white one to choose between, and black on a scheme whose text is a soft grey-green is the
+# loudest thing on the line. An icon is named `name:colour`, which is also what says it has to be
+# drawn again when the scheme changes
 DRAWN_SIZE = 48
-# the files are a white shape for a dark background and a black one for a light, and so is a drawn one
+# when a scheme does not say what colour its text is in a way that can be read
 DRAWN_ON_DARK = '#ffffff'
 DRAWN_ON_LIGHT = '#000000'
 
@@ -45,9 +44,8 @@ class ProjectButtons(core.Dispose):
 	icon beside each is the shortest path there is from wanting to run one to running it, and it is
 	where the eye already is when adding one.
 
-	A configuration that is not running has two: play runs it without the debugger, which is the
-	quick way to see it work, and the bug runs it under the debugger. The two are one phantom, so
-	they stay in that order and are drawn and erased together. While it runs they are one stop.
+	Play runs a configuration without the debugger, which is the quick way to see it work, and makes
+	it the selection of the bar, where the bug debugs it. While it runs the icon is a stop.
 
 	They are phantoms rather than gutter icons. A gutter icon is what this wants to be and Sublime will
 	draw one, `add_regions(icon=...)`, but there is no event for a click on the gutter, so it could only
@@ -124,7 +122,7 @@ class ProjectButtons(core.Dispose):
 		targets: list[str] = []
 
 		if region := self.view.find(r'"\s*debugger_configurations\s*"', 0):
-			wanted.append((self.view.line(region).begin(), ((self.file(ui.Images.shared.settings), ACTION_SETTINGS),)))
+			wanted.append((self.view.line(region).begin(), ((self.drawn('settings'), ACTION_SETTINGS),)))
 
 		running = configurations.running(debugger)
 
@@ -150,14 +148,11 @@ class ProjectButtons(core.Dispose):
 			self.add(at, icons)
 
 	def icons(self, is_running: bool, index: int) -> tuple[Icon, ...]:
-		'''The icons of the thing `targets[index]` starts: a stop while it runs, otherwise run and debug'''
+		'''The icon of the thing `targets[index]` starts: a stop while it runs, otherwise a play'''
 		if is_running:
-			return ((self.file(ui.Images.shared.stop), f'{ACTION_STOP}:{index}'),)
+			return ((self.drawn('stop'), f'{ACTION_STOP}:{index}'),)
 
-		return (
-			(self.file(ui.Images.shared.play), f'{ACTION_RUN}:{index}'),
-			(self.drawn('bug'), f'{ACTION_DEBUG}:{index}'),
-		)
+		return ((self.drawn('run'), f'{ACTION_RUN}:{index}'),)
 
 	def current(self) -> list[tuple[int, tuple[Icon, ...]]] | None:
 		'''What is drawn right now, in the same shape as `render()` wants it, or None if any icon is gone'''
@@ -180,32 +175,24 @@ class ProjectButtons(core.Dispose):
 
 		self.phantoms.append((ui.RawPhantom(self.view, sublime.Region(at), f'<body>{links}</body>', on_navigate=self.navigate), icons))
 
-	def is_dark(self) -> bool:
-		style = self.view.style()
-		background = style.get('background') if style else None
+	def colour(self) -> str:
+		'''The colour of the text of this view, as `#rrggbb`'''
+		style = self.view.style() or {}
+		foreground = str(style.get('foreground') or '')
 
-		return lightness_from_color(background) < 0.5
+		# `#rrggbb`, or `#rrggbbaa` with an opacity that an icon this small is better off without
+		if re.fullmatch(r'#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?', foreground):
+			return foreground[:7].lower()
+
+		return DRAWN_ON_DARK if lightness_from_color(style.get('background')) < 0.5 else DRAWN_ON_LIGHT
 
 	def drawn(self, name: str) -> str:
-		'''An icon there is no file of, in the colour the files have on this views background'''
-		return f'{DRAWN}{name}:{DRAWN_ON_DARK if self.is_dark() else DRAWN_ON_LIGHT}'
+		'''An icon by name, in the colour of the text of this view'''
+		return f'{name}:{self.colour()}'
 
-	def file(self, image: ui.Image) -> str:
-		'''The icon file for this views background
-
-		`Image.data()` picks between the two by the luminocity of a layout and a phantom has none, so
-		make the same choice against the background the view is actually drawn on.
-		'''
-		return image.file_light if self.is_dark() else image.file_dark
-
-	def data(self, file: str) -> str:
-		if file.startswith(DRAWN):
-			name, _, colour = file[len(DRAWN):].partition(':')
-			return icon_data_uri(name, colour, DRAWN_SIZE)
-
-		png = sublime.load_binary_resource(file)
-
-		return f'data:image/png;base64,{base64.b64encode(png).decode("ascii")}'
+	def data(self, icon: str) -> str:
+		name, _, colour = icon.partition(':')
+		return icon_data_uri(name, colour, DRAWN_SIZE)
 
 	@core.run
 	async def navigate(self, href: str) -> None:
@@ -232,9 +219,6 @@ class ProjectButtons(core.Dispose):
 
 		if action == ACTION_RUN:
 			configurations.start(debugger, name, no_debug=True)
-
-		elif action == ACTION_DEBUG:
-			configurations.start(debugger, name)
 
 		elif action == ACTION_STOP:
 			if session := configurations.session_for(debugger, name):

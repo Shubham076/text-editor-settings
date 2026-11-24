@@ -97,11 +97,13 @@
         }
     },
 
-    // Cursor movement
-    { "keys": ["ctrl+e"], "command": "move_to", "args": {"to": "eol", "extend": false} },
-    { "keys": ["ctrl+a"], "command": "move_to", "args": {"to": "bol", "extend": false} },
-    { "keys": ["super+right"], "command": "move_to", "args": {"to": "eol", "extend": true} },
-    { "keys": ["super+left"], "command": "move_to", "args": {"to": "bol", "extend": true} },
+    // Cursor movement. Not in a terminal: there the keys belong to the shell, and a binding here
+    // with no context wins over the one Terminus has, moving the caret of the view instead of the
+    // cursor of the shell
+    { "keys": ["ctrl+e"], "command": "move_to", "args": {"to": "eol", "extend": false}, "context": [{"key": "terminus_view", "operator": "not_equal", "operand": true}] },
+    { "keys": ["ctrl+a"], "command": "move_to", "args": {"to": "bol", "extend": false}, "context": [{"key": "terminus_view", "operator": "not_equal", "operand": true}] },
+    { "keys": ["super+right"], "command": "move_to", "args": {"to": "eol", "extend": true}, "context": [{"key": "terminus_view", "operator": "not_equal", "operand": true}] },
+    { "keys": ["super+left"], "command": "move_to", "args": {"to": "bol", "extend": true}, "context": [{"key": "terminus_view", "operator": "not_equal", "operand": true}] },
 
     // Word deletion
     { "keys": ["super+delete"], "command": "delete_word", "args": {"forward": true, "sub_words": true} },

@@ -56,8 +56,12 @@ class ActionOpensDebuggerTests(unittest.TestCase):
 		# asked for as it is: asking for it to be made is what brings the panel of one that exists up
 		self.assertEqual(self.get.call_args.kwargs, {})
 
-	def test_the_actions_about_a_line_are_the_breakpoints_and_the_logpoint(self):
-		self.assertEqual(flags(), {'toggle_breakpoint': False, 'toggle_column_breakpoint': False, 'add_logpoint': False})
+	def test_the_actions_that_leave_the_panel_alone(self):
+		# the ones about a line of the file, and the settings, which open in a window of their own
+		# that the panel coming up in this one would put behind it
+		self.assertEqual(flags(), {
+			'toggle_breakpoint': False, 'toggle_column_breakpoint': False, 'add_logpoint': False, 'settings_preferences': False,
+		})
 
 
 if __name__ == '__main__':

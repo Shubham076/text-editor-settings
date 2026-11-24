@@ -8,7 +8,6 @@ from . import configurations
 from . import core
 from . import dap
 from . import test_runner
-from . import ui
 
 from .project_buttons import ACTION_RUN, ACTION_STOP, Icon, ProjectButtons
 from .settings import Settings
@@ -104,6 +103,8 @@ class TestButtons(ProjectButtons):
 	'''A play icon at the head of each test in a test file, which runs that one test
 
 	Without the debugger: the test becomes the selection of the bar, and the bug there debugs it.
+	One icon, as a configuration in a project file has: a file of tests has one on nearly every
+	other line.
 
 	The icons of a project file, on something else: the same phantoms, drawn and compared the same
 	way and for the same reasons, which is why this is a `ProjectButtons`. What differs is where they
@@ -170,14 +171,6 @@ class TestButtons(ProjectButtons):
 		self.clear()
 		TestButtons.views.pop(self.view.id(), None)
 		TestButtons.pending.pop(self.view.id(), None)
-
-	def icons(self, is_running: bool, index: int) -> tuple[Icon, ...]:
-		# one icon, not the run and debug pair of a project file: a file of tests has one on nearly
-		# every other line. Debugging a test is the bug on the bar once it has been run, or the menu
-		if is_running:
-			return ((self.file(ui.Images.shared.stop), f'{ACTION_STOP}:{index}'),)
-
-		return ((self.file(ui.Images.shared.play), f'{ACTION_RUN}:{index}'),)
 
 	def render(self) -> None:
 		from .debugger import Debugger

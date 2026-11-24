@@ -22,6 +22,12 @@ class SettingsPreferences(Action):
 	is_menu_main = False
 	prefix_menu_name = False
 
+	# The settings open in a window of their own, and that is all there is to do. Asking for the
+	# debugger afterwards brought its panel up in the window the command was run from, which also
+	# brought that window back in front of the settings that had just opened
+	create_debugger = False
+	opens_debugger = False
+
 	def action_raw(self, view: sublime.View | sublime.Window, kwargs: dict[str, Any]):
 		if window := core.window_from_view_or_widow(view):
 			window.run_command('edit_settings', {'base_file': '${packages}/Debugger2/Debugger.sublime-settings'})

@@ -216,6 +216,12 @@
             "background": "var(background)"
         },
         {
+            "name": "region cyan color for debugger",
+            "scope": "region.cyanish.debugger",
+            "foreground": "var(--cyanish)",
+            "background": "var(background)"
+        },
+        {
             "name": "region purple color debugger",
             "scope": "region.purplish.debugger",
             "foreground": "var(--purplish)",

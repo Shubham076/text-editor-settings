@@ -630,6 +630,14 @@ class IntelliJToSublimeJSONConverter:
                  "foreground":"var(--greenish)",
                  "background": "var(background)"
              },
+             # cyan is a colour programs print their logs in, and a console colour with no rule of its
+             # own falls back to the region colour sublime makes up, which fills the background
+             {
+                 "name": "region cyan color for debugger",
+                 "scope": "region.cyanish.debugger",
+                 "foreground": "var(--cyanish)",
+                 "background": "var(background)"
+             },
              {
                  "name": "region purple color debugger",
                  "scope": "region.purplish.debugger",

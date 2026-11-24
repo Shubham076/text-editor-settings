@@ -199,24 +199,37 @@ class ProjectButtonsTests(unittest.TestCase):
 			asyncio.run(self.view.click(pid))
 			self.configurations.start.assert_called_with(self.debugger, name, no_debug=True)
 
-	def test_a_configuration_has_a_run_and_a_debug_icon_and_each_starts_it_its_way(self):
+	def test_a_configuration_has_one_icon_drawn_in_the_colour_of_the_text(self):
+		self.view.style = lambda: {'background': '#f3f0e8', 'foreground': '#5C6A72'}
 		buttons = self.refresh()
 		html = next(html for _, html, _ in self.view.phantoms.values() if 'run:0' in html)
-		# one phantom holds both, run first
-		self.assertEqual(re.findall(r'href="([^"]*)"', html), ['run:0', 'debug:0'])
-		# the bug is drawn in the colour the icon files have on this background
-		self.assertIn('data:drawn-bug-#000000', html)
+		# play alone: the bug that debugs it is on the bar
+		self.assertEqual(re.findall(r'href="([^"]*)"', html), ['run:0'])
+		self.assertIn('data:drawn-run-#5c6a72', html)
+		self.assertTrue(all('#5c6a72' in html for _, html, _ in self.view.phantoms.values()))
 
 		asyncio.run(buttons.navigate('run:0'))
 		self.configurations.start.assert_called_with(self.debugger, 'Agent Mac', no_debug=True)
-		asyncio.run(buttons.navigate('debug:0'))
-		self.configurations.start.assert_called_with(self.debugger, 'Agent Mac')
 
-		# while it runs the two are one stop
+		# while it runs it is a stop, in the same colour
 		self.running = {'Agent Mac'}
 		self.refresh()
 		html = next(html for _, html, _ in self.view.phantoms.values() if ':0' in html)
 		self.assertEqual(re.findall(r'href="([^"]*)"', html), ['stop:0'])
+		self.assertIn('data:drawn-stop-#5c6a72', html)
+
+	def test_icons_are_drawn_again_when_the_colour_of_the_text_changes(self):
+		self.refresh()
+		before = sorted(self.view.phantoms)
+		self.view.style = lambda: {'background': '#1e1e1e', 'foreground': '#d4d4d4ff'}
+		self.refresh()
+		self.assertNotEqual(sorted(self.view.phantoms), before)
+		# an opacity on the colour is dropped
+		self.assertTrue(all('-#d4d4d4"' in html for _, html, _ in self.view.phantoms.values()))
+		# a colour that cannot be read is black or white by the background, which here reads as light
+		self.view.style = lambda: {'background': '#ffffff', 'foreground': 'var(text)'}
+		self.refresh()
+		self.assertTrue(all('-#000000"' in html for _, html, _ in self.view.phantoms.values()))
 
 	def test_click_on_a_running_configuration_stops_its_session(self):
 		self.running = {'Agent Mac'}
@@ -232,7 +245,7 @@ class ProjectButtonsTests(unittest.TestCase):
 		asyncio.run(self.view.click(pid))
 		# the settings icon opens the configuration quick panel, as the toolbar gear does
 		self.debugger.run_action.assert_called_once()
-		for href in ('run:9', 'run:x', 'debug:9', 'stop:', 'other:0'):
+		for href in ('run:9', 'run:x', 'debug:0', 'stop:', 'other:0'):
 			asyncio.run(buttons.navigate(href))
 		self.configurations.start.assert_not_called()
 		self.debugger.stop.assert_not_awaited()
