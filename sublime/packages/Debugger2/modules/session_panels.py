@@ -7,6 +7,7 @@ from functools import partial
 from . import core
 from . import dap
 
+from . import console_mode
 from .output_panel_console import ConsoleOutputPanel
 from .settings import Settings
 
@@ -71,7 +72,7 @@ class SessionPanelsRegistry(core.Dispose):
 	def _on_session_added(self, session: dap.Session) -> None:
 		if session.parent:
 			return
-		visible = session.configuration.get('console') not in ('integratedTerminal', 'externalTerminal')
+		visible = console_mode.mode(session.configuration.get('console')) == console_mode.INTERNAL
 
 		# the console of a previous run of this configuration, still open with its output in it. Reuse it
 		# rather than leaving a trail of dead ones, emptied so the run being started is the only thing in
@@ -142,8 +143,8 @@ class SessionPanelsRegistry(core.Dispose):
 
 	def on_terminal_request(self, session: dap.Session):
 		if (panels := self.panels_for(session)) and panels.session:
-			mode = panels.session.configuration.get('console')
-			if not panels.has_output and mode not in ('internalConsole', 'integratedConsole'):
+			# a terminal is where the output is going, unless the configuration asked for the console
+			if not panels.has_output and not console_mode.is_internal_by_choice(panels.session.configuration.get('console')):
 				panels.console_visible = False
 				self.debugger.on_output_panels_updated()
 

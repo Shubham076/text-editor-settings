@@ -49,6 +49,57 @@ class StartNoDebug(Action):
 		debugger.start(no_debug=True)
 
 
+class DebugTest(Action):
+	name = 'Debug Test Under Cursor'
+	key = 'debug_test'
+	is_menu_context = True
+
+	no_debug = False
+
+	# the test the cursor is in or on, in a file whose tests are recognised. `action_raw` only: the
+	# debugger is made when the test starts, not for a command that had no test to start
+
+	def action_raw(self, view, kwargs):
+		from .. import test_buttons
+		from .. import test_runner
+
+		window = core.window_from_view_or_widow(view)
+		view = window.active_view() if window else None
+		language = test_runner.language_for(view.file_name()) if view else None
+
+		if not view or not language:
+			core.display('Not a test file the debugger knows how to run')
+			return
+
+		test = test_runner.test_at(test_buttons.tests_in(view, language), view.sel()[0].begin())
+		if not test:
+			core.display('No test under the cursor')
+			return
+
+		test_buttons.start(view, test.name, no_debug=self.no_debug)
+
+	def _run(self, view, **kwargs):
+		self.action_raw(view, kwargs)
+
+	def _is_visible(self, view, **kwargs):
+		from .. import test_runner
+
+		window = core.window_from_view_or_widow(view)
+		view = window.active_view() if window else None
+
+		return bool(view and test_runner.language_for(view.file_name()))
+
+	def _is_enabled(self, view, **kwargs):
+		return self._is_visible(view, **kwargs)
+
+
+class RunTest(DebugTest):
+	name = 'Run Test Under Cursor (No Debug)'
+	key = 'run_test'
+
+	no_debug = True
+
+
 class Stop(Action):
 	name = 'Stop'
 	key = 'stop'

@@ -46,7 +46,8 @@ class StripChipsTests(unittest.TestCase):
 		self.configure(['ps-api-gateway', 'ps-backend'], 'ps-api-gateway')
 		html = self.strip_html()
 		self.assertEqual(self.chips(html), [('cfg active', 'ps-api-gateway · Stopped'), ('cfg', 'Select run configuration')])
-		self.assertIn('title="Start"', html)
+		# nothing running: one button runs it, one debugs it, in that order
+		self.assertLess(html.index('title="Run without the debugger"'), html.index('title="Debug"'))
 		for title in ('Step over', 'Step into', 'Step out', 'Restart', 'Stop'):
 			self.assertNotIn('title="{}'.format(title), html)
 		# the status badge is gone: the chip carries the status
@@ -69,6 +70,26 @@ class StripChipsTests(unittest.TestCase):
 			self.assertIn('title="{}"'.format(title), html)
 		self.assertNotIn('title="Step over', html)
 		self.assertNotIn('strip continued', html)
+
+	def test_the_button_it_was_started_with_is_green_while_it_runs(self):
+		self.configure(['ps-api-gateway'], 'ps-api-gateway')
+		html = self.strip_html()
+		# nothing running: neither is lit, and play has no background of its own
+		self.assertIn('class="tool" title="Run without the debugger"', html)
+		self.assertIn('class="tool" title="Debug"', html)
+
+		self.configure(['ps-api-gateway'], 'ps-api-gateway', running=('ps-api-gateway',))
+		html = self.strip_html()
+		self.assertIn('class="tool" title="Run without the debugger"', html)
+		self.assertIn('class="tool active" title="Debug"', html)
+		self.assertIn('title="Pause"', html)
+
+		# run without the debugger: play is the lit one, and there is nothing to pause
+		self.backend.session.no_debug = True
+		html = self.strip_html()
+		self.assertIn('class="tool active" title="Run without the debugger"', html)
+		self.assertIn('class="tool" title="Debug"', html)
+		self.assertNotIn('title="Pause"', html)
 
 	def test_step_buttons_appear_while_the_selection_is_paused(self):
 		self.configure(['ps-api-gateway', 'ps-backend'], 'ps-backend', running=('ps-api-gateway',), paused=('ps-backend',))

@@ -66,6 +66,8 @@ from .commands_configurations import ExampleProjects
 Section()
 from .commands_session import Start
 from .commands_session import StartNoDebug
+from .commands_session import DebugTest
+from .commands_session import RunTest
 from .commands_session import Stop
 from .commands_session import Continue
 from .commands_session import Pause

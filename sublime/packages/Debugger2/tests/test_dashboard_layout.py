@@ -101,8 +101,11 @@ class DashboardLayoutTests(unittest.TestCase):
 		self.assertGreater(ui.total, style.PANE_CONTENT)
 		# the pane box is as wide as the panel...
 		self.assertIn('style="width:{}px;'.format(ui.px(ui.total - 2 * style.PANE_PAD - 0.15)), pane)
-		# ...its heading row is capped, so the icons at the end of each row stay near the text
-		self.assertIn('style="width:{}px;"'.format(ui.px(style.PANE_CONTENT)), pane)
+		# ...its heading row is capped, so the icons at the end of each row stay near the text. The
+		# heading ends in the two that act on every breakpoint, which are unavailable while there is none
+		self.assertIn('style="width:{}px;"'.format(ui.px(style.PANE_CONTENT - 2 * style.ACTION)), pane)
+		self.assertIn('title="Disable all breakpoints · unavailable"', pane)
+		self.assertIn('title="Remove all breakpoints · unavailable"', pane)
 
 	def test_breakpoints_control_is_global_and_marks_the_bottom_control_active(self):
 		ui = self.make_ui(body=True, layout='breakpoints')

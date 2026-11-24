@@ -51,6 +51,22 @@ class Breakpoints:
 		self.data.remove_all()
 		self.function.remove_all()
 
+	def set_all_enabled(self, enabled: bool) -> None:
+		'''Turns every breakpoint on or off and keeps them, which is how a program is run past them once
+
+		Not the exception filters: those are settings of the debugger rather than places in a program.
+		'''
+		for breakpoint in list(self.source):
+			if breakpoint.enabled != enabled:
+				self.source.toggle_enabled(breakpoint)
+
+		for collection in (self.function, self.data):
+			changed = [breakpoint for breakpoint in collection if breakpoint.enabled != enabled]
+			for breakpoint in changed:
+				breakpoint.enabled = enabled
+			if changed:
+				collection.updated()
+
 	def clear_breakpoint_result(self, session: Session) -> None:
 		self.data.clear_breakpoint_result(session)
 		self.function.clear_breakpoint_result(session)

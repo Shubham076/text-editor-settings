@@ -11,7 +11,7 @@
 			"type": "java",
 			"name": "cns-gateway",
 			"request": "launch",
-			"console": "externalTerminal",
+			"console": "external",
 			"mainClass": "com.shubham.cns.gateway.CnsGateway",
     		"projectName": "cns-gateway"
     	},

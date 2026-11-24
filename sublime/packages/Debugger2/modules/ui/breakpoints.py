@@ -19,7 +19,15 @@ class BreakpointsPane:
 		ui = self.ui
 		breakpoints = ui.backend.breakpoints
 		count = sum(1 for collection in (breakpoints.source, breakpoints.function, breakpoints.data) for _ in collection)
-		rows = [ui.heading('Breakpoints', 'breakpoints', width, suffix=' ({})'.format(count))]
+		# all of them at once: off and back on without losing them, and gone
+		every = [item for collection in (breakpoints.source, breakpoints.function, breakpoints.data) for item in collection]
+		# with none to act on it reads as what it will be once there is one
+		any_enabled = any(item.enabled for item in every) or not every
+		actions = ui.button('unchecked' if any_enabled else 'breakpoint',
+			'Disable all breakpoints' if any_enabled else 'Enable all breakpoints',
+			lambda: breakpoints.set_all_enabled(not any_enabled), bool(every))
+		actions += ui.button('close', 'Remove all breakpoints', lambda: breakpoints.remove_all(), bool(every))
+		rows = [ui.heading('Breakpoints', 'breakpoints', width, actions, 2, suffix=' ({})'.format(count))]
 		if 'breakpoints' not in ui.state.expanded:
 			return rows
 		for group, collection in (('EXCEPTIONS', breakpoints.filters), ('FUNCTIONS', breakpoints.function), ('DATA', breakpoints.data), ('', breakpoints.source)):

@@ -76,6 +76,20 @@
 						}
 					},
 					{
+						"caption": "Debug Test Under Cursor",
+						"command": "debugger",
+						"args": {
+							"action": "debug_test"
+						}
+					},
+					{
+						"caption": "Run Test Under Cursor (No Debug)",
+						"command": "debugger",
+						"args": {
+							"action": "run_test"
+						}
+					},
+					{
 						"caption": "Stop",
 						"command": "debugger",
 						"args": {

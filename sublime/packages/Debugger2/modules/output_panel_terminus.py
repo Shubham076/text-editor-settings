@@ -38,7 +38,7 @@ class TerminusOutputPanel(OutputPanel):
 		try:
 			settings = sublime.load_settings('Terminus.sublime-settings')
 			if not settings:
-				raise dap.Error('Terminus must be installed to use the `console` value of `integratedTerminal`. Either install from Package control or change your debugging configuration `console` value to `integratedConsole`.')
+				raise dap.Error('Terminus must be installed for a configuration with `"console": "external"` to open a terminal in it. Either install it from Package Control, set `external_terminal` to "platform", or change the configuration to `"console": "internal"`.')
 
 			self.task = task
 			core.edit(self.view, lambda edit: self.view.insert(edit, 0, ''))
@@ -162,6 +162,9 @@ class TerminusOutputPanel(OutputPanel):
 
 	def is_finished(self):
 		return self.view.settings().get('terminus_view.finished') or self.future.done()
+
+	def has_failed(self) -> bool:
+		return self.future.done() and not self.future.cancelled() and self.future.exception() is not None
 
 	def on_modified(self):
 		# This runs for every buffer paint Terminus completes. The listener queues the debugger header

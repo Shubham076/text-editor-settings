@@ -7,6 +7,12 @@ from . import util
 
 import sublime
 import json
+import os
+import re
+import socket
+
+# what a JVM that was started to wait for a debugger says once it is waiting, and the port it is on
+LISTENING = re.compile(r'Listening for transport dt_socket at address: (\d+)')
 
 
 class Java(dap.Adapter):
@@ -14,6 +20,9 @@ class Java(dap.Adapter):
 	docs = 'https://github.com/redhat-developer/vscode-java/blob/master/README.md'
 
 	installer = util.GitInstaller(type='java', repo='microsoft/vscode-java-debug')
+
+	# the command each configuration that has one was started with, by the name of the configuration
+	commands: dict[str, Any] = {}
 
 	async def start(self, console: dap.Console, configuration: dap.ConfigurationExpanded):
 		# Make sure LSP and LSP-JDTLS are installed
@@ -26,8 +35,18 @@ class Java(dap.Adapter):
 
 		if _is_undefined('cwd'):
 			configuration['cwd'] = await configuration.variables['folder']
-		if _is_undefined('console'):
-			configuration['console'] = 'internalConsole'
+		# an attach to a JVM that a command starts, which is how a test is debugged: the build of the
+		# project runs it and has its JVM wait. There is no main class to look for, the command has it
+		if configuration.request == 'attach' and configuration.get('command'):
+			configuration['port'] = await self.run_command(console, configuration)
+
+			try:
+				port = await self.lsp_execute_command('vscode.java.startDebugSession')
+			except BaseException:
+				self.end_command(configuration.name)
+				raise
+
+			return dap.SocketTransport('localhost', port)
 
 		if _is_undefined('mainClass') or _is_undefined('projectName'):
 			configuration['mainClass'], configuration['projectName'] = await self._get_mainclass_project_name(None if _is_undefined('mainClass') else configuration['mainClass'])
@@ -44,6 +63,87 @@ class Java(dap.Adapter):
 		port = await self.lsp_execute_command('vscode.java.startDebugSession')
 
 		return dap.SocketTransport('localhost', port)
+
+	async def run_command(self, console: dap.Console, configuration: dap.ConfigurationExpanded) -> int:
+		'''Starts the command of a configuration and waits for the JVM it starts to wait for a debugger
+
+		What comes back is the port that JVM is listening on. What the command prints is the output of
+		the session, a build that fails says why there.
+		'''
+		from ..dap.transports import Process
+
+		command = configuration['command']
+		env = {**os.environ, **(configuration.get('env') or {})}
+
+		# Two ways to know the JVM is waiting. It says so, with the port, when the build passes on what
+		# it prints. Maven with a current surefire keeps that line to itself, so the port the configuration
+		# names is also tried: a JVM that waits for a debugger goes on waiting after a connection that
+		# says nothing
+		port = int(configuration.get('port') or 5005)
+		host = configuration.get('hostName') or 'localhost'
+		said: list[int] = []
+		ended: list[bool] = []
+		# the line can arrive in two pieces, so it is looked for in the end of everything so far
+		tail = ''
+
+		def output(kind: str):
+			def on_output(data: str):
+				nonlocal tail
+				console.log(kind, data)
+
+				tail = (tail + data)[-400:]
+				if found := LISTENING.search(tail):
+					said.append(int(found.group(1)))
+
+			return on_output
+
+		try:
+			# something that is already there is not the test, attaching to it would debug the wrong program
+			if await self.is_listening(host, port):
+				raise dap.Error(f'Port {port} is already in use, a JVM started for this test would not be the one that is attached to')
+
+			process = Process(command, cwd=configuration.get('cwd'), env=env)
+		except OSError as error:
+			raise dap.Error(f'Unable to run `{command[0]}`: {error}')
+
+		self.end_command(configuration.name)
+		self.commands[configuration.name] = process
+
+		process.on_stdout(output('stdout'), lambda: core.call_soon(ended.append, True))
+		process.on_stderr(output('stderr'))
+
+		try:
+			while True:
+				if said:
+					return said[0]
+				if await self.is_listening(host, port):
+					return port
+				if ended:
+					raise dap.Error(f'`{command[0]}` ended before a test waited for the debugger')
+
+				await core.delay(0.5)
+
+		except BaseException:
+			# stopped while the build was still on its way to the test, or the build failed
+			self.end_command(configuration.name)
+			raise
+
+	@core.run_in_executor
+	def is_listening(self, host: str, port: int) -> bool:
+		try:
+			socket.create_connection((host, port), timeout=1).close()
+			return True
+		except OSError:
+			return False
+
+	def end_command(self, name: str) -> None:
+		if process := self.commands.pop(name, None):
+			process.dispose()
+
+	def did_stop_debugging(self, session: dap.Session):
+		# the build is still running when the test is stopped in the middle, and it goes with it
+		if not getattr(session, 'parent', None):
+			self.end_command(session.configuration.name)
 
 	async def on_navigate_to_source(self, source: dap.SourceLocation) -> tuple[str, str, list[tuple[str, Any]]] | None:
 		if not source.source.path or not source.source.path.startswith('jdt:'):

@@ -105,6 +105,8 @@ class ProjectButtonsTests(unittest.TestCase):
 			name: types.SimpleNamespace(file_light=name + '-light.png', file_dark=name + '-dark.png')
 			for name in ('settings', 'play', 'stop')
 		}))
+		ui_icons = types.ModuleType('_pbt.modules.ui.icons')
+		ui_icons.icon_data_uri = lambda name, colour, size: 'data:drawn-{}-{}'.format(name, colour)
 		ui_view = types.ModuleType('_pbt.modules.ui.view')
 		ui_view.lightness_from_color = lambda color: 1.0
 		self.settings = types.SimpleNamespace(project_file_buttons=True)
@@ -126,7 +128,7 @@ class ProjectButtonsTests(unittest.TestCase):
 		self.modules = patch.dict(sys.modules, {
 			'_pbt': root, '_pbt.debugger_ui_menu': self.menus, '_pbt.modules': package, '_pbt.modules.commands': commands,
 			'_pbt.modules.commands.commands': commands_commands, '_pbt.modules.core': core,
-			'_pbt.modules.ui': ui, '_pbt.modules.ui.view': ui_view,
+			'_pbt.modules.ui': ui, '_pbt.modules.ui.view': ui_view, '_pbt.modules.ui.icons': ui_icons,
 			'_pbt.modules.settings': settings, '_pbt.modules.configurations': self.configurations,
 			'_pbt.modules.debugger': debugger_module, 'sublime': sublime, 'sublime_plugin': sublime_plugin,
 		})
@@ -195,7 +197,26 @@ class ProjectButtonsTests(unittest.TestCase):
 		run_ids = [pid for pid, (_, html, _) in self.view.phantoms.items() if 'run:' in html]
 		for pid, name in zip(run_ids, buttons.targets):
 			asyncio.run(self.view.click(pid))
-			self.configurations.start.assert_called_with(self.debugger, name)
+			self.configurations.start.assert_called_with(self.debugger, name, no_debug=True)
+
+	def test_a_configuration_has_a_run_and_a_debug_icon_and_each_starts_it_its_way(self):
+		buttons = self.refresh()
+		html = next(html for _, html, _ in self.view.phantoms.values() if 'run:0' in html)
+		# one phantom holds both, run first
+		self.assertEqual(re.findall(r'href="([^"]*)"', html), ['run:0', 'debug:0'])
+		# the bug is drawn in the colour the icon files have on this background
+		self.assertIn('data:drawn-bug-#000000', html)
+
+		asyncio.run(buttons.navigate('run:0'))
+		self.configurations.start.assert_called_with(self.debugger, 'Agent Mac', no_debug=True)
+		asyncio.run(buttons.navigate('debug:0'))
+		self.configurations.start.assert_called_with(self.debugger, 'Agent Mac')
+
+		# while it runs the two are one stop
+		self.running = {'Agent Mac'}
+		self.refresh()
+		html = next(html for _, html, _ in self.view.phantoms.values() if ':0' in html)
+		self.assertEqual(re.findall(r'href="([^"]*)"', html), ['stop:0'])
 
 	def test_click_on_a_running_configuration_stops_its_session(self):
 		self.running = {'Agent Mac'}
@@ -211,7 +232,7 @@ class ProjectButtonsTests(unittest.TestCase):
 		asyncio.run(self.view.click(pid))
 		# the settings icon opens the configuration quick panel, as the toolbar gear does
 		self.debugger.run_action.assert_called_once()
-		for href in ('run:9', 'run:x', 'stop:', 'other:0'):
+		for href in ('run:9', 'run:x', 'debug:9', 'stop:', 'other:0'):
 			asyncio.run(buttons.navigate(href))
 		self.configurations.start.assert_not_called()
 		self.debugger.stop.assert_not_awaited()

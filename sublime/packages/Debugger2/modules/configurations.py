@@ -180,17 +180,24 @@ RESTART_POLL = 0.05
 
 
 @core.run
-async def restart(debugger: Debugger, name: str) -> None:
+async def restart(debugger: Debugger, name: str, no_debug: bool | None = None) -> None:
 	'''Stops what a configuration is running as, then starts it again
 
 	`Session.stop()` asks the adapter to end, `Debugger.remove_session()` is what takes the session off
 	the list, and those are not the same moment. Starting again in between is refused as running the same
 	configuration twice, so wait for the list rather than for the request.
+
+	`no_debug` says how to start it again when that is not how it was running.
 	'''
 	try:
 		compound = next((item for item in debugger.project.compounds if item.name == name), None)
 		names = compound.configurations if compound else [name]
 		sessions = [session for session in debugger.sessions if not session.parent and session.configuration.name in names]
+		# started again the way it was running: a restart of something that was run without the debugger
+		# is not a request to debug it
+		if no_debug is None:
+			no_debug = bool(sessions) and all(getattr(session, 'no_debug', False) for session in sessions)
+
 		for session in sessions:
 			await debugger.stop(session)
 
@@ -201,16 +208,16 @@ async def restart(debugger: Debugger, name: str) -> None:
 		else:
 			raise dap.Error('Timed out waiting for the previous session to stop')
 
-		await debugger.start(args={'configuration': name})
+		await debugger.start(no_debug=no_debug, args={'configuration': name})
 
 	except dap.Error as e:
 		debugger.console.error(f'Unable to restart {name}: {e}')
 
 
 @core.run
-async def start(debugger: Debugger, name: str) -> None:
-	'''Starts a configuration by name without changing which one the run button starts'''
+async def start(debugger: Debugger, name: str, no_debug: bool = False) -> None:
+	'''Starts a configuration by name, under the debugger or with `no_debug` on its own'''
 	try:
-		await debugger.start(args={'configuration': name})
+		await debugger.start(no_debug=no_debug, args={'configuration': name})
 	except dap.Error as e:
 		debugger.console.error(f'Unable to start {name}: {e}')

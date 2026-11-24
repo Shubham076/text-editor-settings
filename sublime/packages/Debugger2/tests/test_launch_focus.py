@@ -9,17 +9,19 @@ from test_open_ui import debugger_method
 
 
 class Session:
-	def __init__(self, configuration=None, parent=None, **kwargs):
+	def __init__(self, configuration=None, parent=None, no_debug=True, **kwargs):
 		self.configuration = configuration or {}
 		self.parent = parent
 		self.is_paused = False
+		# run without the debugger unless a test says otherwise: that is when the output is what is shown
+		self.no_debug = no_debug
 
 
 class LaunchFocusTests(unittest.TestCase):
 	def setUp(self):
 		self.console, self.terminal, self.dashboard = Mock(), Mock(), Mock()
 		self.debugger = types.SimpleNamespace(
-			integrated_terminals={}, external_terminals={}, output_panels=[], sessions=[],
+			panel_terminals={}, external_terminals={}, output_panels=[], sessions=[],
 			session_panels=types.SimpleNamespace(visible_console_for=Mock(return_value=self.console), on_terminal_request=Mock()),
 			callstack=self.dashboard, console=Mock(),
 		)
@@ -35,9 +37,28 @@ class LaunchFocusTests(unittest.TestCase):
 			'on_session_variables_updated', 'on_session_updated', 'on_session_output', 'on_session_thread_or_frame_updated',
 			'on_session_added', 'on_session_active', 'session_terminal_request', 'session_task_request'):
 			setattr(self.debugger, event, Mock())
-		method = debugger_method('launch', {'dap': types.SimpleNamespace(Session=StartingSession)})
-		asyncio.run(method(self.debugger, Mock(), {'console': 'internalConsole'}))
+		method = debugger_method('launch', {'dap': types.SimpleNamespace(Session=StartingSession), 'test_buttons': Mock(),
+			'Settings': types.SimpleNamespace(external_terminal='terminus')})
+		asyncio.run(method(self.debugger, Mock(), {'console': 'internal'}, no_debug=True))
 		self.assertEqual(order, ['console-focused', 'adapter-launch'])
+
+	def test_under_the_debugger_the_call_stack_is_what_is_shown_from_the_start_and_after_a_continue(self):
+		for console in ('internal', 'external'):
+			self.dashboard.reset_mock()
+			session = Session({'console': console}, no_debug=False)
+			self.debugger.panel_terminals[session] = [self.terminal]
+			self.debugger.output_panels.append(self.terminal)
+			self.debugger.open_session_output(session)
+			self.dashboard.open.assert_called_once()
+		self.console.open.assert_not_called()
+		self.terminal.open.assert_not_called()
+
+		# what an adapter starts under it is looked at the way the one it was started from is
+		child = Session({'console': 'internal'}, parent=Session({'console': 'internal'}, no_debug=False), no_debug=True)
+		self.dashboard.reset_mock()
+		self.debugger.open_session_output(child)
+		self.dashboard.open.assert_called_once()
+		self.console.open.assert_not_called()
 
 	def test_integrated_terminal_is_focused_as_soon_as_it_is_registered(self):
 		order = []
@@ -48,9 +69,9 @@ class LaunchFocusTests(unittest.TestCase):
 				order.append('terminal-created')
 			def open(terminal):
 				self.assertIs(terminal.session, session)
-				self.assertIn(terminal, self.debugger.integrated_terminals[session])
+				self.assertIn(terminal, self.debugger.panel_terminals[session])
 				order.append('terminal-focused')
-		configuration = {'console': 'integratedTerminal'}
+		configuration = {'console': 'external'}
 		class Configuration(dict):
 			name = 'App'
 		session = Session(Configuration(configuration))
@@ -59,11 +80,12 @@ class LaunchFocusTests(unittest.TestCase):
 			Task=lambda data: types.SimpleNamespace(Expanded=AsyncMock(return_value=data)),
 			RunInTerminalResponse=lambda **kwargs: kwargs,
 		)
-		method = debugger_method('_on_session_run_terminal_requested', {'dap': dap, 'TerminusOutputPanel': Terminal})
+		method = debugger_method('_on_session_run_terminal_requested', {'dap': dap, 'TerminusOutputPanel': Terminal,
+			'Settings': types.SimpleNamespace(external_terminal='terminus_panel')})
 		request = types.SimpleNamespace(title='App', kind='integrated', env={}, cwd='.', args=['not-executed'])
 		asyncio.run(method(self.debugger, session, request))
 		self.assertEqual(order, ['terminal-created', 'terminal-focused'])
-		self.assertFalse(self.debugger.integrated_terminals[session][0].arguments['show_panel'])
+		self.assertFalse(self.debugger.panel_terminals[session][0].arguments['show_panel'])
 		self.console.open.assert_not_called()
 
 	def test_ending_the_last_session_leaves_the_open_panel_alone(self):
@@ -87,20 +109,20 @@ class LaunchFocusTests(unittest.TestCase):
 		self.dashboard.open.assert_not_called()
 
 	def test_explicit_internal_console_wins_over_auxiliary_terminal(self):
-		session = Session({'console': 'internalConsole'})
-		self.debugger.integrated_terminals[session] = [self.terminal]
+		session = Session({'console': 'internal'})
+		self.debugger.panel_terminals[session] = [self.terminal]
 		self.debugger.output_panels.append(self.terminal)
 		self.debugger.open_session_output(session)
 		self.console.open.assert_called_once()
 		self.terminal.open.assert_not_called()
 
 	def test_waiting_for_integrated_terminal_does_not_focus_diagnostic_console(self):
-		session = Session({'console': 'integratedTerminal'})
+		session = Session({'console': 'external'})
 		self.debugger.open_session_output(session)
 		self.console.open.assert_not_called()
 
 	def test_external_terminal_does_not_lose_focus_to_diagnostic_console(self):
-		session = Session({'console': 'externalTerminal'})
+		session = Session({'console': 'external'})
 		self.debugger.external_terminals[session] = [Mock()]
 		self.debugger.open_session_output(session)
 		self.console.open.assert_not_called()
@@ -113,7 +135,7 @@ class LaunchFocusTests(unittest.TestCase):
 		self.console.open.assert_not_called()
 
 	def test_pause_still_focuses_debugger_for_inspection(self):
-		session = Session({'console': 'internalConsole'})
+		session = Session({'console': 'internal'})
 		session.is_paused = True
 		self.debugger.open_session_output(session)
 		self.dashboard.open.assert_called_once()

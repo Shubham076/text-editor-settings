@@ -30,7 +30,14 @@ class SelectedLine:
 			<body id="debugger">
 				<style>
 					html {{
-						color: var(--accent);
+						/* a note beside the code rather than more code: smaller, slanted and bold, so it
+						   cannot be read as part of the line it sits on. The colour is the schemes own
+						   text colour, barely faded: it sits on the highlight of the stopped line, and
+						   the text colour is the one that reads on it in a light scheme and a dark one */
+						color: color(var(--foreground) alpha(0.85));
+						font-size: 0.85em;
+						font-style: italic;
+						font-weight: bold;
 					}}
 					div.content {{
 						text-align: right;

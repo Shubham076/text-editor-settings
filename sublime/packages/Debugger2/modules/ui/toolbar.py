@@ -46,9 +46,7 @@ class Toolbar:
 			return self.strip(), ''
 		session = ui.active_session
 		status = session_status(session)
-		action = 'pause' if session and session.is_running else 'continue' if session and session.is_paused else 'start'
-		enabled = not session or session.is_running or session.is_paused
-		controls = ui.tool('pause' if action == 'pause' else 'play', action.title(), partial(self.transport, action), enabled, primary=True)
+		controls, start_width = self.start_controls(session)
 		for icon, label, method in (('over', 'Step over', 'step_over'), ('into', 'Step into', 'step_in'), ('out', 'Step out', 'step_out')):
 			controls += ui.tool(icon, label, partial(self.step, method), bool(session and session.is_paused))
 		restart_enabled = bool(ui.backend.project.configuration_or_compound) and (not session or session.is_stoppable)
@@ -58,7 +56,7 @@ class Toolbar:
 		breakpoints, breakpoints_width = self.breakpoints_control()
 		name = ui.backend.project.name or 'Select configuration'
 		return ui.toolbar_layout(name, status, self.picker.show, controls, gear, split=ui.body,
-			extra=breakpoints, extra_width=breakpoints_width)
+			extra=breakpoints, extra_width=breakpoints_width, tools=5 + round(start_width / TOOL))
 
 	# -- the fixed strip -------------------------------------------------------------------
 
@@ -100,14 +98,39 @@ class Toolbar:
 		return '<div class="{}" {}>{}{}</div><div class="{} continued" {}>{}{}{}</div>'.format(
 			cell, style, lead, chips, cell, style, controls, ui.slot('', gap), tail)
 
+	def start_controls(self, session):
+		"""What starts the selected configuration and, while it is debugged, pauses and continues it, and the width in rem
+
+		Two buttons that are always there: play runs it without the debugger, the bug runs it under the
+		debugger. Which of the two it was started with is chosen each time it is started, so the same
+		configuration can be run once to see it work and debugged the next time. While it runs the one
+		it was started with is green, which is how the bar says whether breakpoints will be hit. The
+		other one then starts it again the other way.
+		"""
+		ui = self.ui
+		mode = self.mode(session)
+		controls = ui.tool('play', 'Run without the debugger', partial(self.transport, 'run'), css='active' if mode == 'run' else '')
+		controls += ui.tool('bug', 'Debug', partial(self.transport, 'start'), css='active' if mode == 'start' else '')
+		width = 2 * TOOL
+		# only what is being debugged can be paused
+		if mode == 'start':
+			action = 'pause' if session.is_running else 'continue'
+			controls += ui.tool('pause' if action == 'pause' else 'play', action.title(), partial(self.transport, action), session.is_running or session.is_paused)
+			width += TOOL
+		return controls, width
+
+	@staticmethod
+	def mode(session):
+		"""How the selected configuration is running: 'run' without the debugger, 'start' under it, None when it is not"""
+		if not session:
+			return None
+		return 'run' if getattr(root_of(session), 'no_debug', False) else 'start'
+
 	def strip_controls(self):
 		"""The transport buttons of the selected configuration that can be pressed right now, and their width in rem"""
 		ui = self.ui
 		session = ui.active_session
-		action = 'pause' if session and session.is_running else 'continue' if session and session.is_paused else 'start'
-		enabled = not session or session.is_running or session.is_paused
-		controls = ui.tool('pause' if action == 'pause' else 'play', action.title(), partial(self.transport, action), enabled, primary=True)
-		width = TOOL
+		controls, width = self.start_controls(session)
 		if session and session.is_paused:
 			for icon, label, method in (('over', 'Step over', 'step_over'), ('into', 'Step into', 'step_in'), ('out', 'Step out', 'step_out')):
 				controls += ui.tool(icon, label, partial(self.step, method))
@@ -333,8 +356,12 @@ class Toolbar:
 		ui = self.ui
 		session = ui.active_session
 		try:
-			if action == 'start' and not session:
-				await ui.backend.start()
+			if action in ('start', 'run') and not session:
+				await ui.backend.start(no_debug=action == 'run')
+			elif action in ('start', 'run'):
+				# the one it is running as is only a light, the other one is a way to change over
+				if action != self.mode(session):
+					await configurations.restart(ui.backend, ui.backend.project.name, no_debug=action == 'run')
 			elif action == 'restart':
 				await configurations.restart(ui.backend, ui.backend.project.name)
 			elif action == 'stop' and session and session.is_stoppable:

@@ -75,6 +75,7 @@ a { color: var(--foreground); text-decoration: none; }
 .separator { color: color(var(--foreground) alpha(0.25)); }
 .tool { padding-top: 0.77rem; padding-bottom: 0.23rem; padding-left: 0.6rem; padding-right: 0.6rem; border-radius: 0.4rem; }
 .tool.primary { background-color: $selection; }
+.tool.active { background-color: color(var(--greenish) alpha(0.3)); }
 .icon-button { padding: 0.2rem 0.3rem; border-radius: 0.3rem; }
 .tabs { padding-left: $padrem; padding-right: $padrem; border-top: 1px solid $line; border-left: 1px solid $line; border-right: 1px solid $line; border-bottom: 1px solid $line; white-space: nowrap; }
 .tabrow { padding-top: $tabpadrem; padding-bottom: $tabpadrem; white-space: nowrap; }

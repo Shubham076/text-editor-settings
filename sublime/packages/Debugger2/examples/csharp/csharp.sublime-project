@@ -22,7 +22,7 @@
 			"args": [],
 			"cwd": "${folder}",
 			"stopAtEntry": false,
-			"console": "internalConsole"
+			"console": "internal"
 		},
 	],
 }

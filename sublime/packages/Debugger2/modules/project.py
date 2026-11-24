@@ -26,6 +26,12 @@ class Project:
 
 		self.configuration_or_compound: Configuration | ConfigurationCompound | None = None
 
+		# configurations that are in no file: generated to debug a test and listed beside the projects
+		# own for as long as they are of use, so everything that works by configuration works for them
+		self.transient: list[Configuration] = []
+		# the last selection that was not one of those, which is the one worth remembering
+		self.listed_selection: Configuration | ConfigurationCompound | None = None
+
 	def dispose(self): ...
 
 	@property
@@ -49,10 +55,31 @@ class Project:
 		return 'Add Configuration'
 
 	def into_json(self) -> dict[str, Any]:
+		# a generated configuration is gone the next time the project is opened, so what is saved is
+		# the selection it took the place of
+		selection = self.listed_selection if self.is_transient(self.configuration_or_compound) else self.configuration_or_compound
+
 		return {
-			'configuration_name': self.configuration_or_compound and self.configuration_or_compound.name,
-			'configuration_id_ish': self.configuration_or_compound and self.configuration_or_compound.id_ish,
+			'configuration_name': selection and selection.name,
+			'configuration_id_ish': selection and selection.id_ish,
 		}
+
+	def is_transient(self, item: Configuration | ConfigurationCompound | None) -> bool:
+		return any(item is configuration for configuration in self.transient)
+
+	def add_transient(self, configuration: Configuration, keep: set[str] = set()) -> None:
+		'''Lists a generated configuration, in place of one of the same name
+
+		Each test that is debugged adds one, so the ones that are of no more use are dropped here: all
+		but those named in `keep`, which is what is running, and the selected one.
+		'''
+		def stays(other: Configuration) -> bool:
+			return other.name != configuration.name and (other.name in keep or other is self.configuration_or_compound)
+
+		dropped = [other for other in self.transient if not stays(other)]
+		self.transient = [other for other in self.transient if stays(other)] + [configuration]
+		self.configurations = [other for other in self.configurations if not any(other is item for item in dropped)] + [configuration]
+		self.on_updated()
 
 	def load_from_json(self, json: dict[str, Any]) -> Configuration | ConfigurationCompound | None:
 		configuration_name: str | None = json.get('configuration_name')
@@ -80,6 +107,9 @@ class Project:
 
 		previous_configuration_or_compound = self.configuration_or_compound
 		self.configuration_or_compound = find_matching_configuration()
+
+		if self.configuration_or_compound is not None and not self.is_transient(self.configuration_or_compound):
+			self.listed_selection = self.configuration_or_compound
 
 		if previous_configuration_or_compound != self.configuration_or_compound:
 			if not skip_update:
@@ -226,7 +256,8 @@ class Project:
 			with report_issues('Task', json, source):
 				tasks.append(Task.from_json(json, source))
 
-		self.configurations = configurations
+		# the generated ones are not in the data that was just read, and may be running
+		self.configurations = configurations + self.transient
 		self.compounds = compounds
 		self.tasks = tasks
 

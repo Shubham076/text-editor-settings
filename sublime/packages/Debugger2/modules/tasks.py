@@ -27,7 +27,10 @@ class TaskRuntime(core.Dispose):
 class ShellTaskRuntime(TaskRuntime):
 	def __init__(self, debugger: Debugger, task: dap.TaskExpanded, is_terminal: bool = False):
 		super().__init__(task)
-		self.terminal = TerminusOutputPanel(debugger, task, is_terminal)
+		# a task that runs in the background is not something to look at: it does not take the panel
+		# when it starts and has no tab while there is nothing wrong with it (`terminal_panels`)
+		self.terminal = TerminusOutputPanel(debugger, task, is_terminal, show_panel=not task.background)
+		self.terminal.in_background = bool(task.background)
 
 	async def wait(self):
 		await self.terminal.wait()
@@ -134,12 +137,20 @@ class Tasks(core.Dispose):
 
 		@core.run
 		async def update_when_done():
+			succeeded = False
 			try:
 				await runtime.wait()
+				succeeded = True
 			except:
 				raise
 			finally:
 				self.updated(runtime)
+
+				# A background task that did what it was for leaves nothing behind. It used to leave a
+				# terminal saying that it ended with code 0, one more after every run of a configuration
+				# whose `post_debug_task` it was. One that failed stays, with why
+				if succeeded and task.background:
+					self.cancel(runtime)
 
 		update_when_done()
 

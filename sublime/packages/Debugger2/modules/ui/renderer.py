@@ -111,7 +111,7 @@ class Renderer:
 			parts.append(self.link(escape(label), callback, title, 'chip' + (' active' if active else '')))
 		return self.slot('', 0.7).join(parts)
 
-	def toolbar_layout(self, name, status, choose_configuration, controls, gear, split=True, brand=True, extra='', extra_width=0.0, css='', lead='', lead_width=0.0):
+	def toolbar_layout(self, name, status, choose_configuration, controls, gear, split=True, brand=True, extra='', extra_width=0.0, css='', lead='', lead_width=0.0, tools=6):
 		"""Two phantoms: the brand cell and the rest.
 
 		`split=False` joins everything into one phantom. `brand=False` then replaces the brand label
@@ -132,7 +132,7 @@ class Renderer:
 		brand_cell = '<div class="toolbar brand-cell" style="width:{}px;">{}</div>'.format(self.px(brand_width), label)
 		rest_width = self.total - 2 * PAD - brand_width - self.space
 		left_width = label_width + 1.9 + 0.9 + 1.05 + state_width
-		controls_width = 6 * TOOL + 1.5
+		controls_width = tools * TOOL + 1.5
 		gap = rest_width - left_width - 1.5 - controls_width - extra_width - TOOL - 0.6
 		if not split:
 			cell = 'toolbar joined' + (' ' + css if css else '')

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import importlib.util
 from copy import deepcopy
 from pathlib import Path
 import types
@@ -20,7 +21,11 @@ def debugger_method(name, globals_=None):
 	method = deepcopy(next(node for node in debugger.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name))
 	method.decorator_list = []
 	tree = ast.Module(body=[ast.ImportFrom(module='__future__', names=[ast.alias(name='annotations')], level=0), method], type_ignores=[])
-	namespace = dict(globals_ or {})
+	# the one module of the package a method can use as it is: it has no imports of its own
+	spec = importlib.util.spec_from_file_location('_debugger_console_mode', ROOT / 'modules/console_mode.py')
+	console_mode = importlib.util.module_from_spec(spec)
+	spec.loader.exec_module(console_mode)
+	namespace = dict({'console_mode': console_mode}, **(globals_ or {}))
 	exec(compile(ast.fix_missing_locations(tree), str(path), 'exec'), namespace)
 	return namespace[name]
 

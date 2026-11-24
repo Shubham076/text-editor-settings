@@ -469,7 +469,21 @@ class LiveTests(unittest.TestCase):
 		self.backend.start = AsyncMock()
 		self.asyncio.run(configurations.restart(self.backend, 'Both'))
 		self.assertEqual(self.backend.stop.await_count, 2)
-		self.backend.start.assert_awaited_once_with(args={'configuration': 'Both'})
+		self.backend.start.assert_awaited_once_with(no_debug=False, args={'configuration': 'Both'})
+
+	def test_restart_of_what_was_run_without_the_debugger_runs_it_without_again(self):
+		from unittest.mock import AsyncMock
+		configurations = self.loaded['_live_test.modules.configurations']
+		session = self.session('First')
+		session.no_debug = True
+		self.backend.project.compounds = []
+		self.backend.sessions = [session]
+		async def stop(session):
+			self.backend.sessions.remove(session)
+		self.backend.stop = AsyncMock(side_effect=stop)
+		self.backend.start = AsyncMock()
+		self.asyncio.run(configurations.restart(self.backend, 'First'))
+		self.backend.start.assert_awaited_once_with(no_debug=True, args={'configuration': 'First'})
 
 	def test_variable_tree_escapes_values_and_pages_children(self):
 		variable = types.SimpleNamespace(name='<root>', value='<Object>', type='Object', has_children=True,

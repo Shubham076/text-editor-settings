@@ -4,6 +4,7 @@ from typing import Any
 
 from ..settings import SettingsRegistery
 from .adapter import Adapter
+from .. import console_mode
 from .. import core
 
 import json
@@ -67,7 +68,7 @@ def generate_lsp_json_schema():
 	)
 
 	for adapter in adapters:
-		schema = adapter.configuration_schema or {}
+		schema = console_mode.in_schema(adapter.configuration_schema or {})
 		snippets = adapter.configuration_snippets or []
 		installed = adapter.installed_version
 
@@ -128,6 +129,8 @@ def generate_lsp_json_schema():
 				'type': 'string',
 				'description': 'name of task to run after debugging ends',
 			}
+			# the same two values for every adapter, in place of whatever names it lists itself
+			value['properties']['console'] = console_mode.SCHEMA
 			value['properties']['osx'] = {
 				'$ref': f'sublime://settings/debugger#/definitions/{key}.{request}',
 				'description': 'MacOS specific configuration attributes',
@@ -159,7 +162,7 @@ def generate_lsp_json_schema():
 				)
 
 		for snippet in snippets:
-			debugger_snippets.append(snippet)
+			debugger_snippets.append(console_mode.in_snippet(snippet))
 
 	definitions['debugger_configuration'] = {
 		'defaultSnippets': debugger_snippets,

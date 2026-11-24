@@ -15,7 +15,9 @@ from .settings import Settings
 from .project import Project
 from .watch import Watch
 
+from . import console_mode
 from . import project_buttons
+from . import test_buttons
 from .output_panel_console import ConsoleOutputPanel
 from .session_panels import SessionPanelsRegistry
 from .output_panel_callstack import CallstackOutputPanel, BreakpointsOutputPanel, WatchOutputPanel
@@ -101,6 +103,8 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.on_session_active.add(self._on_session_active)
 		self.on_session_added.add(lambda _: project_buttons.refresh_all())
 		self.on_session_removed.add(lambda _: project_buttons.refresh_all())
+		self.on_session_added.add(lambda _: test_buttons.refresh_all())
+		self.on_session_removed.add(lambda _: test_buttons.refresh_all())
 		self.on_session_thread_or_frame_updated.add(self._on_thread_or_frame_updated)
 
 		self.session: dap.Session | None = None
@@ -115,7 +119,7 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.panel_height: float | None = None
 
 		self.external_terminals: dict[dap.Session, list[ExternalTerminal]] = {}
-		self.integrated_terminals: dict[dap.Session, list[TerminusOutputPanel]] = {}
+		self.panel_terminals: dict[dap.Session, list[TerminusOutputPanel]] = {}
 		self.memory_views: list[MemoryView] = []
 		self.disassembly_view: DisassembleView | None = None
 
@@ -368,6 +372,14 @@ class Debugger(core.Dispose, dap.Debugger):
 
 			await self.stop(session)
 
+		if not parent:
+			# one of two things in a configuration, and the adapters name for it from here on
+			console = configuration.get('console')
+			if refused := console_mode.refused(console):
+				raise dap.Error(f'{configuration.name}: {refused}')
+
+			configuration['console'] = console_mode.for_adapter(console, Settings.external_terminal)
+
 		session = dap.Session(
 			adapter=adapter,
 			configuration=configuration,
@@ -396,6 +408,9 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.on_session_added(session)
 		self.on_session_active(session)
 		self.open_session_output(session)
+
+		# after the session has a console of its own to say it in
+		test_buttons.session_started(session)
 
 		await session.launch()
 		return session
@@ -488,14 +503,22 @@ class Debugger(core.Dispose, dap.Debugger):
 		root = session
 		while root.parent:
 			root = root.parent
+
+		# What is looked at follows how it was started. Under the debugger that is the call stack, from
+		# the start and again after every continue: it is being debugged to be stopped and read, and
+		# the output is one tab away. Run without the debugger there is no call stack to come, so it
+		# is what the program prints
+		if not getattr(root, 'no_debug', False):
+			self.callstack.open()
+			return
+
 		console = self.session_panels.visible_console_for(session) if self.session_panels else None
-		mode = root.configuration.get('console')
-		if mode in ('internalConsole', 'integratedConsole'):
+		chosen = root.configuration.get('console')
+		if console_mode.is_internal_by_choice(chosen):
 			(console or self.callstack).open()
 			return
-		if mode == 'externalTerminal':
-			return
-		for owner, terminals in reversed(list(self.integrated_terminals.items())):
+		# a terminal in the panel is opened, one outside it is not the debuggers to bring forward
+		for owner, terminals in reversed(list(self.panel_terminals.items())):
 			while owner.parent:
 				owner = owner.parent
 			if owner is root:
@@ -508,7 +531,7 @@ class Debugger(core.Dispose, dap.Debugger):
 				owner = owner.parent
 			if owner is root:
 				return
-		if mode != 'integratedTerminal':
+		if console_mode.mode(chosen) == console_mode.INTERNAL:
 			(console or self.callstack).open()
 
 	def console_for(self, session: dap.Session | None) -> ConsoleOutputPanel:
@@ -690,11 +713,14 @@ class Debugger(core.Dispose, dap.Debugger):
 		env = request.env or {}
 		cwd = request.cwd
 		commands = request.args
-		if self.session_panels and request.kind in ('integrated', 'external'):
+		if self.session_panels:
 			self.session_panels.on_terminal_request(session)
 
-		if request.kind == 'external':
-			if Settings.external_terminal == 'platform':
+		# where a terminal opens is the users to say, not the adapters: `external_terminal`
+		place = Settings.external_terminal
+
+		if place in (console_mode.PLATFORM, console_mode.TAB):
+			if place == console_mode.PLATFORM:
 				if core.platform.osx:
 					terminal = ExternalTerminalMacDefault(title, cwd, commands, env)
 				elif core.platform.windows:
@@ -704,16 +730,13 @@ class Debugger(core.Dispose, dap.Debugger):
 				else:
 					raise dap.Error('unreachable')
 
-			elif Settings.external_terminal == 'terminus':
-				terminal = ExternalTerminalTerminus(title, cwd, commands, env)
-
 			else:
-				raise dap.Error('unknown external terminal type "{}"'.format(Settings.external_terminal))
+				terminal = ExternalTerminalTerminus(title, cwd, commands, env)
 
 			self.external_terminals.setdefault(session, []).append(terminal)
 			return dap.RunInTerminalResponse(processId=None, shellProcessId=None)
 
-		if request.kind == 'integrated':
+		if place == console_mode.PANEL:
 			# named after the configuration rather than after whatever the adapter calls it. debugpy asks
 			# for `Python Debug Console`, which says nothing about which configuration is writing to it
 			# when several are running, and the tab beside it is the name of one of them
@@ -732,17 +755,17 @@ class Debugger(core.Dispose, dap.Debugger):
 
 			# so the tab strip shows it with the configuration it belongs to and hides it with the rest
 			terminal.session = session
-			self.integrated_terminals.setdefault(session, []).append(terminal)
+			self.panel_terminals.setdefault(session, []).append(terminal)
 			self.on_output_panels_updated()
 			self.open_session_output(session)
 			return dap.RunInTerminalResponse(processId=None, shellProcessId=None)
 
-		raise dap.Error('unknown terminal kind requested "{}"'.format(request.kind))
+		raise dap.Error('`external_terminal` is "{}", it has to be one of: {}'.format(place, ', '.join(console_mode.PLACES)))
 
 	def dispose_terminals(self, unused_only: bool = False):
 		if unused_only:
 			return
-		for collection in (self.integrated_terminals, self.external_terminals):
+		for collection in (self.panel_terminals, self.external_terminals):
 			for terminals in list(collection.values()):
 				for terminal in terminals:
 					terminal.dispose()

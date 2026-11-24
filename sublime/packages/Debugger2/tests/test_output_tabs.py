@@ -10,7 +10,7 @@ from test_open_ui import debugger_method
 
 
 class Configuration(dict):
-	def __init__(self, name='Real service', console='internalConsole'):
+	def __init__(self, name='Real service', console='internal'):
 		super().__init__(console=console)
 		self.name = name
 		self.id_ish = 'configuration_' + name
@@ -25,7 +25,7 @@ class OutputTabsTests(unittest.TestCase):
 		ui.render()
 		return ui, ui.phantoms.update.call_args.args[0][0][1].split('</style>', 1)[1]
 
-	def record(self, console='internalConsole'):
+	def record(self, console='internal'):
 		configuration = Configuration(console=console)
 		self.backend.project.configuration_or_compound = configuration
 		session = types.SimpleNamespace(configuration=configuration, parent=None)
@@ -35,7 +35,7 @@ class OutputTabsTests(unittest.TestCase):
 		panel.name = configuration.name
 		self.backend.output_panels.append(panel)
 		record = types.SimpleNamespace(configuration_id=configuration.id_ish, configuration_name=configuration.name,
-			console=panel, session=session, console_visible=console == 'internalConsole')
+			console=panel, session=session, console_visible=console == 'internal')
 		self.backend.session_panels = types.SimpleNamespace(panels=[record])
 		return record
 
@@ -64,6 +64,17 @@ class OutputTabsTests(unittest.TestCase):
 		html = ui.phantoms.update.call_args.args[0][0][1]
 		self.assertIn('Close console output', html)
 		self.assertNotIn('class="bar"', html)
+
+	def test_a_background_task_is_only_a_terminal_tab_once_it_has_failed(self):
+		record = self.record()
+		terminal = self.terminal(None)
+		terminal.in_background = True
+		terminal.has_failed = lambda: False
+		ui = self.make_ui()
+		ui.render()
+		self.assertNotIn('>Terminal</a>', ui.toolbar.tabs())
+		terminal.has_failed = lambda: True
+		self.assertIn('>Terminal</a>', ui.toolbar.tabs())
 
 	def test_terminal_tab_has_no_chip_bar_and_closes_a_finished_terminal_from_the_tab(self):
 		record = self.record()
@@ -134,7 +145,7 @@ class OutputTabsTests(unittest.TestCase):
 		record.console.open.assert_called_once()
 
 	def test_integrated_terminal_requires_an_actual_panel(self):
-		record = self.record('integratedTerminal')
+		record = self.record('external')
 		_, html = self.tab_html()
 		self.assertNotIn('>Console</a>', html)
 		self.assertNotIn('>Terminal</a>', html)
@@ -147,7 +158,7 @@ class OutputTabsTests(unittest.TestCase):
 		terminal.open.assert_called_once()
 
 	def test_external_terminal_does_not_create_an_integrated_tab(self):
-		self.record('externalTerminal')
+		self.record('external')
 		_, html = self.tab_html()
 		self.assertNotIn('>Console</a>', html)
 		self.assertNotIn('>Terminal</a>', html)
@@ -179,6 +190,7 @@ class OutputTabsTests(unittest.TestCase):
 			return console
 		dependencies = dict(self.loaded)
 		dependencies['_live_test.modules.output_panel_console'] = types.SimpleNamespace(ConsoleOutputPanel=create_console)
+		dependencies['_live_test.modules.console_mode'] = load_module('_live_test.modules.console_mode', ROOT / 'modules/console_mode.py', {})
 		module = load_module('_live_test.modules.session_panels', ROOT / 'modules/session_panels.py', dependencies)
 		self.backend._on_navigate_to_source = Mock()
 		registry = module.SessionPanelsRegistry(self.backend, self.panel)
@@ -187,7 +199,7 @@ class OutputTabsTests(unittest.TestCase):
 
 	def test_registry_hides_terminal_console_until_dap_output_arrives(self):
 		registry = self.registry()
-		session = types.SimpleNamespace(configuration=Configuration(console='integratedTerminal'), parent=None)
+		session = types.SimpleNamespace(configuration=Configuration(console='external'), parent=None)
 		registry._on_session_added(session)
 		entry = registry.panels[0]
 		self.assertFalse(entry.console_visible)
@@ -212,7 +224,7 @@ class OutputTabsTests(unittest.TestCase):
 
 	def test_auxiliary_terminal_keeps_explicit_internal_console_visible(self):
 		registry = self.registry()
-		session = types.SimpleNamespace(configuration=Configuration(console='internalConsole'), parent=None)
+		session = types.SimpleNamespace(configuration=Configuration(console='internal'), parent=None)
 		registry._on_session_added(session)
 		registry.on_terminal_request(session)
 		self.assertTrue(registry.panels[0].console_visible)
@@ -268,14 +280,14 @@ class OutputTabsTests(unittest.TestCase):
 
 	def test_automatic_cleanup_keeps_finished_terminal_output(self):
 		terminal = Mock()
-		debugger = types.SimpleNamespace(integrated_terminals={object(): [terminal]}, external_terminals={}, tasks=Mock())
+		debugger = types.SimpleNamespace(panel_terminals={object(): [terminal]}, external_terminals={}, tasks=Mock())
 		debugger_method('dispose_terminals')(debugger, unused_only=True)
 		terminal.dispose.assert_not_called()
 		debugger.tasks.remove_finished.assert_not_called()
-		self.assertTrue(debugger.integrated_terminals)
+		self.assertTrue(debugger.panel_terminals)
 		debugger_method('dispose_terminals')(debugger)
 		terminal.dispose.assert_called_once()
-		self.assertFalse(debugger.integrated_terminals)
+		self.assertFalse(debugger.panel_terminals)
 
 	def test_run_focus_uses_terminal_and_never_opens_hidden_console(self):
 		session = Mock()
@@ -284,12 +296,12 @@ class OutputTabsTests(unittest.TestCase):
 		session.configuration = {}
 		terminal = Mock()
 		console = Mock()
-		debugger = types.SimpleNamespace(integrated_terminals={session: [terminal]}, external_terminals={}, output_panels=[terminal],
+		debugger = types.SimpleNamespace(panel_terminals={session: [terminal]}, external_terminals={}, output_panels=[terminal],
 			session_panels=types.SimpleNamespace(visible_console_for=Mock(return_value=console)), callstack=Mock())
 		debugger_method('open_session_output')(debugger, session)
 		terminal.open.assert_called_once()
 		console.open.assert_not_called()
-		debugger.integrated_terminals.clear()
+		debugger.panel_terminals.clear()
 		debugger.session_panels.visible_console_for.return_value = None
 		debugger_method('open_session_output')(debugger, session)
 		debugger.callstack.open.assert_called_once()

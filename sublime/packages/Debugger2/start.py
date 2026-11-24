@@ -24,6 +24,7 @@ from .modules.command import DebuggerCommand, DebuggerTextCommand, DebuggerInput
 from .modules.output_panel import OutputPanelEventListener, DebuggerPromptCancelCommand
 from .modules.output_panel_terminus import DebuggerTerminusPostViewHooks
 from .modules.project_buttons import DebuggerProjectFileListener, ProjectButtons
+from .modules.test_buttons import DebuggerTestFileListener, TestButtons
 
 from .modules.ui.input import CommandPaletteInputCommand
 
@@ -94,6 +95,7 @@ def plugin_unloaded() -> None:
 	# a reload draws a second set on top of them
 	try:
 		ProjectButtons.dispose_all()
+		TestButtons.dispose_all()
 	except Exception:
 		core.exception()
 

@@ -117,9 +117,12 @@ class Settings:
 		key='external_terminal',
 		default='terminus',
 		description="""
-		Which external terminal should be used when an adapter requests an external terminal
-		"platform" (default) uses Terminal on MacOS, CMD (Not tested) on Windows, (Unimplemented) on Linux
-		"terminus" Opens a new terminal view using terminus. The terminus package must be installed https://github.com/randy3k/Terminus
+		A configuration says where its output goes with "console": "internal" (the Console tab of the
+		debugger, and what it gets when it does not say) or "console": "external" (a terminal, for a
+		program that reads what is typed or draws on the screen). This is which terminal that is:
+		"terminus" Terminus as a tab of the editor. The Terminus package must be installed https://github.com/randy3k/Terminus
+		"terminus_panel" Terminus in the debugger panel, as its Terminal tab
+		"platform" Terminal on MacOS, CMD (Not tested) on Windows, (Unimplemented) on Linux
 		""",
 	)
 
@@ -140,6 +143,30 @@ class Settings:
 		Draws a play icon at the head of each configuration in the .sublime-project file, and a settings
 		icon on debugger_configurations. They are clickable, which is why they sit in the text rather
 		than the gutter: Sublime will draw a gutter icon but has no event for a click on one.
+		""",
+	)
+
+	test_buttons = Setting[bool](
+		key='test_buttons',
+		default=True,
+		description="""
+		Draws a play icon at the head of each test in a test file, which debugs that one test.
+		Go: the Test, Benchmark, Fuzz and Example functions of a _test.go file, and the subtests whose
+		names are written in the file: t.Run("name", ...) and the rows of a table.
+		Python: the test functions, test classes and their methods in test_*.py and *_test.py, run by pytest.
+		Java: the methods junit runs (@Test and the like) and their classes, run by the maven or gradle build of the project.
+		Jest: the describe, it and test calls of *.test.* and *.spec.* files and of files in __tests__.
+		""",
+	)
+
+	test_configurations = Setting['dict[str, Any]'](
+		key='test_configurations',
+		default={},
+		description="""
+		Values laid over the configuration that is generated to debug a test, by language (go, python, java, jest):
+		{"go": {"env": {"SKIP_IO_TESTS": "1"}, "buildFlags": "-tags=integration", "args": ["-test.count=1"]}}
+		`args` are added after the generated ones, objects such as `env` are merged, anything else
+		replaces. A project can set the same under `debugger_test_configurations`, which wins.
 		""",
 	)
 

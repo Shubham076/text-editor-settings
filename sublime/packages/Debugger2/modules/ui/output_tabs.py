@@ -25,4 +25,6 @@ def terminal_panels(debugger):
 	from ..output_panel_terminus import TerminusOutputPanel
 	names = selected_names(debugger)
 	return [panel for panel in debugger.output_panels if isinstance(panel, TerminusOutputPanel)
-		and (not panel.session or root_of(panel.session).configuration.name in names)]
+		and (not panel.session or root_of(panel.session).configuration.name in names)
+		# a task in the background only becomes a tab once it has failed, which is when there is something to read
+		and (not getattr(panel, 'in_background', False) or panel.has_failed())]
