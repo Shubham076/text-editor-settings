@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Any, Callable
 if TYPE_CHECKING:
 	from .debugger import Debugger
 
+import os
+
 import sublime
 
 from . import core
@@ -15,7 +17,7 @@ from .settings import Settings
 from .variable_format import value_summary
 from .views.variable import VariableView
 
-from .ansi import ansi_colorize
+from .ansi import ansi_colorize, stderr_runs
 
 from .output_window_protocol import ProtocolConsoleWindow
 from .output_panel import OutputPanel
@@ -62,6 +64,8 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 		self._history = []
 
 		self._last_output_event: dap.OutputEvent | None = None
+		# the color of a line of stderr that has not ended yet, its next piece is the same line
+		self._stderr_unfinished: str | None = None
 		self._program_output_batch: list[str] = []
 		self._program_output_batch_color: str | None = None
 		self._program_output_batch_revision = 0
@@ -142,7 +146,8 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 		# each line. Collect only plain stream output for one UI frame; structured output keeps the
 		# existing immediate path below.
 		if event.output and type in ('stdout', 'stderr') and not event.group and not event.variablesReference and not event.source:
-			self.queue_program_output(event.output, color)
+			for text, run_color in self.stderr_runs(event.output) if type == 'stderr' else [(event.output, color)]:
+				self.queue_program_output(text, run_color)
 			return
 
 		# A structured event must remain after all stream output that preceded it.
@@ -176,13 +181,41 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 			core.run(appendVariabble(event.variablesReference))
 
 		elif event.output:
-			self.write(event.output, color, ignore_indent=False)
+			self.write(self.logpoint_output(event), color, ignore_indent=False)
 			if event.source:
 				region = RegionAnnotation(self.view, sublime.Region(self.at() - 1), self.on_navigate, source=source)
 				self.phantoms.append(region)
 
 		if event.group == 'start' or event.group == 'startCollapsed':
 			self.start_indent()
+
+	def logpoint_output(self, event: dap.OutputEvent) -> str:
+		'''What a logpoint printed, saying that it is one and which: `logpoint main.go:12: user is bob`
+
+		An adapter prints the message of a logpoint among the output of the program, and nothing about
+		the line tells the two apart or says where it was printed from. It does say which line of
+		which file the output came from, and a logpoint on that line is how it is known for one. An
+		adapter that marks the line as its own (`> ` in front, as delve does) has that taken off.
+		'''
+		output = event.output
+		path = getattr(event.source, 'path', None)
+		line = getattr(event, 'line', None)
+		debugger = getattr(self, 'debugger', None)
+		if not path or not line or not debugger:
+			return output
+
+		on_line = debugger.breakpoints.source.get_breakpoints_on_line(path, line)
+		if not any(getattr(breakpoint.dap, 'logMessage', None) for breakpoint in on_line):
+			return output
+
+		if output.startswith('> '):
+			output = output[2:]
+		return f'logpoint {os.path.basename(path)}:{line}: {output}'
+
+	def stderr_runs(self, text: str) -> list[tuple[str, str]]:
+		'''stderr in red with its warnings in yellow, see `ansi.stderr_runs`'''
+		runs, self._stderr_unfinished = stderr_runs(text, getattr(self, '_stderr_unfinished', None))
+		return runs
 
 	def is_output_identical(self, last_event: dap.OutputEvent, event: dap.OutputEvent):
 		if not event.output:
@@ -588,7 +621,8 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 			self.write(str(value), None)
 		elif type == 'stderr':
 			self.protocol.log('stderr', value, source, session)
-			self.write(str(value), 'red')
+			for text, color in self.stderr_runs(str(value)):
+				self.write(text, color)
 		elif type == 'stdout':
 			self.write(str(value), None)
 		elif type == 'warn':

@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import importlib.util
+import os
 from pathlib import Path
 import sys
+import tempfile
 import types
 import unittest
 from unittest.mock import Mock, patch
@@ -12,22 +14,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class Event:
-	def __init__(self):
-		self.calls = []
-
 	def __class_getitem__(cls, item):
 		return cls
 
 	def __call__(self, value):
-		self.calls.append(value)
+		pass
 
 
 class Terminal:
 	created = []
 
 	def __init__(self, debugger, task, is_terminal=False, show_panel=True):
-		self.show_panel = show_panel
 		self.future = asyncio.get_event_loop().create_future()
+		self.future.set_result(None)
 		self.dispose = Mock()
 		Terminal.created.append(self)
 
@@ -39,8 +38,8 @@ class Terminal:
 
 
 class Task(dict):
-	def __init__(self, name, background):
-		super().__init__()
+	def __init__(self, name, background, shell_cmd):
+		super().__init__(shell_cmd=shell_cmd)
 		self.name, self.background, self.type = name, background, 'shell'
 		self.depends_on, self.depends_on_order, self.variables = None, None, {}
 
@@ -60,6 +59,7 @@ class BackgroundTaskTests(unittest.TestCase):
 		core.Dispose = object
 		core.Event = Event
 		core.run = lambda function: (lambda *args, **kwargs: loop.create_task(function(*args, **kwargs)))
+		core.run_in_executor = lambda function: (lambda *args: loop.run_in_executor(None, function, *args))
 		core.gather = gather
 		dap = types.ModuleType('_bgt.modules.dap')
 		dap.Error = RuntimeError
@@ -82,46 +82,57 @@ class BackgroundTaskTests(unittest.TestCase):
 		spec.loader.exec_module(module)
 		self.tasks = module.Tasks()
 
-	def run_task(self, background, error=None):
+		self.folder = os.path.realpath(tempfile.mkdtemp())
+		self.addCleanup(lambda: __import__('shutil').rmtree(self.folder, ignore_errors=True))
+		self.debugger = types.SimpleNamespace(console=Mock(), window=types.SimpleNamespace(folders=lambda: [self.folder]))
+		# whatever the users own shell is, a `shell_cmd` is not run by it
+		environ = patch.dict(os.environ, {'SHELL': '/bin/zsh'})
+		environ.start()
+		self.addCleanup(environ.stop)
+
+	def run_task(self, background, shell_cmd):
 		async def scenario():
-			running = self.tasks.run(Mock(), Task('clean up', background))
-			await asyncio.sleep(0)
-			terminal = Terminal.created[-1]
-			if error:
-				terminal.future.set_exception(error)
-			else:
-				terminal.future.set_result(None)
-			try:
-				await running
-			except RuntimeError:
-				pass
-			await asyncio.sleep(0)
-			await asyncio.sleep(0)
-			return terminal
+			await self.tasks.run(self.debugger, Task('clean up', background, shell_cmd))
+			for _ in range(200):
+				if all(task.is_finished() for task in self.tasks.tasks):
+					break
+				await asyncio.sleep(0.02)
+			await asyncio.sleep(0.05)
 
-		return self.loop.run_until_complete(scenario())
+		self.loop.set_exception_handler(lambda loop, context: None)
+		self.loop.run_until_complete(scenario())
 
-	def test_a_background_task_that_succeeds_leaves_no_terminal_behind(self):
-		terminal = self.run_task(background=True)
+	def test_a_background_task_runs_in_the_project_without_a_terminal_and_leaves_nothing(self):
+		open(os.path.join(self.folder, 'a.sublime-workspace'), 'w').close()
 
-		# it never took the panel, and it is gone
-		self.assertFalse(terminal.show_panel)
-		self.assertTrue(terminal.in_background)
-		terminal.dispose.assert_called_once()
+		self.run_task(True, 'rm -rf *.sublime-workspace')
+
+		self.assertEqual(os.listdir(self.folder), [])
+		# no panel was made, so there is none to open over what is being looked at or to take away again
+		self.assertEqual(Terminal.created, [])
+		self.assertEqual(self.tasks.tasks, [])
+		self.debugger.console.error.assert_not_called()
+
+	def test_a_pattern_that_matches_no_file_is_not_an_error(self):
+		# what zsh makes of this is `no matches found` and exit code 1
+		self.run_task(True, 'rm -rf *.sublime-workspace')
+
+		self.debugger.console.error.assert_not_called()
 		self.assertEqual(self.tasks.tasks, [])
 
-	def test_a_background_task_that_fails_stays_to_be_read(self):
-		terminal = self.run_task(background=True, error=RuntimeError('process is terminated with return code 1.'))
+	def test_a_background_task_that_fails_says_why_in_the_console(self):
+		self.run_task(True, 'echo no such thing; exit 3')
 
-		terminal.dispose.assert_not_called()
+		self.assertEqual(Terminal.created, [])
+		self.debugger.console.error.assert_called_once_with('clean up ended with exit code 3\nno such thing')
+		# kept among the tasks until the next start
 		self.assertEqual(len(self.tasks.tasks), 1)
 
-	def test_a_task_that_is_waited_for_keeps_its_terminal(self):
-		terminal = self.run_task(background=False)
+	def test_a_task_that_is_waited_for_still_gets_its_terminal(self):
+		self.run_task(False, 'true')
 
-		self.assertTrue(terminal.show_panel)
-		self.assertFalse(terminal.in_background)
-		terminal.dispose.assert_not_called()
+		self.assertEqual(len(Terminal.created), 1)
+		Terminal.created[0].dispose.assert_not_called()
 		self.assertEqual(len(self.tasks.tasks), 1)
 
 

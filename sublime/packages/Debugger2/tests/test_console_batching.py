@@ -56,7 +56,8 @@ class ConsoleBatchingTests(unittest.TestCase):
 			'_console_batch_test.modules.settings': types.SimpleNamespace(Settings=types.SimpleNamespace()),
 			'_console_batch_test.modules.variable_format': types.SimpleNamespace(value_summary=lambda variable: variable.value),
 			'_console_batch_test.modules.views.variable': types.SimpleNamespace(VariableView=object),
-			'_console_batch_test.modules.ansi': types.SimpleNamespace(ansi_colorize=lambda text, *args: text),
+			'_console_batch_test.modules.ansi': types.SimpleNamespace(ansi_colorize=lambda text, *args: text,
+				stderr_runs=lambda text, unfinished=None: ([(text, 'red')], None)),
 			'_console_batch_test.modules.output_window_protocol': types.SimpleNamespace(ProtocolConsoleWindow=object),
 			'_console_batch_test.modules.output_panel': types.SimpleNamespace(OutputPanel=OutputPanel),
 			'sublime': sublime,
@@ -87,6 +88,29 @@ class ConsoleBatchingTests(unittest.TestCase):
 			variablesReference=None,
 			source=None,
 		)
+
+	def test_what_a_logpoint_prints_says_that_it_is_one_and_where(self):
+		logpoint = types.SimpleNamespace(dap=types.SimpleNamespace(logMessage='reached here'))
+		plain = types.SimpleNamespace(dap=types.SimpleNamespace(logMessage=None))
+		on_line = {('/src/graph/graph.go', 118): [logpoint], ('/src/graph/graph.go', 20): [plain]}
+		self.console.debugger = types.SimpleNamespace(breakpoints=types.SimpleNamespace(source=types.SimpleNamespace(
+			get_breakpoints_on_line=lambda file, line: on_line.get((file, line), []))))
+		self.console.phantoms = []
+		self.console.view = Mock()
+		self.console.on_navigate = Mock()
+		self.console.at = Mock(return_value=10)
+
+		def event(text, line):
+			return types.SimpleNamespace(output=text, category='stdout', group=None, variablesReference=None,
+				source=types.SimpleNamespace(path='/src/graph/graph.go'), line=line)
+
+		with patch.object(self.module, 'RegionAnnotation', Mock()), patch.object(self.module.dap, 'SourceLocation', Mock(), create=True):
+			self.console.program_output(Mock(), event('> [Go 40]: reached here\n', 118))
+			# output that only comes from a line, with no logpoint on it, is the programs own
+			self.console.program_output(Mock(), event('plain\n', 20))
+
+		written = [call.args[0] for call in self.console._write.call_args_list]
+		self.assertEqual(written, ['logpoint graph.go:118: [Go 40]: reached here\n', 'plain\n'])
 
 	def test_plain_program_output_is_combined_into_one_ui_write(self):
 		self.console.program_output(Mock(), self.output('first\n'))

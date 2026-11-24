@@ -5,6 +5,33 @@ from typing import Any
 from . import core
 
 
+# a line of stderr that says of itself that it is not an error: `WARNING: ...`, `[warn] ...`, `note: ...`
+STDERR_WARNING = re.compile(r'\s*\[?\s*(?:warning|warn|note)\b', re.IGNORECASE)
+
+
+def stderr_runs(text: str, unfinished: str | None = None) -> tuple[list[tuple[str, str]], str | None]:
+	'''What a program wrote to stderr as (text, color) runs, and the color of a line it has not ended
+
+	stderr is where errors go and also where a toolchain puts its warnings, and all of it in red
+	makes a build that only warned look like one that failed. A line that starts by calling itself
+	a warning or a note is yellow, the rest stays red. Output arrives in pieces that need not end
+	where a line does, so the color of a line that is still open is handed back and given in again
+	as `unfinished` with the next piece.
+	'''
+	runs: list[tuple[str, str]] = []
+
+	for line in text.splitlines(keepends=True):
+		color = unfinished or ('yellow' if STDERR_WARNING.match(line) else 'red')
+		unfinished = None if line.endswith('\n') else color
+
+		if runs and runs[-1][1] == color:
+			runs[-1] = (runs[-1][0] + line, color)
+		else:
+			runs.append((line, color))
+
+	return runs, unfinished
+
+
 def ansi_colorize(text: str, color: str | None = None, previous_color: str | None = None):
 	text = text.replace('\r\n', '\n')
 

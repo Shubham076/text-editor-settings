@@ -301,13 +301,14 @@ class PanelUI(Renderer):
 	def panes(self, viewport_height):
 		"""The panes of this dashboard's `layout`, filling the viewport below the header
 
-		Breakpoints and Watch are one pane across the panel. The Debugger tab puts the call stack
+		Watch is one pane across the panel, Breakpoints is two of equal width: the breakpoints and
+		the logpoints. The Debugger tab puts the call stack
 		in a narrow column (`STACK_SHARE` of the width) beside the variables, which get the rest,
 		or stacks them when the panel is too narrow for two columns.
 		"""
 		fill = viewport_height / self.font - 1.8
 		if self.layout == 'breakpoints':
-			return [self.single_pane(self.breakpoints.render, fill)]
+			return self.two_panes(self.breakpoints.render, self.breakpoints.logpoints, fill)
 		if self.layout == 'watch':
 			return [self.single_pane(self.variables.watch, fill)]
 		if self.total < 68:
@@ -325,6 +326,24 @@ class PanelUI(Renderer):
 		return ['<div class="pane columns{}" style="width:{}px;height:{}px;">{}</div>'.format(
 			' first' if index == 0 else ' last', self.px(width), self.px(height), ''.join(rows))
 			for index, (width, rows) in enumerate(zip(inner, (stack, variables)))]
+
+	def two_panes(self, left, right, fill):
+		"""Two panes of equal width side by side, or one under the other when the panel is too narrow
+
+		Each is given the width of its rows and returns them. As in a lone pane the rows are no wider
+		than `PANE_CONTENT`, so the icons at the end of a row stay near its text.
+		"""
+		if self.total < 68:
+			width = self.total - 2 * PANE_PAD
+			rows = left(width) + ['<div class="gap-large"></div>'] + right(width)
+			return ['<div class="pane stacked first last" style="width:{}px;padding-bottom:0.8rem;">{}</div>'.format(self.px(width), ''.join(rows))]
+		outer = [self.total / 2, self.total / 2]
+		inner = [width - (self.space if index else 0) - 2 * PANE_PAD - 0.15 for index, width in enumerate(outer)]
+		columns = [render(min(width, PANE_CONTENT)) for render, width in zip((left, right), inner)]
+		height = max(fill, *(self.rows_height(rows) for rows in columns))
+		return ['<div class="pane columns{}" style="width:{}px;height:{}px;">{}</div>'.format(
+			' first' if index == 0 else ' last', self.px(width), self.px(height), ''.join(rows))
+			for index, (width, rows) in enumerate(zip(inner, columns))]
 
 	def single_pane(self, render, fill):
 		"""One pane the width of the panel, at least as tall as the space under the header

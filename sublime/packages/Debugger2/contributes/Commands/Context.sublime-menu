@@ -10,6 +10,13 @@
 		}
 	},
 	{
+		"caption": "Add Logpoint",
+		"command": "debugger",
+		"args": {
+			"action": "add_logpoint"
+		}
+	},
+	{
 		"caption": "Toggle Column Breakpoint",
 		"command": "debugger",
 		"args": {

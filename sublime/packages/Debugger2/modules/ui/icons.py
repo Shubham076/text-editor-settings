@@ -9,7 +9,7 @@ import zlib
 
 # Icon sizes in rem, measured from the mockups (toolbar icons 24px, tree chevrons 16px, ...).
 ICON_SIZES = {
-	'play': 1.2, 'pause': 1.2, 'stop': 1.2, 'restart': 1.2, 'over': 1.2, 'into': 1.2, 'out': 1.2, 'settings': 1.2, 'back': 1.2, 'bug': 1.2,
+	'play': 1.2, 'run': 1.2, 'pause': 1.2, 'stop': 1.2, 'restart': 1.2, 'over': 1.2, 'into': 1.2, 'out': 1.2, 'settings': 1.2, 'back': 1.2, 'bug': 1.2,
 	'chevron': 0.8, 'down': 0.8, 'up': 0.8, 'plus': 1.0, 'close': 0.8, 'edit': 0.9, 'breakpoint': 1.0, 'unchecked': 1.0,
 	'breakpoints': 1.2,
 }
@@ -27,6 +27,8 @@ TONES = {
 # so it runs inside the plugin host.
 ICONS = {
 	'play': (('poly', ((5, 4), (15, 12), (5, 20)), True), ('line', (19, 5), (19, 19))),
+	# start, as opposed to go on from where it stopped: the triangle alone, without the bar of `play`
+	'run': (('poly', ((7, 4), (19, 12), (7, 20)), True),),
 	'pause': (('rrect', 6, 4, 10, 20, 1), ('rrect', 14, 4, 18, 20, 1)),
 	'stop': (('rrect', 4.5, 4.5, 19.5, 19.5, 2),),
 	'restart': (('arc', (12, 12), 9, 0, 317), ('poly', ((21, 3), (21, 8), (16, 8)), False)),

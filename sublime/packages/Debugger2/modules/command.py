@@ -219,6 +219,11 @@ class Action(CommandProtocol):
 
 	create_debugger = True
 
+	# Whether running this brings the debugger panel up when it is closed. Most actions are about
+	# what is in the panel. One that is about a line of the file being edited is not: the marker
+	# it leaves in the gutter is the answer, and a panel opening over the file is in the way
+	opens_debugger = True
+
 	def action_raw(self, view: sublime.View | sublime.Window, kwargs: dict[str, Any]): ...
 
 	def action(self, debugger: Debugger) -> Any: ...
@@ -236,11 +241,15 @@ class Action(CommandProtocol):
 
 		self.action_raw(view, kwargs)
 
-		debugger = Debugger.get(view, create=self.create_debugger)
+		# asking for the debugger with `create` also brings its panel up, so one that is already there
+		# is asked for without when the panel is to be left as it is
+		debugger = None if self.opens_debugger else Debugger.get(view)
+		if not debugger:
+			debugger = Debugger.get(view, create=self.create_debugger)
 		if not debugger:
 			return
 
-		if not debugger.is_open():
+		if self.opens_debugger and not debugger.is_open():
 			debugger.open()
 
 		self.action(debugger)

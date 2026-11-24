@@ -109,7 +109,8 @@ class Toolbar:
 		"""
 		ui = self.ui
 		mode = self.mode(session)
-		controls = ui.tool('play', 'Run without the debugger', partial(self.transport, 'run'), css='active' if mode == 'run' else '')
+		# its own icon: beside the continue of a paused session, two of the same were two plays
+		controls = ui.tool('run', 'Run without the debugger', partial(self.transport, 'run'), css='active' if mode == 'run' else '')
 		controls += ui.tool('bug', 'Debug', partial(self.transport, 'start'), css='active' if mode == 'start' else '')
 		width = 2 * TOOL
 		# only what is being debugged can be paused
@@ -388,7 +389,7 @@ class Toolbar:
 			ui.backend.console.error(str(error))
 
 	def settings(self):
-		"""The gear opens Sublime's quick panel with the debugger's actions and the configurations
+		"""The gear opens Sublime's quick panel with the debugger's options
 
 		The same list the settings icon in the project file and the command palette entry open
 		(`ChangeConfiguration`), so there is one place to look.

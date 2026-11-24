@@ -28,10 +28,17 @@
 		}
 	},
 	{
-		"caption": "Debugger: Add or Select Configuration",
+		"caption": "Debugger: Options",
 		"command": "debugger",
 		"args": {
 			"action": "change_configuration"
+		}
+	},
+	{
+		"caption": "Debugger: Select Configuration",
+		"command": "debugger",
+		"args": {
+			"action": "select_configuration"
 		}
 	},
 	{
@@ -193,6 +200,13 @@
 		"command": "debugger",
 		"args": {
 			"action": "toggle_breakpoint"
+		}
+	},
+	{
+		"caption": "Debugger: Add Logpoint",
+		"command": "debugger",
+		"args": {
+			"action": "add_logpoint"
 		}
 	},
 	{

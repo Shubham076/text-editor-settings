@@ -289,6 +289,35 @@ class SourceBreakpoints:
 			ui.InputListItem(remove, 'Remove'),
 		]
 
+	def set_logpoint(self, file: str, line: int, message: str) -> SourceBreakpoint | None:
+		'''Makes the line a logpoint that prints `message`, a breakpoint that is already there becomes one'''
+		if not message:
+			return None
+
+		if not self.get_breakpoints_on_line(file, line):
+			self.add_breakpoint(file, line)
+
+		breakpoint = self.get_breakpoints_on_line(file, line)[0]
+		breakpoint.dap.logMessage = message
+		self.updated(breakpoint)
+		return breakpoint
+
+	def add_logpoint(self, file: str, line: int):
+		'''Asks for what to print at a line and makes the line a logpoint
+
+		A logpoint could only be made by editing a breakpoint and filling in its `Log`, which nothing
+		on screen says. This is the same thing by its own name. The line gets nothing until there is
+		a message: giving up on the question leaves the file as it was.
+		'''
+		existing = self.get_breakpoints_on_line(file, line)
+		initial = existing[0].dap.logMessage if existing else None
+
+		return ui.InputText(
+			lambda message: self.set_logpoint(file, line, message.strip()),
+			'Message to log, expressions within {} are interpolated: user is {name}',
+			initial,
+		).run()
+
 	def toggle_file_line(self, file: str, line: int):
 		bps = self.get_breakpoints_on_line(file, line)
 		if bps:

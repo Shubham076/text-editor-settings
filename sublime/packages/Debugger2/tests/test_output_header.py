@@ -455,7 +455,8 @@ class OutputHeaderTests(unittest.TestCase):
 			setattr(FakeOutputPanel, name, getattr(real.OutputPanel, name))
 		dependencies = dict(self.loaded)
 		dependencies.update({
-			'_live_test.modules.ansi': types.SimpleNamespace(ansi_colorize=lambda *args: ''),
+			'_live_test.modules.ansi': types.SimpleNamespace(ansi_colorize=lambda *args: '',
+				stderr_runs=lambda text, unfinished=None: ([(text, 'red')], None)),
 			'_live_test.modules.output_window_protocol': types.SimpleNamespace(ProtocolConsoleWindow=Mock),
 			'_live_test.modules.output_panel': types.SimpleNamespace(OutputPanel=FakeOutputPanel),
 			'_live_test.modules.lsp_completions': types.SimpleNamespace(),

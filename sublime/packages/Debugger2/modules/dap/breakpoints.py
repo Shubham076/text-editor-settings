@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Protocol
+from typing import Any, Callable, Protocol
 
 from .error import Error
 
@@ -51,20 +51,34 @@ class Breakpoints:
 		self.data.remove_all()
 		self.function.remove_all()
 
-	def set_all_enabled(self, enabled: bool) -> None:
+	def set_all_enabled(self, enabled: bool, only: Callable[[Any], bool] | None = None) -> None:
 		'''Turns every breakpoint on or off and keeps them, which is how a program is run past them once
 
-		Not the exception filters: those are settings of the debugger rather than places in a program.
+		`only` says which of them: the breakpoints pane lists logpoints apart from the breakpoints
+		that stop, and what is done to all of one list is not done to the other. Not the exception
+		filters either way: those are settings of the debugger rather than places in a program.
 		'''
 		for breakpoint in list(self.source):
-			if breakpoint.enabled != enabled:
+			if breakpoint.enabled != enabled and (not only or only(breakpoint)):
 				self.source.toggle_enabled(breakpoint)
 
 		for collection in (self.function, self.data):
-			changed = [breakpoint for breakpoint in collection if breakpoint.enabled != enabled]
+			changed = [breakpoint for breakpoint in collection if breakpoint.enabled != enabled and (not only or only(breakpoint))]
 			for breakpoint in changed:
 				breakpoint.enabled = enabled
 			if changed:
+				collection.updated()
+
+	def remove_only(self, only: Callable[[Any], bool]) -> None:
+		'''Removes the breakpoints `only` says yes to, `remove_all` for some of them'''
+		for breakpoint in list(self.source):
+			if only(breakpoint):
+				self.source.remove(breakpoint)
+
+		for collection in (self.function, self.data):
+			kept = [breakpoint for breakpoint in collection if not only(breakpoint)]
+			if len(kept) != len(collection.breakpoints):
+				collection.breakpoints = kept
 				collection.updated()
 
 	def clear_breakpoint_result(self, session: Session) -> None:

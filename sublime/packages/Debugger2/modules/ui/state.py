@@ -17,7 +17,7 @@ class ViewState:
 	# the sections, the top-level scopes (`scope:Locals`) and the variable rows the user opened, by
 	# name path (`scope:Locals/settings/policy`, `watch:expr/field`), so they survive a step; see
 	# `VariablesPane.scope_key` for when the paths are forgotten
-	expanded: set[str | int] = field(default_factory=lambda: {'breakpoints', 'thread', 'watch', 'variables'})
+	expanded: set[str | int] = field(default_factory=lambda: {'breakpoints', 'logpoints', 'thread', 'watch', 'variables'})
 	# scopes that have been given their default expansion once (`VariablesPane.scope_key`)
 	scopes_seen: set[str] = field(default_factory=set)
 	compact: bool = False

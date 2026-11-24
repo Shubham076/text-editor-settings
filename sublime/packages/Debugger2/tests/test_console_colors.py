@@ -31,6 +31,32 @@ class ConsoleColorTests(unittest.TestCase):
 	def tearDownClass(cls):
 		cls.modules.stop()
 
+	def test_stderr_is_red_and_the_lines_that_call_themselves_warnings_are_yellow(self):
+		text = (
+			'WARNING: xgo toolchain: failed to detect xgo version\n'
+			'note: this message can be turned off\n'
+			'[warn] slow\n'
+			'panic: runtime error\n'
+			'warned you\n'
+			'  Warning: indented\n'
+		)
+		runs, unfinished = self.ansi.stderr_runs(text)
+		self.assertEqual(runs, [
+			('WARNING: xgo toolchain: failed to detect xgo version\nnote: this message can be turned off\n[warn] slow\n', 'yellow'),
+			('panic: runtime error\nwarned you\n', 'red'),
+			('  Warning: indented\n', 'yellow'),
+		])
+		self.assertIsNone(unfinished)
+
+	def test_a_line_of_stderr_that_arrives_in_two_pieces_is_one_color(self):
+		runs, unfinished = self.ansi.stderr_runs('WARNING: failed to ')
+		self.assertEqual((runs, unfinished), ([('WARNING: failed to ', 'yellow')], 'yellow'))
+
+		# the rest of it does not start like a warning, and is still the warning
+		runs, unfinished = self.ansi.stderr_runs('link runtime.X\nfatal\n', unfinished)
+		self.assertEqual(runs, [('link runtime.X\n', 'yellow'), ('fatal\n', 'red')])
+		self.assertIsNone(unfinished)
+
 	def test_region_colors_use_only_their_own_scope(self):
 		for color, scope in {
 			'red': 'region.redish.debugger',

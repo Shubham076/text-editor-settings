@@ -163,9 +163,6 @@ class TerminusOutputPanel(OutputPanel):
 	def is_finished(self):
 		return self.view.settings().get('terminus_view.finished') or self.future.done()
 
-	def has_failed(self) -> bool:
-		return self.future.done() and not self.future.cancelled() and self.future.exception() is not None
-
 	def on_modified(self):
 		# This runs for every buffer paint Terminus completes. The listener queues the debugger header
 		# reflow first, then this scroll, so the final viewport uses the completed layout.

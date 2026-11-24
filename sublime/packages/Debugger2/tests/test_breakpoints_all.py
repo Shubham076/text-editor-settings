@@ -77,6 +77,23 @@ class SetAllEnabledTests(unittest.TestCase):
 		self.breakpoints.set_all_enabled(True)
 		self.assertEqual(self.every(), [True] * 5)
 
+	def test_only_the_ones_asked_for_are_turned_off_or_removed(self):
+		logpoint = self.breakpoints.source.breakpoints[0]
+		logpoint.log = True
+		stops = lambda item: not getattr(item, 'log', False)
+		self.breakpoints.source.remove = self.breakpoints.source.breakpoints.remove
+
+		self.breakpoints.set_all_enabled(False, stops)
+		self.assertTrue(logpoint.enabled)
+		self.assertEqual(self.every(), [True, False, False, False, False])
+
+		self.breakpoints.remove_only(stops)
+		self.assertEqual(self.breakpoints.source.breakpoints, [logpoint])
+		self.assertEqual(self.breakpoints.function.breakpoints, [])
+		self.assertEqual(self.breakpoints.data.breakpoints, [])
+		# told once for what was turned off and once for what was removed; the one of data was off already
+		self.assertEqual((self.breakpoints.function.updates, self.breakpoints.data.updates), (2, 1))
+
 	def test_exception_filters_are_left_as_they_are(self):
 		self.breakpoints.set_all_enabled(False)
 		self.assertEqual([item.enabled for item in self.breakpoints.filters], [True])

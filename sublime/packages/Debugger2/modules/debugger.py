@@ -9,7 +9,7 @@ from . import ui
 from . import dap
 
 from .command import Action
-from .commands.commands import ChangeConfiguration
+from .commands.commands import ChangeConfiguration, SelectConfiguration
 
 from .settings import Settings
 from .project import Project
@@ -286,7 +286,8 @@ class Debugger(core.Dispose, dap.Debugger):
 				configurations = self.project.active_configurations()
 				if not configurations:
 					self.console.error('Add or select a configuration to begin debugging')
-					self.run_action(ChangeConfiguration)
+					# the ones there are to choose from, or with none the options, where one is added
+					self.run_action(SelectConfiguration if self.project.configurations or self.project.compounds else ChangeConfiguration)
 					return
 
 			await self.start_with_configurations(configurations, no_debug)

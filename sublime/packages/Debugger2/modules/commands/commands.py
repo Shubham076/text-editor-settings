@@ -58,6 +58,7 @@ class Quit(Action):
 Section()
 from .commands_configurations import InstallAdapters
 from .commands_configurations import ChangeConfiguration
+from .commands_configurations import SelectConfiguration
 from .commands_configurations import AddConfiguration
 from .commands_configurations import EditConfiguration
 from .commands_configurations import ExampleProjects
@@ -123,16 +124,29 @@ class ToggleBreakpoint(Action):
 	name = 'Toggle Breakpoint'
 	key = 'toggle_breakpoint'
 	is_menu_context = True
+	opens_debugger = False
 
 	def action(self, debugger: Debugger):
 		file, line, _ = debugger.project.current_file_line_column()
 		debugger.breakpoints.source.toggle(file, line)
 
 
+class AddLogpoint(Action):
+	name = 'Add Logpoint'
+	key = 'add_logpoint'
+	is_menu_context = True
+	opens_debugger = False
+
+	def action(self, debugger: Debugger):
+		file, line, _ = debugger.project.current_file_line_column()
+		debugger.breakpoints.source.add_logpoint(file, line)
+
+
 class ToggleColumnBreakpoint(Action):
 	name = 'Toggle Column Breakpoint'
 	key = 'toggle_column_breakpoint'
 	is_menu_context = True
+	opens_debugger = False
 
 	def action(self, debugger: Debugger):
 		file, line, column = debugger.project.current_file_line_column()

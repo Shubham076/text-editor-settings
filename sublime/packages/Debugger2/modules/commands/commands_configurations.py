@@ -67,7 +67,14 @@ class ExampleProjects(Action):
 
 
 class ChangeConfiguration(Action):
-	name = 'Add or Select Configuration'
+	'''The options of the debugger: what the gear on the bar and the settings icon of a project file open
+
+	Not the configurations. They used to be listed here as well, between the options, and a row with
+	a second line made every row of the list that tall. Choosing one is the chips of the bar and
+	`SelectConfiguration`, and this is the things that are not about any one of them.
+	'''
+
+	name = 'Options'
 	key = 'change_configuration'
 
 	@core.run
@@ -78,36 +85,38 @@ class ChangeConfiguration(Action):
 		def report_issue():
 			webbrowser.open_new_tab('https://github.com/daveleroy/sublime_debugger/issues')
 
-
 		# imported here: `commands` imports this module, so a module level import would be circular
 		from .commands import AddFunctionBreakpoint, SettingsPreferences
 
-		# the debugger's actions first, then the configurations. This is the one list behind the
-		# toolbar gear, the settings icon in the project file and the command palette entry
-		values: list[ui.InputListItem] = [
-			ui.InputListItem(lambda: debugger.run_action(EditConfiguration), EditConfiguration.name + f'\t{debugger.project.project_file_name}'),
+		await ui.InputList('Debugger options')[self.options(debugger, about, report_issue, AddFunctionBreakpoint, SettingsPreferences)]
+
+	@staticmethod
+	def options(debugger: Debugger, about, report_issue, AddFunctionBreakpoint, SettingsPreferences) -> list[ui.InputListItem]:
+		return [
+			ui.InputListItem(lambda: debugger.run_action(EditConfiguration), EditConfiguration.name, annotation=debugger.project.project_file_name or ''),
 			ui.InputListItem(lambda: debugger.run_action(AddConfiguration), AddConfiguration.name),
 			ui.InputListItem(lambda: debugger.run_action(InstallAdapters), InstallAdapters.name),
 			ui.InputListItem(lambda: debugger.run_action(SettingsPreferences), 'Debugger Settings'),
 			ui.InputListItem(lambda: debugger.run_action(AddFunctionBreakpoint), AddFunctionBreakpoint.name),
-			ui.InputListItem(lambda: ..., ''),
+			ui.InputListItem(report_issue, 'Report Issue', kind=(sublime.KIND_ID_AMBIGUOUS, '⧉', '')),
+			ui.InputListItem(about, 'About/Getting Started', kind=(sublime.KIND_ID_AMBIGUOUS, '⧉', '')),
 		]
 
+
+class SelectConfiguration(Action):
+	'''The configurations of the project, to choose the one the bar is about'''
+
+	name = 'Select Configuration'
+	key = 'select_configuration'
+
+	@core.run
+	async def action(self, debugger: Debugger):
 		# paused first, then running, then stopped, each with its status as the coloured badge and
 		# the annotation; the list opens on the selected configuration
 		rows, selected = configurations.items(debugger, debugger.set_configuration)
-		index = len(values) + selected if selected is not None else 0
-		values.extend(rows)
+		rows.append(ui.InputListItem(lambda: debugger.run_action(EditConfiguration), EditConfiguration.name, annotation=debugger.project.project_file_name or ''))
 
-		values.extend(
-			[
-				ui.InputListItem(lambda: ..., ''),
-				ui.InputListItem(report_issue, 'Report Issue', kind=(sublime.KIND_ID_AMBIGUOUS, '⧉', '')),
-				ui.InputListItem(about, 'About/Getting Started', kind=(sublime.KIND_ID_AMBIGUOUS, '⧉', '')),
-			]
-		)
-
-		await ui.InputList('Add or Select Configuration', index)[values]
+		await ui.InputList('Run configuration', selected or 0)[rows]
 
 
 class AddConfiguration(Action):

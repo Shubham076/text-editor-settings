@@ -65,17 +65,6 @@ class OutputTabsTests(unittest.TestCase):
 		self.assertIn('Close console output', html)
 		self.assertNotIn('class="bar"', html)
 
-	def test_a_background_task_is_only_a_terminal_tab_once_it_has_failed(self):
-		record = self.record()
-		terminal = self.terminal(None)
-		terminal.in_background = True
-		terminal.has_failed = lambda: False
-		ui = self.make_ui()
-		ui.render()
-		self.assertNotIn('>Terminal</a>', ui.toolbar.tabs())
-		terminal.has_failed = lambda: True
-		self.assertIn('>Terminal</a>', ui.toolbar.tabs())
-
 	def test_terminal_tab_has_no_chip_bar_and_closes_a_finished_terminal_from_the_tab(self):
 		record = self.record()
 		terminal = self.terminal(record.session)

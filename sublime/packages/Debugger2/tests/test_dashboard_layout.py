@@ -43,14 +43,14 @@ class DashboardLayoutTests(unittest.TestCase):
 		self.assertIn('Call stack', content[1][1])
 		self.assertIn('Variables', content[2][1])
 		self.assertTrue(all(item[3] == self.sublime.LAYOUT_INLINE for item in content))
-		# the breakpoints tab keeps the back arrow, and one pane
+		# the breakpoints tab keeps the back arrow, and its two panes
 		self.sublime.PhantomSet = Mock(side_effect=[Mock(), Mock()])
 		ui = self.make_ui(body=True, header_view=strip, layout='breakpoints')
 		ui.render()
 		strip_html = ui.phantoms.update.call_args.args[0][0][1]
 		self.assertIn('Back to call stack', strip_html)
 		self.assertIn('class="tool primary" title="Show breakpoints"', strip_html)
-		self.assertEqual([item[0] for item in ui.view_phantoms.update.call_args.args[0]], [2, 3])
+		self.assertEqual([item[0] for item in ui.view_phantoms.update.call_args.args[0]], [2, 3, 4])
 
 	def test_dashboard_renders_toolbar_tabs_then_call_stack_beside_variables(self):
 		ui = self.make_ui(body=True)
@@ -93,32 +93,77 @@ class DashboardLayoutTests(unittest.TestCase):
 		width = int(re.search(r'class="pane columns[^"]*" style="width:(\d+)px', wide).group(1))
 		self.assertEqual(width, ui.px(ui.total * style.STACK_SHARE - 2 * style.PANE_PAD - 0.15))
 
-	def test_lone_pane_spans_the_panel_but_keeps_its_rows_narrow(self):
+	def test_breakpoints_tab_is_breakpoints_beside_logpoints_with_buttons_that_say_what_they_do(self):
 		style = self.loaded['_live_test.modules.ui.style']
 		ui = self.make_ui(body=True, layout='breakpoints')
 		ui.render()
-		pane = ui.phantoms.update.call_args.args[0][3][1]
-		self.assertGreater(ui.total, style.PANE_CONTENT)
-		# the pane box is as wide as the panel...
-		self.assertIn('style="width:{}px;'.format(ui.px(ui.total - 2 * style.PANE_PAD - 0.15)), pane)
-		# ...its heading row is capped, so the icons at the end of each row stay near the text. The
-		# heading ends in the two that act on every breakpoint, which are unavailable while there is none
-		self.assertIn('style="width:{}px;"'.format(ui.px(style.PANE_CONTENT - 2 * style.ACTION)), pane)
-		self.assertIn('title="Disable all breakpoints · unavailable"', pane)
-		self.assertIn('title="Remove all breakpoints · unavailable"', pane)
+		phantoms = ui.phantoms.update.call_args.args[0]
+		left, right = phantoms[3][1], phantoms[4][1]
+		self.assertGreater(ui.total, 68)
+		# two panes of the same width, as wide as the panel between them
+		self.assertIn('pane columns first', left)
+		self.assertIn('pane columns last', right)
+		self.assertIn('Breakpoints (0)', left)
+		self.assertIn('Logpoints (0)', right)
+		# the way to make one is on the pane, by name, also while there is none
+		self.assertIn('title="Add a logpoint at the line of the cursor">Add&nbsp;logpoint</a>', right)
+		self.assertIn('Put the cursor on the line, then Add logpoint', right)
+		self.assertNotIn('Logpoints', left)
+		# the two that act on every breakpoint are words, and unavailable while there is none
+		for label, title in (('Disable&nbsp;all', 'Disable all breakpoints'), ('Remove&nbsp;all', 'Remove all breakpoints')):
+			self.assertIn('title="{} · unavailable">{}</span>'.format(title, label), left)
+		# the rows of a pane are capped, so the icons at the end of each row stay near the text
+		self.assertLessEqual(ui.total / 2 - 2 * style.PANE_PAD, style.PANE_CONTENT + ui.total)
+
+	def test_a_logpoint_is_listed_on_the_right_with_what_it_prints(self):
+		dap = self.loaded['_live_test.modules.dap']
+		ui = self.make_ui(body=True, layout='breakpoints')
+
+		def breakpoint(line, message=None):
+			item = dap.SourceBreakpoint.__new__(dap.SourceBreakpoint)
+			item.__dict__.update(file='/src/app/main.go', line=line, enabled=True, tag=str(line), name='main.go',
+				dap=types.SimpleNamespace(logMessage=message))
+			return item
+
+		ui.backend.breakpoints.source = [breakpoint(10), breakpoint(20, 'user is {name}')]
+		ui.backend.breakpoints.set_all_enabled = Mock()
+		ui.backend.breakpoints.remove_only = Mock()
+		ui.backend._on_navigate_to_source = Mock()
+		ui.render()
+		phantoms = ui.phantoms.update.call_args.args[0]
+		left, right = phantoms[3][1], phantoms[4][1]
+
+		self.assertIn('Breakpoints (1)', left)
+		self.assertIn('Line 10', left)
+		self.assertNotIn('Line 20', left)
+		self.assertIn('Logpoints (1)', right)
+		self.assertIn('Line 20 · user is {name}', right)
+		self.assertNotIn('Line 10', right)
+		# with something to act on they are links
+		self.assertIn('title="Disable all breakpoints">Disable&nbsp;all</a>', left)
+		self.assertIn('title="Remove all breakpoints">Remove&nbsp;all</a>', left)
+
+		# all of this column: the logpoint is not one of them, and is still there after either
+		for title in ('Disable all breakpoints', 'Remove all breakpoints'):
+			ui.handlers[re.search(r'href="([^"]*)"[^>]*title="{}"'.format(title), left).group(1)]()
+		enabled, only = ui.backend.breakpoints.set_all_enabled.call_args.args
+		self.assertFalse(enabled)
+		items = ui.backend.breakpoints.source
+		self.assertEqual([only(item) for item in items], [True, False])
+		self.assertEqual([ui.backend.breakpoints.remove_only.call_args.args[0](item) for item in items], [True, False])
 
 	def test_breakpoints_control_is_global_and_marks_the_bottom_control_active(self):
 		ui = self.make_ui(body=True, layout='breakpoints')
 		ui.render()
 		phantoms = ui.phantoms.update.call_args.args[0]
-		self.assertEqual([item[0] for item in phantoms], [0, 1, 2, 3])
+		self.assertEqual([item[0] for item in phantoms], [0, 1, 2, 3, 4])
 		self.assertEqual(ui.state.tab, 'breakpoints')
 		tabs = phantoms[2][1]
 		self.assertNotIn('Breakpoints', tabs)
 		self.assertIn('class="breakpoints-control active"', phantoms[1][1])
 		pane = phantoms[3][1]
 		self.assertIn('Breakpoints (0)', pane)
-		self.assertIn('pane columns first last', pane)
+		self.assertIn('pane columns first', pane)
 		self.assertNotIn('Call stack', pane)
 		self.assertNotIn('Watch', pane)
 
@@ -208,7 +253,7 @@ class DashboardLayoutTests(unittest.TestCase):
 		self.assertFalse(ui.input_line)
 		ui.render()
 		content = ui.view_phantoms.update.call_args.args[0]
-		self.assertEqual([item[0] for item in content], [2, 3])
+		self.assertEqual([item[0] for item in content], [2, 3, 4])
 		self.assertGreater(int(re.search(r'height:(\d+)px', content[1][1]).group(1)), 300)
 
 	def test_dashboard_anchors_use_separate_header_and_content_rows(self):
