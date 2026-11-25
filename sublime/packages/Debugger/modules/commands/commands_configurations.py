@@ -25,6 +25,8 @@ class ExampleProjects(Action):
 	key = 'example_projects'
 
 	example_projects = [
+		# the tour: a configuration for each feature, and one program in five languages
+		'examples/features/features.sublime-project',
 		'examples/sublime_debug/sublime.sublime-project',
 		'examples/cpp/cpp.sublime-project',
 		'examples/csharp/csharp.sublime-project',

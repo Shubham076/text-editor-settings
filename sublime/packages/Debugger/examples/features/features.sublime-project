@@ -1,0 +1,217 @@
+{
+	"folders": [
+		{
+			"path": ".",
+		},
+	],
+
+	// values a configuration asks for when it is started: ${input:id}
+	"debugger_inputs": [
+		{"id": "greeting", "type": "promptString", "description": "What to say", "default": "hello"},
+		// asked the first time only, `Debugger: Ask Inputs Again` asks for it again
+		{"id": "environment", "type": "pickString", "description": "Which environment?", "options": ["local", "staging", {"label": "Production (careful)", "value": "production"}], "default": "staging", "ask": "once"},
+	],
+
+	"debugger_tasks": [
+		// a task that ends: the debugger starts when it has
+		{
+			"name": "build rust",
+			"working_dir": "${project_path}",
+			"shell_cmd": "mkdir -p build && rustc -g languages/main.rs -o build/main_rs",
+			"file_regex": "^\\s*--> (.+):([0-9]+):([0-9]+)",
+		},
+		// tasks that never end. Each says what it prints once it is up (`ready_regex`): the debugger
+		// starts on that line, the task goes on in a tab of its own and is stopped with the session
+		{
+			"name": "api server",
+			"working_dir": "${project_path}",
+			"shell_cmd": "python3 -u tools/server.py --delay 3",
+			"ready_regex": "Listening on port \\d+",
+		},
+		{
+			"name": "metrics server",
+			"working_dir": "${project_path}",
+			"shell_cmd": "python3 -u tools/server.py --delay 2 --port 8766 --name metrics",
+			"ready_regex": "Listening on port \\d+",
+		},
+		// the ready line is longer than the terminal is wide, and is matched as the line it was
+		{
+			"name": "api server (long line)",
+			"working_dir": "${project_path}",
+			"shell_cmd": "python3 -u tools/server.py --delay 2 --long",
+			"ready_regex": "routes registered.*Listening on port \\d+",
+		},
+		// needs 10 seconds and is given 3
+		{
+			"name": "api server (too slow)",
+			"working_dir": "${project_path}",
+			"shell_cmd": "python3 -u tools/server.py --delay 10",
+			"ready_regex": "Listening on port \\d+",
+			"ready_timeout": 3,
+		},
+		// ends with an error before it is ready
+		{
+			"name": "api server (fails)",
+			"working_dir": "${project_path}",
+			"shell_cmd": "python3 -u tools/server.py --delay 2 --fail",
+			"ready_regex": "Listening on port \\d+",
+		},
+	],
+
+	"debugger_configurations": [
+		// ---- one program, five languages. Break on the line marked `<- breakpoint here`
+		{
+			"name": "Python",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/languages/main.py",
+		},
+		{
+			"name": "Node",
+			"type": "node",
+			"request": "launch",
+			"cwd": "${project_path}",
+			"program": "${project_path}/languages/main.js",
+		},
+		{
+			"name": "Go",
+			"type": "go",
+			"request": "launch",
+			"program": "${project_path}/languages/main.go",
+		},
+		// needs the LSP and LSP-jdtls packages, which are what find the class
+		{
+			"name": "Java",
+			"type": "java",
+			"request": "launch",
+			"mainClass": "Main",
+		},
+		{
+			"name": "Rust",
+			"type": "lldb",
+			"request": "launch",
+			"cwd": "${project_path}",
+			"program": "${project_path}/build/main_rs",
+			"pre_debug_task": "build rust",
+		},
+
+		// ---- the features, one configuration each
+
+		// enable "Uncaught Exceptions" in the Breakpoints tab first
+		{
+			"name": "Exception details (python)",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/languages/main.py",
+			"args": ["fail"],
+		},
+		{
+			"name": "Exception details (node)",
+			"type": "node",
+			"request": "launch",
+			"cwd": "${project_path}",
+			"program": "${project_path}/languages/main.js",
+			"args": ["fail"],
+		},
+		// the variables of both files, the second winning over the first, under what `env` sets
+		{
+			"name": "envFile",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/tools/print_env.py",
+			"cwd": "${project_path}",
+			"envFile": [".env", ".env.local"],
+			"env": {"APP_SECRET": "from the configuration"},
+		},
+		// what the program prints is also in logs/console.log, started again on every run
+		{
+			"name": "Log file (console)",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/tools/log_output.py",
+			"cwd": "${project_path}",
+			"log": {"file": "logs/console.log"},
+		},
+		// the same from a terminal, and added to on every run
+		{
+			"name": "Log file (terminal, append)",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/tools/log_output.py",
+			"cwd": "${project_path}",
+			"console": "external",
+			"log": {"file": "logs/terminal.log", "append": true},
+		},
+		// asks for a text on every start and for the environment the first time only
+		{
+			"name": "Input prompts",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/tools/echo_args.py",
+			"args": ["${input:greeting}", "--env", "${input:environment}", "--again", "${input:greeting}"],
+		},
+		// the restart button asks the adapter to start the program again, in the same session
+		{
+			"name": "Restart in place (node)",
+			"type": "node",
+			"request": "launch",
+			"cwd": "${project_path}",
+			"program": "${project_path}/tools/restart.js",
+		},
+		// starts when the server says it is listening, and stops the server when it ends
+		{
+			"name": "Ready task",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/tools/client.py",
+			"pre_debug_task": "api server",
+		},
+		{
+			"name": "Ready task, second client",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/tools/client.py",
+			"pre_debug_task": "api server",
+		},
+		{
+			"name": "Ready task (long line)",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/tools/client.py",
+			"pre_debug_task": "api server (long line)",
+		},
+		// a list: the api server is ready before the metrics server is started, the client after both
+		{
+			"name": "Two servers before one client",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/tools/client.py",
+			"args": ["8765", "8766"],
+			"pre_debug_task": ["api server", "metrics server"],
+		},
+		// the two ways a ready task fails the start
+		{
+			"name": "Ready task (too slow)",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/tools/client.py",
+			"pre_debug_task": "api server (too slow)",
+		},
+		{
+			"name": "Ready task (fails)",
+			"type": "python",
+			"request": "launch",
+			"program": "${project_path}/tools/client.py",
+			"pre_debug_task": "api server (fails)",
+		},
+	],
+
+	"debugger_compounds": [
+		// both clients wait for the one server, which stops when the second of them ends. Each has
+		// a console tab under its own name
+		{
+			"name": "Two clients, one server",
+			"configurations": ["Ready task", "Ready task, second client"],
+		},
+	],
+}
