@@ -29,6 +29,13 @@
 	// Font size; defaults to 90% of the font size of the file they are drawn in.
 	"inline_values_font_size": null,
 
+	// How often a value of `debugger_inputs` (`${input:id}`) is asked for.
+	// "always": on every start, offering the last answer first.
+	// "once": the first time, and the answer is used from then on without asking, until
+	// `Debugger: Ask Inputs Again` is run or Sublime is restarted.
+	// An input can say for itself with `"ask": "once"` or `"ask": "always"`, which wins over this.
+	"inputs_ask": "always",
+
 	// Debugger ui: the toolbar, tabs, panes (breakpoints, call stack, variables) and menus.
 	// Font size; defaults to 87.5% of the font size in your preferences.
 	"font_size": null,
@@ -125,6 +132,9 @@
 
 	// Global debugger tasks that are accessible from every project
 	"global_debugger_tasks": [],
+
+	// Global debugger inputs, the values `${input:id}` asks for, that are accessible from every project
+	"global_debugger_inputs": [],
 
 	// Global debugger compounds that are accessible from every project
 	"global_debugger_compounds": [],

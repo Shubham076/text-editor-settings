@@ -29,6 +29,13 @@ def session_status(session):
 		return 'Stopped'
 	if session.is_paused:
 		return 'Paused'
+
+	# what the adapter says it is busy with (attaching, loading symbols) says more than that it
+	# is running or starting, for as long as it is busy with it
+	progress = getattr(session, 'progress_text', '')
+	if progress:
+		return progress
+
 	if session.is_running:
 		return 'Running'
 	return session.state.status or 'Starting'

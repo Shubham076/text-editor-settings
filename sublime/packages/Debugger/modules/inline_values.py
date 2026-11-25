@@ -99,6 +99,36 @@ def first_line(stopped_line: int, symbol_lines: Iterable[int]) -> int:
 	return max(0, start, stopped_line - MAX_LINES)
 
 
+def returned_by(name: str) -> str | None:
+	"""What a variable is the return value of, `None` when it is not one
+
+	After stepping out of a function, or over a call, an adapter lists what came back among the
+	locals of the frame, under a name that is not a name of the language: debugpy `(return) parse`,
+	vscode-js-debug `Return value`, delve `~r0` for a result that has no name. `''` is a return
+	value that does not say of what.
+	"""
+	name = name.strip()
+	lowered = name.lower()
+
+	if lowered.startswith('(return)'):
+		function = name[len('(return)'):].strip()
+		return f'{function}()' if function else ''
+	if lowered in ('return value', 'return', '(return value)'):
+		return ''
+	if re.match(r'^~r\d+$', name):
+		return ''
+	return None
+
+
+def returned_text(returned: list[tuple[str, str]], limit: int = MAX_LINE) -> str:
+	"""`parse() returned 8080`, for what was just returned to the line that is stopped on"""
+	parts = []
+	for function, value in returned:
+		value = short_value(value)
+		parts.append(f'{function} returned {value}' if function else f'returned {value}')
+	return short_value(', '.join(parts), limit)
+
+
 def names_on_line(text: str, names: Iterable[str], is_code: Callable[[int], bool] | None = None) -> list[str]:
 	'''The variables a line of source mentions, in the order it mentions them, each once
 

@@ -42,13 +42,15 @@ def style() -> str:
 	)
 
 
-async def frame_values(scopes: list[dap.Variable]) -> dict[str, str]:
-	'''The variables of a frame by name, as they are written beside a line
+async def frame_values(scopes: list[dap.Variable]) -> tuple[dict[str, str], list[tuple[str, str]]]:
+	'''The variables of a frame by name, as they are written beside a line, and what was just returned to it
 
 	`scopes` are the scopes of the frame, innermost first. A name an inner scope has hides the same
-	name further out, which is what the program sees as well.
+	name further out, which is what the program sees as well. What a call returned is listed by
+	the adapter among the locals, under a name no line of source has (`inline_values.returned_by`).
 	'''
 	values: dict[str, str] = {}
+	returned: list[tuple[str, str]] = []
 	asked = 0
 
 	for scope in scopes:
@@ -65,10 +67,16 @@ async def frame_values(scopes: list[dap.Variable]) -> dict[str, str]:
 
 			# something with children is its type or its length, the contents are a hover away
 			text = value_summary(variable) if variable.has_children else variable.value
-			if text:
-				values[variable.name] = text
+			if not text:
+				continue
 
-	return values
+			function = inline_values.returned_by(variable.name)
+			if function is None:
+				values[variable.name] = text
+			else:
+				returned.append((function, text))
+
+	return values, returned
 
 
 class InlineValues:
@@ -78,7 +86,7 @@ class InlineValues:
 	has a phantom at its end, so its values are handed to that one (`SelectedLine.set_values`).
 	'''
 
-	def __init__(self, selected: SelectedLine, values: dict[str, str]):
+	def __init__(self, selected: SelectedLine, values: dict[str, str], returned: list[tuple[str, str]] = []):
 		self.selected = selected
 		self.phantoms: list[ui.RawPhantom] = []
 
@@ -104,7 +112,15 @@ class InlineValues:
 		view_size = view.settings().get('font_size')
 		scale = size / view_size if isinstance(size, (int, float)) and isinstance(view_size, (int, float)) and view_size > 0 else 1.0
 
-		for line, text in inline_values.values_by_line(lines, values, is_code).items():
+		by_line = inline_values.values_by_line(lines, values, is_code)
+
+		# what the call that was just stepped out of, or over, came back with: first on the line
+		# that is stopped on, which is the line it came back to
+		if returned:
+			text = inline_values.returned_text(returned)
+			by_line[stopped] = f'{text}, {by_line[stopped]}' if stopped in by_line else text
+
+		for line, text in by_line.items():
 			if line == stopped:
 				selected.set_values(text, css, scale)
 				continue

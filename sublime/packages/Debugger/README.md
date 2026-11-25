@@ -80,6 +80,16 @@ This project comes with some pre-configured debuggers (They can be installed usi
 
   - `envFile`: a path, or a list of paths, to dotenv files whose variables are laid under `env` for every adapter. What `env` sets wins, a later file wins over an earlier one, and a relative path is looked for from `cwd` or else the project folder.
   - `log`: `{"file": "${project_path}/logs/api.log", "append": false}` also saves what the program prints, stdout and stderr together, to a file. The file is started again on every run unless `append` is true, a relative path is looked for from `cwd` or else the project folder, and its folder is created. It works for the Console tab and for a Terminus terminal (`"console": "external"`), not for the terminal of the system.
+  - `${input:id}` asks for a value when the configuration is started. The inputs are defined beside the configurations, with the names a launch.json uses:
+    ```
+    "debugger_inputs": [
+        {"id": "testName", "type": "promptString", "description": "Test to run", "default": "test_login"},
+        {"id": "environment", "type": "pickString", "options": ["local", "staging"]}
+    ]
+    ```
+    `promptString` asks for text and `pickString` offers `options`, each text or `{"label": "shown", "value": "used"}`. An input is asked once per start however often it is used, in a task as well, and the next start is offered the last answer. Escape cancels the start. `"type": "command"` is not supported.
+
+    How often it is asked is the `inputs_ask` setting, `"always"` (every start) or `"once"` (the first start, and the answer is used from then on), and an input can say for itself with `"ask": "once"` or `"ask": "always"`. `Debugger: Ask Inputs Again` forgets the answers, so the next start asks whatever was set.
 
 - Your configuration will look something like the following but with some debugger specific fields.
 ```

@@ -4,7 +4,8 @@ from typing import Any, cast
 from . import core
 from . import dap
 
-from .inputs import SelectProcess
+from .inputs import SelectProcess, PromptInput
+from . import input_prompts
 
 from .dap import Configuration, ConfigurationCompound, Task
 from .settings import Settings
@@ -25,6 +26,10 @@ class Project:
 		self.configurations: list[Configuration] = []
 
 		self.configuration_or_compound: Configuration | ConfigurationCompound | None = None
+
+		# what `debugger_inputs` defines, and what each was last answered with
+		self.inputs: list[input_prompts.InputDefinition] = []
+		self.input_answers: dict[str, str] = {}
 
 		# configurations that are in no file: generated to debug a test and listed beside the projects
 		# own for as long as they are of use, so everything that works by configuration works for them
@@ -256,6 +261,11 @@ class Project:
 			with report_issues('Task', json, source):
 				tasks.append(Task.from_json(json, source))
 
+		entries = [json for json, _ in self._extract_from_project_data(data, 'debugger_inputs')]
+		self.inputs, problems = input_prompts.definitions(entries)
+		for problem in problems:
+			console.log('warn', f'debugger_inputs: {problem}')
+
 		# the generated ones are not in the data that was just read, and may be running
 		self.configurations = configurations + self.transient
 		self.compounds = compounds
@@ -290,6 +300,11 @@ class Project:
 		inputs: dict[str, dap.Input] = {
 			'select_process': SelectProcess(),
 		}
+
+		# new for every start, so each start asks, and the same for everything started together,
+		# so they are asked once
+		for definition in self.inputs:
+			inputs[definition.variable] = PromptInput(definition, self.input_answers, Settings.inputs_ask)
 
 		for key, value in variables.items():
 			inputs[key] = dap.InputLiteral(value)

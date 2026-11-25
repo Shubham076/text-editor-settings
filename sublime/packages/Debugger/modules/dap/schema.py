@@ -197,6 +197,29 @@ def generate_lsp_json_schema():
 		'required': ['name', 'configurations'],
 	}
 
+	definitions['debugger_input'] = {
+		'properties': {
+			'id': {'type': 'string', 'description': 'The name it is used by: ${input:id}'},
+			'type': {
+				'type': 'string',
+				'enum': ['promptString', 'pickString'],
+				'description': 'promptString asks for text, pickString offers the list in options. promptString when not set',
+			},
+			'description': {'type': 'string', 'description': 'What is asked'},
+			'ask': {'type': 'string', 'enum': ['always', 'once'], 'description': 'always: asked on every start. once: asked the first time and used from then on, until Debugger: Ask Inputs Again. The inputs_ask setting when not set'},
+			'default': {'type': ['string', 'number', 'boolean'], 'description': 'What is offered the first time. After that it is the last answer'},
+			'options': {
+				'type': 'array',
+				'description': 'What a pickString is chosen from',
+				'items': {
+					'type': ['string', 'object'],
+					'properties': {'label': {'type': 'string'}, 'value': {'type': 'string'}},
+				},
+			},
+		},
+		'required': ['id'],
+	}
+
 	definitions['debugger_task'] = {
 		'properties': {
 			'name': {
@@ -266,6 +289,11 @@ def generate_lsp_json_schema():
 								'description': 'Debugger Tasks',
 								'type': 'array',
 								'items': {'$ref': f'sublime://settings/debugger#/definitions/debugger_task'},
+							},
+							'debugger_inputs': {
+								'description': 'Debugger Inputs: values a configuration or a task asks for when it is started, used as ${input:id}',
+								'type': 'array',
+								'items': {'$ref': f'sublime://settings/debugger#/definitions/debugger_input'},
 							},
 							'debugger_compounds': {
 								'description': 'Debugger Compounds',

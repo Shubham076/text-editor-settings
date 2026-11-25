@@ -200,6 +200,25 @@ class EditConfiguration(Action):
 		debugger.project.open_project_configurations_file()
 
 
+class AskInputsAgain(Action):
+	name = 'Ask Inputs Again'
+	key = 'ask_inputs_again'
+	is_menu_main = False
+
+	# about the next start, not about anything in the panel
+	opens_debugger = False
+
+	def action(self, debugger: Debugger):
+		'''Forgets what the inputs of `debugger_inputs` were answered with, so the next start asks
+
+		For an input that is asked once this is how it is asked again. One that is asked on every
+		start goes back to offering its default.
+		'''
+		count = len(debugger.project.input_answers)
+		debugger.project.input_answers.clear()
+		debugger.console.info('The inputs are asked for on the next start' if count else 'No input has been answered yet')
+
+
 class InstallAdapters(Action):
 	name = 'Install Adapters'
 	key = 'install_adapters'

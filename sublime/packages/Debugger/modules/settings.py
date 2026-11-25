@@ -97,6 +97,18 @@ class Settings:
 		description='Font size of the inline values. Defaults to 90% of the font size of the file they are drawn in.',
 	)
 
+	inputs_ask = Setting[str](
+		key='inputs_ask',
+		default='always',
+		description='''
+		How often a value of `debugger_inputs` (`${input:id}`) is asked for.
+		"always": on every start, offering the last answer first.
+		"once": the first time, and the answer is used from then on without asking, until
+		`Debugger: Ask Inputs Again` is run or Sublime is restarted.
+		An input can say for itself with `"ask": "once"` or `"ask": "always"`, which wins over this.
+		''',
+	)
+
 	font_size = Setting['float|None'](
 		key='font_size',
 		default=None,
@@ -291,6 +303,16 @@ class Settings:
 		schema={
 			'type': 'array',
 			'items': {'$ref': 'sublime://settings/debugger#/definitions/debugger_task'},
+		},
+	)
+
+	global_debugger_inputs = Setting['list[Any]'](
+		key='global_debugger_inputs',
+		default=[],
+		description='Global debugger inputs, the values `${input:id}` asks for, that are accessible from every project',
+		schema={
+			'type': 'array',
+			'items': {'$ref': 'sublime://settings/debugger#/definitions/debugger_input'},
 		},
 	)
 

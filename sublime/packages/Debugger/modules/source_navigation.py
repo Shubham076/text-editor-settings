@@ -126,15 +126,15 @@ class SourceNavigationProvider:
 			return
 
 		async def refresh_async():
-			values = await frame_values(session.variables)
+			values, returned = await frame_values(session.variables)
 
 			# stepped on or continued while the variables were being asked for
 			if self.selected_frame_line is not selected or session.variables_frame is not frame:
 				return
 
 			self.clear_inline_values()
-			if values:
-				self.inline_values = InlineValues(selected, values)
+			if values or returned:
+				self.inline_values = InlineValues(selected, values, returned)
 
 		def on_error(error: BaseException):
 			if not isinstance(error, (core.CancelledError, dap.Error)):

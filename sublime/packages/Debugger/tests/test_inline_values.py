@@ -100,3 +100,22 @@ class StyleTests(unittest.TestCase):
 	def test_opacity_stays_readable_and_no_more_than_solid(self):
 		self.assertIn('alpha(0.1)', inline_values.style_css(opacity=0))
 		self.assertIn('alpha(1)', inline_values.style_css(opacity=9))
+
+
+class ReturnValueTests(unittest.TestCase):
+	def test_what_an_adapter_calls_a_return_value(self):
+		self.assertEqual(inline_values.returned_by('(return) parse_port'), 'parse_port()')
+		self.assertEqual(inline_values.returned_by('(return)'), '')
+		self.assertEqual(inline_values.returned_by('Return value'), '')
+		self.assertEqual(inline_values.returned_by('~r0'), '')
+		self.assertEqual(inline_values.returned_by('~r12'), '')
+
+	def test_a_variable_of_the_program_is_not_one(self):
+		for name in ('returned', 'result', 'r0', '~rest', 'return_value', 'value'):
+			self.assertIsNone(inline_values.returned_by(name), name)
+
+	def test_how_it_reads_on_the_line_it_came_back_to(self):
+		self.assertEqual(inline_values.returned_text([('parse_port()', '8080')]), 'parse_port() returned 8080')
+		self.assertEqual(inline_values.returned_text([('', '"ok"')]), 'returned "ok"')
+		self.assertEqual(inline_values.returned_text([('', '1'), ('', 'nil')]), 'returned 1, returned nil')
+		self.assertTrue(inline_values.returned_text([('f()', 'x' * 500)]).endswith('…'))

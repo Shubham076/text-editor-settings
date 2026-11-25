@@ -56,6 +56,13 @@
 		}
 	},
 	{
+		"caption": "Debugger: Ask Inputs Again",
+		"command": "debugger",
+		"args": {
+			"action": "ask_inputs_again"
+		}
+	},
+	{
 		"caption": "Debugger: Install Adapters",
 		"command": "debugger",
 		"args": {

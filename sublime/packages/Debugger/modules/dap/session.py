@@ -15,6 +15,9 @@ if TYPE_CHECKING:
 	from .breakpoints import SourceBreakpoint, Breakpoint
 
 
+PROGRESS_LENGTH = 44
+
+
 class Session(TransportListener, core.Dispose):
 	class State(IntEnum):
 		STARTING = 3
@@ -101,6 +104,10 @@ class Session(TransportListener, core.Dispose):
 		self.modules: dict[int | str, api.Module] = {}
 
 		self.process: api.ProcessEvent | None = None
+
+		# what the adapter says it is busy with, by the id it reports it under: attaching, loading
+		# symbols, building. In the order it started on them
+		self.progress: dict[str, tuple[str, str, float | None]] = {}
 
 	@property
 	def name(self) -> str:
@@ -194,6 +201,7 @@ class Session(TransportListener, core.Dispose):
 				'supportsRunInTerminalRequest': True,
 				'supportsMemoryReferences': True,
 				'supportsInvalidatedEvent': True,
+				'supportsProgressReporting': True,
 				'locale': 'en-us',
 				'supportsANSIStyling': True,
 			},
@@ -525,6 +533,8 @@ class Session(TransportListener, core.Dispose):
 
 		self.breakpoints.clear_breakpoint_result(self)
 		self.stop_requested = False
+		# whatever it was in the middle of, it is not any more
+		self.progress.clear()
 
 		if self._transport:
 			self.adapter.did_stop_debugging(self)
@@ -941,6 +951,44 @@ class Session(TransportListener, core.Dispose):
 			self.variables_frame = None
 			self.on_updated_variables(self)
 
+	@property
+	def progress_text(self) -> str:
+		'''What the adapter is in the middle of, the most recent thing it started on, `''` for nothing'''
+		if not self.progress:
+			return ''
+
+		title, message, percentage = list(self.progress.values())[-1]
+		text = f'{title}: {message}' if title and message and message != title else title or message
+		# it is shown in a badge beside the name of the configuration, which has that much room
+		if len(text) > PROGRESS_LENGTH:
+			text = text[: PROGRESS_LENGTH - 1].rstrip() + '…'
+		if percentage is not None:
+			text = f'{text} {percentage:.0f}%'.strip()
+		return text
+
+	def on_progress_event(self, event: str, body: Any):
+		'''`progressStart`, `progressUpdate` and `progressEnd`: something slow the adapter is doing
+
+		Without these a start that takes half a minute to load symbols looks the same as one that
+		is stuck.
+		'''
+		id = body.get('progressId')
+		if id is None:
+			return
+
+		if event == 'progressEnd':
+			self.progress.pop(id, None)
+		else:
+			title, message, percentage = self.progress.get(id, ('', '', None))
+			title = body.get('title') or title
+			# an update without a message keeps the one before it
+			message = body.get('message') or message
+			if 'percentage' in body and isinstance(body.get('percentage'), (int, float)):
+				percentage = max(0.0, min(100.0, float(body.get('percentage'))))
+			self.progress[id] = (title, message, percentage)
+
+		self.on_updated(self)
+
 	def on_invalidated_event(self, invalidated: api.InvalidatedEvent):
 		areas = invalidated.areas or []
 
@@ -1000,5 +1048,7 @@ class Session(TransportListener, core.Dispose):
 			self.on_process_event(body)
 		elif event == 'invalidated':
 			self.on_invalidated_event(body)
+		elif event in ('progressStart', 'progressUpdate', 'progressEnd'):
+			self.on_progress_event(event, body)
 		else:
 			core.run(self.adapter.on_custom_event(self, event, body))

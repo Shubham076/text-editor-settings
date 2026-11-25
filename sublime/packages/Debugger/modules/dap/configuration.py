@@ -137,6 +137,13 @@ class TaskExpanded(Task):
 
 
 async def async_expand_variables(json: Any, variables: ConfigurationVariables, supress_errors: bool = False):
+	'''`json` with every `${variable}` in it filled in, as a new value: what is handed in is left as it was
+
+	A configuration is expanded each time it is started, from the configuration as it is written.
+	Filling the lists and objects inside it in where they stand would leave the answers in place
+	of the variables, and the second start would have nothing to ask for or to look up: an
+	`${input:name}` answered once and for all, a `${file}` stuck on the file of the first run.
+	'''
 	if type(json) is str:
 		regex = re.compile(r'(\${([^}]*)})')
 		for match, key in regex.findall(json):
@@ -150,17 +157,15 @@ async def async_expand_variables(json: Any, variables: ConfigurationVariables, s
 				for variable in variables:
 					error += f'${{{variable}}}\n'
 
-				raise Error(error, source=json.source)
+				raise Error(error)
 
 		return json
 
-	if type(json) is dict:
-		for key in json.keys():
-			json[key] = await async_expand_variables(json[key], variables, supress_errors)
+	if isinstance(json, dict):
+		return {key: await async_expand_variables(value, variables, supress_errors) for key, value in json.items()}
 
-	if type(json) is list:
-		for i in range(0, len(json)):
-			json[i] = await async_expand_variables(json[i], variables, supress_errors)
+	if isinstance(json, list):
+		return [await async_expand_variables(value, variables, supress_errors) for value in json]
 
 	return json
 
@@ -189,7 +194,10 @@ async def async_expand_variables_and_platform(json: dict[str, Any], variables: C
 		for key, value in platform.items():
 			json[key] = value
 
-	if variables := variables:
-		json = cast(dict, await async_expand_variables(json, variables))
+	# expanded whether or not there is a variable to fill in: it is also what makes the lists and
+	# objects inside the result its own, so nothing done to them reaches the configuration
+	# With no variables at all nothing is looked up, as before: the command of a terminal an
+	# adapter asked for is expanded with none, and a `${...}` in it is the shells
+	json = cast(dict, await async_expand_variables(json, variables or {}, supress_errors=not variables))
 
 	return variables, json
