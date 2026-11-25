@@ -447,7 +447,7 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.on_session_active(session)
 
 	async def session_task_request(self, session: dap.Session, task: dap.TaskExpanded):
-		return await self.tasks.run(self, task)
+		return await self.tasks.run(self, task, owner=session)
 
 	async def session_terminal_request(self, session: dap.Session, request: dap.RunInTerminalRequestArguments) -> dap.RunInTerminalResponse:
 		response = self._on_session_run_terminal_requested(session, request)
@@ -576,6 +576,8 @@ class Debugger(core.Dispose, dap.Debugger):
 
 		self.sessions.remove(session)
 		self.paused_sessions.discard(session)
+		# what was started for it and says when it is ready, a server more often than not
+		self.tasks.release(session)
 		self.on_session_removed(session)
 
 		# select a new session if there is one

@@ -42,6 +42,7 @@ class Task(dict):
 		super().__init__(shell_cmd=shell_cmd)
 		self.name, self.background, self.type = name, background, 'shell'
 		self.depends_on, self.depends_on_order, self.variables = None, None, {}
+		self.ready_regex, self.ready_timeout = None, None
 
 
 class BackgroundTaskTests(unittest.TestCase):
@@ -75,11 +76,13 @@ class BackgroundTaskTests(unittest.TestCase):
 		patcher.start()
 		self.addCleanup(patcher.stop)
 
-		spec = importlib.util.spec_from_file_location('_bgt.modules.tasks', ROOT / 'modules' / 'tasks.py')
-		module = importlib.util.module_from_spec(spec)
-		sys.modules[spec.name] = module
-		self.addCleanup(lambda: sys.modules.pop(spec.name, None))
-		spec.loader.exec_module(module)
+		# `tasks.py` and the files its runtimes are in, in the order they import each other
+		for name in ('task_ready', 'task_runtimes', 'task_runtime_ready', 'tasks'):
+			spec = importlib.util.spec_from_file_location(f'_bgt.modules.{name}', ROOT / 'modules' / f'{name}.py')
+			module = importlib.util.module_from_spec(spec)
+			sys.modules[spec.name] = module
+			self.addCleanup(lambda name=spec.name: sys.modules.pop(name, None))
+			spec.loader.exec_module(module)
 		self.tasks = module.Tasks()
 
 		self.folder = os.path.realpath(tempfile.mkdtemp())

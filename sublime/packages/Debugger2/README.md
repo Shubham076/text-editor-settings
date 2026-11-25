@@ -13,7 +13,9 @@ Place or symlink this directory into Sublime's Packages directory as `Debugger2`
 **Debugger: Open** from the Command Palette. Because it shares its command and settings names
 with the Package Control `Debugger` package, that package must be disabled (listed in
 `ignored_packages`) while this one is enabled; enabling both registers the same commands twice.
-It requires Sublime Text 4199 or later and the Python 3.8 plugin host.
+It requires Sublime Text 4199 or later and the Python 3.8 plugin host, and the
+[Terminus](https://github.com/randy3k/Terminus) package: tasks and terminals run in it. When
+Terminus is missing or disabled the debugger says so as it loads and offers to install it.
 Open selects the new debugger dashboard. Console and Terminal tabs appear when the selected
 configuration creates the corresponding output; they are not shown unconditionally. Output
 remains available after stopping and can be closed manually.
@@ -116,6 +118,15 @@ Tasks are basically the same as sublime builds but there are a few additional pa
 ]
 ```
 - Tasks can be run with `Debugger: Run Tasks`
+- A task that never ends, a server or a watcher, says what it prints once it is up with `ready_regex`. As a `pre_debug_task` the debugger starts on the first line of its output that matches, the task keeps running in a tab of its own, and it is stopped when the session it was started for ends. `ready_timeout` is how many seconds it is given (30, and 0 for no limit). A line the terminal wrapped onto several rows is matched as the line it was.
+```
+{
+    "name" : "api server",
+    "shell_cmd" : "npm run dev",
+    "ready_regex" : "Listening on port \\d+",
+    "ready_timeout" : 30
+}
+```
 - You can run tasks before and after debugging by adding `pre_debug_task` or `post_debug_task` to your configuration specifying the name of the task to run.
 
 

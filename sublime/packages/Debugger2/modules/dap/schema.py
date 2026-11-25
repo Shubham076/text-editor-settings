@@ -207,6 +207,14 @@ def generate_lsp_json_schema():
 				'type': 'boolean',
 				'description': 'This task will run in the background and not prevent the debugger from starting',
 			},
+			'ready_regex': {
+				'type': 'string',
+				'description': 'For a task that never ends (a server, a watcher): a regular expression for the line it prints once it is ready. The debugger starts when a line of its output matches, the task keeps running in a tab of its own and is stopped when the session ends. Implies "background".',
+			},
+			'ready_timeout': {
+				'type': 'number',
+				'description': 'Seconds to wait for a line matching ready_regex before giving up, 30 when not set and 0 to wait for as long as it takes',
+			},
 			'env': {
 				'type': 'object',
 				'markdownDescription': 'Environment variables to use when running the shell command.\nExample:\n```\n{"KEY": "VALUE"}```',

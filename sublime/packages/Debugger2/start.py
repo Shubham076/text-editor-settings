@@ -23,6 +23,7 @@ from .modules.command import DebuggerCommand, DebuggerTextCommand, DebuggerInput
 
 from .modules.output_panel import OutputPanelEventListener, DebuggerPromptCancelCommand
 from .modules.output_panel_terminus import DebuggerTerminusPostViewHooks
+from .modules import requirements
 from .modules.project_buttons import DebuggerProjectFileListener, ProjectButtons
 from .modules.test_buttons import DebuggerTestFileListener, TestButtons
 
@@ -72,6 +73,9 @@ def plugin_loaded() -> None:
 	initialize_lsp_json_schema()
 
 	hover.startup()
+
+	# once the other packages have had their turn at loading, Terminus comes after this one
+	sublime.set_timeout(lambda: requirements.check(core.error), 3000)
 
 	core.info('[finished]')
 

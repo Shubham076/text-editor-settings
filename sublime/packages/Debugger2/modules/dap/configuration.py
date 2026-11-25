@@ -111,6 +111,14 @@ class TaskExpanded(Task):
 		self.start_file_regex: str | None = json.get('start_file_regex')
 		self.end_file_regex: str | None = json.get('end_file_regex')
 
+		# what a task that never ends prints once it can be worked with, and how long it is given
+		# to print it. A task that has one is a background task whether or not it says so: there
+		# is nothing else to wait for the signal of
+		self.ready_regex: str | None = json.get('ready_regex')
+		self.ready_timeout: Any = json.get('ready_timeout')
+		if self.ready_regex:
+			self.background = True
+
 		self.depends_on: list[str]|None = json.get('depends_on')
 		self.depends_on_order: str|None = json.get('depends_on_order')
 

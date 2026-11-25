@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 import sublime
 import sublime_plugin
 
@@ -16,6 +16,9 @@ if TYPE_CHECKING:
 
 
 class TerminusOutputPanel(OutputPanel):
+	# called as the terminal is written to, by a task that reads what it prints (`task_runtime_ready`)
+	on_text_changed: Callable[[], None] | None = None
+
 	def __init__(self, debugger: Debugger, task: dap.TaskExpanded, is_terminal: bool = False, show_panel=True):
 		self.closed = False
 		self._follow_scroll_scheduled = False
@@ -46,7 +49,7 @@ class TerminusOutputPanel(OutputPanel):
 			arguments = task.copy()
 
 			# if we don't remove these additional arguments Default.exec.ExecCommand will be unhappy
-			for key in ['name', 'background', 'start_file_regex', 'end_file_regex', 'depends_on', 'depends_on_order']:
+			for key in ['name', 'background', 'start_file_regex', 'end_file_regex', 'depends_on', 'depends_on_order', 'ready_regex', 'ready_timeout']:
 				if key in arguments:
 					del arguments[key]
 
@@ -163,7 +166,26 @@ class TerminusOutputPanel(OutputPanel):
 	def is_finished(self):
 		return self.view.settings().get('terminus_view.finished') or self.future.done()
 
+	def text(self) -> str:
+		'''Everything the terminal shows, as it reads'''
+		return self.view.substr(sublime.Region(0, self.view.size()))
+
+	def columns(self) -> int | None:
+		'''How many characters wide the terminal is, which is where it wraps a line onto the next row'''
+		try:
+			from Terminus.terminus.terminal import Terminal
+
+			terminal = Terminal.from_id(self.view.id())
+			columns = terminal.screen.columns if terminal else None
+			return columns if isinstance(columns, int) and columns > 0 else None
+		except Exception:
+			# a Terminus that keeps this somewhere else: rows are then matched as they are
+			return None
+
 	def on_modified(self):
+		if self.on_text_changed:
+			self.on_text_changed()
+
 		# This runs for every buffer paint Terminus completes. The listener queues the debugger header
 		# reflow first, then this scroll, so the final viewport uses the completed layout.
 		if self.is_open():

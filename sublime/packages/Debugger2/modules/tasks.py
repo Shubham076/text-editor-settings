@@ -5,146 +5,12 @@ from . import core
 from . import dap
 from . import ui
 
-import os
-import subprocess
-
 from .output_panel import OutputPanel
-from .output_panel_terminus import TerminusOutputPanel
+from .task_runtimes import TaskRuntime, ShellTaskRuntime, BackgroundShellTaskRuntime, SublimeTaskRuntime
+from .task_runtime_ready import ReadyShellTaskRuntime
 
 if TYPE_CHECKING:
 	from .debugger import Debugger
-
-class TaskRuntime(core.Dispose):
-	def __init__(self, task: dap.TaskExpanded):
-		self.task:dap.TaskExpanded = task
-
-	async def run(self): ...
-	async def wait(self): ...
-
-	def is_finished(self) -> bool: ...
-	def cancel(self): ...
-	def dispose(self): ...
-
-	def get_panel(self) -> OutputPanel | None: ...
-
-class ShellTaskRuntime(TaskRuntime):
-	def __init__(self, debugger: Debugger, task: dap.TaskExpanded, is_terminal: bool = False):
-		super().__init__(task)
-		self.terminal = TerminusOutputPanel(debugger, task, is_terminal)
-
-	async def wait(self):
-		await self.terminal.wait()
-
-	def is_finished(self) -> bool:
-		return self.terminal.is_finished()
-
-	def cancel(self):
-		self.terminal.kill_process()
-
-	def dispose(self):
-		self.terminal.dispose()
-
-	def get_panel(self) -> OutputPanel:
-		return self.terminal
-
-class BackgroundShellTaskRuntime(TaskRuntime):
-	'''A shell task that nothing waits for, run as a plain process with no terminal
-
-	`"background": true` is how a task says it is housekeeping: the `post_debug_task` that removes a
-	file once a session has ended. In a terminal, every stop of a configuration opened a panel over
-	the one being looked at to say that `rm` ended with code 0. Creating that panel and taking it
-	away again is still the panel changing twice under a click on stop. So there is no panel: the
-	output is kept, and is only said, in the debuggers console, when the task fails.
-	'''
-
-	def __init__(self, debugger: Debugger, task: dap.TaskExpanded):
-		super().__init__(task)
-		self.debugger = debugger
-		self.process: subprocess.Popen[bytes] | None = None
-		self.finished = False
-		self.cancelled = False
-
-		# where a task runs when it does not say: the project, which is where a terminal started it
-		folders = debugger.window.folders()
-		self.cwd = task.get('working_dir') or task.get('cwd') or (folders[0] if folders else None)
-
-		self.done = self.run()
-
-	@core.run
-	async def run(self) -> None:
-		try:
-			code, output = await self.execute()
-		except Exception as error:
-			code, output = -1, str(error)
-		finally:
-			self.finished = True
-
-		if code and not self.cancelled:
-			message = f'{self.task.name} ended with exit code {code}'
-			self.debugger.console.error(f'{message}\n{output.rstrip()}' if output.strip() else message)
-			raise dap.Error(message)
-
-	@core.run_in_executor
-	def execute(self) -> tuple[int, str]:
-		task = self.task
-		command: Any = task.get('shell_cmd') or task.get('cmd')
-		if not command:
-			raise dap.Error(f'{task.name} has no `shell_cmd` or `cmd` to run')
-
-		if isinstance(command, str) and os.name != 'nt':
-			# bash, which is what a `shell_cmd` is written for: it is what Sublime runs the one of a
-			# build system with. The users own shell may read it differently, zsh refuses
-			# `rm -rf *.tmp` outright when there is no such file, where bash goes on
-			command = ['/usr/bin/env', 'bash', '-c', command]
-
-		env = {**os.environ, **{key: str(value) for key, value in (task.get('env') or {}).items() if value is not None}}
-
-		self.process = subprocess.Popen(command, shell=isinstance(command, str), cwd=self.cwd, env=env,
-			stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-		output, _ = self.process.communicate()
-
-		return self.process.returncode, output.decode('utf-8', 'replace')
-
-	async def wait(self):
-		await self.done
-
-	def is_finished(self) -> bool:
-		return self.finished
-
-	def cancel(self):
-		self.cancelled = True
-		if self.process and self.process.poll() is None:
-			self.process.terminate()
-
-	def dispose(self):
-		self.cancel()
-
-	def get_panel(self) -> OutputPanel | None:
-		return None
-
-
-class SublimeTaskRuntime(TaskRuntime):
-	def __init__(self, debugger: Debugger, task: dap.TaskExpanded):
-		super().__init__(task)
-		self.command:str = task['command']
-		self.arguments:Any | None = task.get('args')
-
-		debugger.window.run_command(self.command, self.arguments)
-
-	async def wait(self):
-		pass
-
-	def is_finished(self) -> bool:
-		return True
-
-	def cancel(self):
-		pass
-
-	def dispose(self):
-		pass
-
-	def get_panel(self) -> OutputPanel | None:
-		return None
 
 class Tasks(core.Dispose):
 	def __init__(self) -> None:
@@ -160,11 +26,33 @@ class Tasks(core.Dispose):
 		return False
 
 	@core.run
-	async def run(self, debugger: Debugger, task: dap.TaskExpanded, is_terminal: bool = False):
+	async def run(self, debugger: Debugger, task: dap.TaskExpanded, is_terminal: bool = False, owner: Any = None):
+		'''Runs a task and returns when whoever asked can go on: at its end, at once for a background
+		task, and at its ready signal for one that has a `ready_regex`
+
+		`owner` is the session it is run for. A task with a ready signal is kept running for its
+		owners and stopped when the last of them is gone, see `release`.
+		'''
 		# if there is already an existing task we wait on it to finish and do not start a new task
 		# this matches the behavior of vscode?
-		for t in self.tasks:
-			if t.task.name == task.name and not t.is_finished():
+		for t in list(self.tasks):
+			if t.task.name != task.name:
+				continue
+
+			if isinstance(t, ReadyShellTaskRuntime):
+				# one that was stopped, or ended by itself, is in the way of the one about to start:
+				# its tab has the name the new one is about to take
+				if t.released or t.is_finished():
+					self.cancel(t)
+					continue
+
+				# already up, for another session: this one waits for the same signal and shares it
+				if owner is not None:
+					t.owners.add(owner)
+				await t.wait_ready()
+				return
+
+			if not t.is_finished():
 				debugger.console.info('This task has already been started')
 				if not t.task.background:
 					await t.wait()
@@ -186,21 +74,28 @@ class Tasks(core.Dispose):
 				for depends_on_name in depends_on:
 					depends_on_task = debugger.project.get_task(depends_on_name)
 					depends_on_task_expanded = await depends_on_task.Expanded(task.variables)
-					await self.run(debugger, depends_on_task_expanded)
+					await self.run(debugger, depends_on_task_expanded, owner=owner)
 
 			else:
 				depends_on_tasks_expanded: list[Awaitable[None]] = []
 				for depends_on_name in depends_on:
 					depends_on_task = debugger.project.get_task(depends_on_name)
 					depends_on_task_expanded = await depends_on_task.Expanded(task.variables)
-					depends_on_tasks_expanded.append(self.run(debugger, depends_on_task_expanded))
+					depends_on_tasks_expanded.append(self.run(debugger, depends_on_task_expanded, owner=owner))
 
 				await core.gather(*depends_on_tasks_expanded)
 
 		except dap.Error as error:
 			raise dap.Error(f'Unable to resolve depends_on: {error}')
 
-		if type == 'shell' and task.background and not is_terminal:
+		ready: ReadyShellTaskRuntime | None = None
+
+		if type == 'shell' and task.ready_regex and not is_terminal:
+			runtime = ready = ReadyShellTaskRuntime(debugger, task)
+			if owner is not None:
+				ready.owners.add(owner)
+			ready.get_panel().on_opened_status = lambda: self.on_options(runtime)
+		elif type == 'shell' and task.background and not is_terminal:
 			runtime = BackgroundShellTaskRuntime(debugger, task)
 		elif type == 'shell':
 			runtime = ShellTaskRuntime(debugger, task, is_terminal)
@@ -219,20 +114,41 @@ class Tasks(core.Dispose):
 			try:
 				await runtime.wait()
 				succeeded = True
-			except:
-				raise
+			except BaseException:
+				# one with a ready signal ends by being stopped, at the end of every session it was
+				# started for. Its own runtime says so when that was not meant (`watch_end`)
+				if not ready:
+					raise
 			finally:
 				self.updated(runtime)
 
 				# a background task that did what it was for is not kept either, one that failed is
-				# until the next start so it can still be seen among the tasks
-				if succeeded and task.background:
+				# until the next start so it can still be seen among the tasks. One with a ready
+				# signal has a tab that is still worth reading, however it ended
+				if succeeded and task.background and not ready:
 					self.cancel(runtime)
 
 		update_when_done()
 
-		if not task.background:
+		if ready:
+			await ready.wait_ready()
+		elif not task.background:
 			await runtime.wait()
+
+	def release(self, owner: Any) -> None:
+		'''A session has ended: the tasks that were only running for it are stopped
+
+		Only those with a ready signal have owners. A server started as the `pre_debug_task` of two
+		configurations of a compound goes on for as long as either of them is running.
+		'''
+		for task in self.tasks:
+			if not isinstance(task, ReadyShellTaskRuntime) or owner not in task.owners:
+				continue
+
+			task.owners.discard(owner)
+			if not task.owners:
+				task.stop()
+				self.updated(task)
 
 	def get_running(self) -> list[TaskRuntime]:
 		return [task for task in self.tasks if not task.is_finished()]
