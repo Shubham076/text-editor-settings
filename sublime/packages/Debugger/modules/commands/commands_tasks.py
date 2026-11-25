@@ -10,6 +10,7 @@ import sublime
 from .. import dap
 from .. import core
 from .. import ui
+from .. import task_list
 
 from ..command import Action
 
@@ -39,11 +40,12 @@ class RunTask(Action):
 					self.run_task(debugger, next(matching_tasks), variables)
 				return
 
-			values: list[ui.InputListItem] = []
-			for task in tasks:
-				values.append(ui.InputListItem(functools.partial(self.run_task, debugger, task, variables), task.name, run_alt=lambda task=task: task.source and task.source.open_file()))
+			# the list of the tasks button on the bar: what is running first, each with what it runs,
+			# opened on the task that was run last
+			values, index = task_list.items(debugger, tasks, lambda task: self.run_task(debugger, task, variables), last_run_task_name)
+			values.append(ui.InputListItem(lambda: debugger.project.open_project_configurations_file(), 'Edit Configuration File', annotation=debugger.project.project_file_name or ''))
 
-			ui.InputList('Select task to run')[values].run()
+			ui.InputList('Run task', index)[values].run()
 
 		except dap.Error as e:
 			debugger.console.error(f'{e}')

@@ -144,6 +144,10 @@ class OutputHeaderTests(unittest.TestCase):
 		self.assertLess(html.index('Back to call stack'), html.index('Select run configuration'))
 		self.assertLess(html.index('Select run configuration'), html.index('Show breakpoints'))
 		self.assertLess(html.index('Show breakpoints'), html.index('Debugger settings'))
+		# and before them the tasks of the project, which is what the picker is for configurations
+		self.assertIn('class="tool" title="Run a task"', html)
+		self.assertLess(html.index('Select run configuration'), html.index('Run a task'))
+		self.assertLess(html.index('Run a task'), html.index('Show breakpoints'))
 		# the tab row is its own phantom above the output's first line, as on the other panels
 		tabs = tabs_set.update.call_args.args[0]
 		self.assertEqual(len(tabs), 1)

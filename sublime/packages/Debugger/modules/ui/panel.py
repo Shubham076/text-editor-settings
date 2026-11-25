@@ -98,6 +98,11 @@ class PanelUI(Renderer):
 			self.backend.breakpoints.source.on_updated, self.backend.breakpoints.filters.on_updated,
 			self.backend.breakpoints.function.on_updated, self.backend.breakpoints.data.on_updated):
 			self.handles.append(event.add(self.invalidate))
+		# the tasks button of the bar is lit while a task runs, and one that has no tab of its own
+		# starts and ends without any panel changing
+		tasks = getattr(self.backend, 'tasks', None)
+		for event in (tasks.added, tasks.updated, tasks.removed) if tasks else ():
+			self.handles.append(event.add(self.invalidate))
 		self.invalidate()
 		sublime.set_timeout(self.poll, 250)
 

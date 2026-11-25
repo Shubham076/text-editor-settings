@@ -30,6 +30,7 @@ class DashboardLayoutTests(unittest.TestCase):
 		self.assertIn('toolbar joined strip', html)
 		self.assertIn('Select run configuration', html)
 		self.assertIn('class="tool" title="Show breakpoints"', html)
+		self.assertIn('class="tool" title="Run a task"', html)
 		self.assertNotIn('class="tabs"', html)
 		# the call stack is where the back arrow leads, so its strip carries the brand mark instead
 		self.assertNotIn('Back to call stack', html)

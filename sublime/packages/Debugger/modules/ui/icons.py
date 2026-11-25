@@ -11,7 +11,7 @@ import zlib
 ICON_SIZES = {
 	'play': 1.2, 'run': 1.2, 'pause': 1.2, 'stop': 1.2, 'restart': 1.2, 'over': 1.2, 'into': 1.2, 'out': 1.2, 'settings': 1.2, 'back': 1.2, 'bug': 1.2,
 	'chevron': 0.8, 'down': 0.8, 'up': 0.8, 'plus': 1.0, 'close': 0.8, 'edit': 0.9, 'breakpoint': 1.0, 'unchecked': 1.0,
-	'breakpoints': 1.2,
+	'breakpoints': 1.2, 'tasks': 1.2,
 }
 # Icon tints as (colour scheme key, opacity against the background).
 TONES = {
@@ -51,6 +51,8 @@ ICONS = {
 	# the toolbar's way to the breakpoints view: a breakpoint dot inside a ring
 	'breakpoints': (('arc', (12, 12), 9, 0, 360), ('disc', (12, 12), 4)),
 	'settings': (('gear', (12, 12), 7.2, 9.8), ('arc', (12, 12), 3, 0, 360)),
+	# the tasks of the project: a prompt and a cursor, what a task is run at
+	'tasks': (('poly', ((4, 7), (10, 12), (4, 17)), False), ('line', (12, 18), (20, 18))),
 	'back': (('line', (19, 12), (5, 12)), ('poly', ((12, 19), (5, 12), (12, 5)), False)),  # arrow left: back to the debugger view
 	# the brand mark: Lucide's bug, its curves flattened to the primitives above. A rounded body
 	# with a seam down the middle, a half-disc head on two short necks, two antennae and three

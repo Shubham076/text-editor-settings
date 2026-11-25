@@ -52,11 +52,11 @@ class Toolbar:
 		restart_enabled = bool(ui.backend.project.configuration_or_compound) and (not session or session.is_stoppable)
 		controls += ui.separator() + ui.tool('restart', 'Restart', partial(self.transport, 'restart'), restart_enabled)
 		controls += ui.tool('stop', 'Stop', partial(self.transport, 'stop'), bool(session and session.is_stoppable), css='stop')
-		gear = ui.tool('settings', 'Debugger settings', self.settings)
+		gear = self.tasks_tool() + ui.tool('settings', 'Debugger settings', self.settings)
 		breakpoints, breakpoints_width = self.breakpoints_control()
 		name = ui.backend.project.name or 'Select configuration'
 		return ui.toolbar_layout(name, status, self.picker.show, controls, gear, split=ui.body,
-			extra=breakpoints, extra_width=breakpoints_width, tools=5 + round(start_width / TOOL))
+			extra=breakpoints, extra_width=breakpoints_width, tools=6 + round(start_width / TOOL))
 
 	# -- the fixed strip -------------------------------------------------------------------
 
@@ -81,9 +81,10 @@ class Toolbar:
 		lead += ui.slot('', 0.4)
 		lead_width = TOOL + 0.4
 		controls, controls_width = self.strip_controls()
-		tail = ui.tool('breakpoints', 'Show breakpoints', partial(self.select_tab, 'breakpoints'), primary=ui.state.tab == 'breakpoints')
+		tail = self.tasks_tool()
+		tail += ui.tool('breakpoints', 'Show breakpoints', partial(self.select_tab, 'breakpoints'), primary=ui.state.tab == 'breakpoints')
 		tail += ui.tool('settings', 'Debugger settings', self.settings)
-		tail_width = 2 * TOOL + 0.6
+		tail_width = 3 * TOOL + 0.6
 		width = ui.total - 2 * PAD
 		cell = 'toolbar joined strip'
 		style = 'style="width:{}px;"'.format(ui.px(width))
@@ -97,6 +98,19 @@ class Toolbar:
 		gap = max(0, width - controls_width - tail_width)
 		return '<div class="{}" {}>{}{}</div><div class="{} continued" {}>{}{}{}</div>'.format(
 			cell, style, lead, chips, cell, style, controls, ui.slot('', gap), tail)
+
+	def tasks_tool(self):
+		"""The button that lists the tasks of the project, to run one
+
+		What the picker is for configurations: the list is Sublime's quick panel, with what is
+		running first. Lit while a task is running, which is the one thing about tasks the bar
+		says without being asked.
+		"""
+		running = bool(getattr(self.ui.backend, 'tasks', None) and self.ui.backend.tasks.get_running())
+		return self.ui.tool('tasks', 'Run a task' + (' · one is running' if running else ''), self.run_task, css='active' if running else '')
+
+	def run_task(self):
+		self.ui.run_command('select_and_run_task')
 
 	def start_controls(self, session):
 		"""What starts the selected configuration and, while it is debugged, pauses and continues it, and the width in rem
