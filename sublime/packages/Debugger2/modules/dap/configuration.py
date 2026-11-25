@@ -53,8 +53,21 @@ class ConfigurationExpanded(Configuration):
 		self.id_ish = configuration.id_ish
 
 		self.variables = variables
-		self.pre_debug_task: TaskExpanded | None = None
-		self.post_debug_task: TaskExpanded | None = None
+		# the tasks named by `pre_debug_task` and `post_debug_task`, in the order they are run
+		self.pre_debug_tasks: list[TaskExpanded] = []
+		self.post_debug_tasks: list[TaskExpanded] = []
+
+
+def task_names(value: Any, key: str = 'pre_debug_task') -> list[str]:
+	'''The tasks `pre_debug_task` or `post_debug_task` names: one name, or a list of them run in order'''
+	if not value:
+		return []
+	if isinstance(value, str):
+		return [value]
+	if isinstance(value, list) and all(isinstance(name, str) and name for name in value):
+		return list(value)
+
+	raise Error(f'`{key}` has to be the name of a task or a list of names')
 
 
 class ConfigurationCompound:

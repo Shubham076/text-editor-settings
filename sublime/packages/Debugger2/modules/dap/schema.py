@@ -122,12 +122,14 @@ def generate_lsp_json_schema():
 			value.setdefault('type', 'object')
 
 			value['properties']['pre_debug_task'] = {
-				'type': 'string',
-				'description': 'Name of task to run before debugging starts',
+				'type': ['string', 'array'],
+				'items': {'type': 'string'},
+				'description': 'Name of the task to run before debugging starts, or a list of names run in that order. Debugging starts when the last of them is done, or ready for a task with a ready_regex',
 			}
 			value['properties']['post_debug_task'] = {
-				'type': 'string',
-				'description': 'name of task to run after debugging ends',
+				'type': ['string', 'array'],
+				'items': {'type': 'string'},
+				'description': 'Name of the task to run after debugging ends, or a list of names run in that order',
 			}
 			# the same two values for every adapter, in place of whatever names it lists itself
 			value['properties']['console'] = console_mode.SCHEMA

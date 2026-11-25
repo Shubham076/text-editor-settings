@@ -127,7 +127,7 @@ Tasks are basically the same as sublime builds but there are a few additional pa
     "ready_timeout" : 30
 }
 ```
-- You can run tasks before and after debugging by adding `pre_debug_task` or `post_debug_task` to your configuration specifying the name of the task to run.
+- You can run tasks before and after debugging by adding `pre_debug_task` or `post_debug_task` to your configuration specifying the name of the task to run, or a list of names: `"pre_debug_task": ["build", "api server"]`. They run one after the other in the order written; debugging starts after the last, and a `pre_debug_task` that fails stops the ones after it and the start.
 
 
 ## Settings

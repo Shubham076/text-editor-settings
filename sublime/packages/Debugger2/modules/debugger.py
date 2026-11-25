@@ -329,14 +329,15 @@ class Debugger(core.Dispose, dap.Debugger):
 					configuration_expanded = await configuration.Expanded(self.project.tasks, variables)
 					self.apply_env_file(configuration_expanded)
 
-					pre_debug_task = configuration_expanded.get('pre_debug_task')
-					post_debug_task = configuration_expanded.get('post_debug_task')
+					# each is the name of a task or a list of names, run in the order they are written
+					for key, tasks in (('pre_debug_task', configuration_expanded.pre_debug_tasks), ('post_debug_task', configuration_expanded.post_debug_tasks)):
+						try:
+							names = dap.task_names(configuration_expanded.get(key), key)
+						except dap.Error as error:
+							raise dap.Error(str(error), source=configuration_expanded.source)
 
-					if pre_debug_task:
-						configuration_expanded.pre_debug_task = await self.project.get_task(pre_debug_task).Expanded(variables)
-
-					if post_debug_task:
-						configuration_expanded.post_debug_task = await self.project.get_task(post_debug_task).Expanded(variables)
+						for name in names:
+							tasks.append(await self.project.get_task(name).Expanded(variables))
 
 					session = await self.launch(adapter, configuration_expanded, no_debug=no_debug)
 

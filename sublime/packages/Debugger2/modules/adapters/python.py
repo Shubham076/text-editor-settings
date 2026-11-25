@@ -87,7 +87,9 @@ class Python(dap.Adapter):
 
 		install_path = self.installer.install_path()
 		paths = [
-			f'{install_path}/bundled/libs/debugpy', # new path using openvsx
+			# the adapter, not the package it is in: run as a script `debugpy` is the command line of
+			# the debugger, which prints how it is used and ends
+			f'{install_path}/bundled/libs/debugpy/adapter', # new path using openvsx
 			f'{install_path}/debugpy/debugpy/adapter'
 		]
 

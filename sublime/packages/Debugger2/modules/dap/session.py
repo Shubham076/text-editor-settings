@@ -237,20 +237,30 @@ class Session(TransportListener, core.Dispose):
 		return await self._transport.send_request(command, arguments)
 
 	async def run_pre_debug_task(self) -> bool:
-		pre_debug_command = self.configuration.pre_debug_task
-		if pre_debug_command:
+		'''Runs the tasks of `pre_debug_task` in the order they are listed, and says whether to go on
+
+		One after the other: a build is finished before the server that is started from it, and a
+		task with a ready signal is ready before the next one starts. The first that fails is the
+		last that is run.
+		'''
+		for task in self.configuration.pre_debug_tasks:
 			self._change_state_status('Running pre debug task')
-			r = await self.run_task('pre_debug_task', pre_debug_command)
-			return r
+			if not await self.run_task('pre_debug_task', task):
+				return False
 		return True
 
 	async def run_post_debug_task(self) -> bool:
-		post_debug_command = self.configuration.post_debug_task
-		if post_debug_command:
+		'''Runs the tasks of `post_debug_task`, every one of them whether or not the one before failed
+
+		They are what tidies up after a session, and what is left to tidy does not depend on how
+		the tidying before it went.
+		'''
+		succeeded = True
+		for task in self.configuration.post_debug_tasks:
 			self._change_state_status('Running post debug task')
-			r = await self.run_task('post_debug_task', post_debug_command)
-			return r
-		return True
+			if not await self.run_task('post_debug_task', task):
+				succeeded = False
+		return succeeded
 
 	async def run_task(self, name: str, task: TaskExpanded) -> bool:
 		try:
@@ -467,7 +477,7 @@ class Session(TransportListener, core.Dispose):
 			return False
 		if self.stop_requested or self.state not in (Session.State.RUNNING, Session.State.PAUSED):
 			return False
-		return not self.configuration.pre_debug_task and not self.configuration.post_debug_task
+		return not self.configuration.pre_debug_tasks and not self.configuration.post_debug_tasks
 
 	async def restart_natively(self) -> None:
 		'''The `restart` request: the adapter ends the program and starts it again, the session stays

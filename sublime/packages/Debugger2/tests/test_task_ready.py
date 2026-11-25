@@ -90,6 +90,7 @@ class Terminal:
 		self.written = ''
 		self.width = 80
 		self.killed = False
+		self.note = None
 		self.dispose = Mock()
 		Terminal.created.append(self)
 
@@ -109,6 +110,10 @@ class Terminal:
 
 	def columns(self):
 		return self.width
+
+	def replace_cancelled(self, note):
+		self.note = note
+		return True
 
 	async def wait(self):
 		await self.future
@@ -248,8 +253,31 @@ class ReadyTaskTests(unittest.TestCase):
 			self.assertTrue(terminal.killed)
 			terminal.dispose.assert_not_called()
 			self.assertEqual(len(self.tasks.tasks), 1)
+			# and why it was stopped is said, in the console and where its own output ends
+			self.assertEqual(terminal.note, '[Stopped: the session it was started for ended]')
+			self.assertEqual(self.debugger.console.info.call_args[0][0], 'server stopped: the session it was started for ended')
 			# stopped on purpose is not something to report
 			self.debugger.console.error.assert_not_called()
+
+		self.scenario(scenario())
+
+	def test_waiting_ready_and_stopped_are_said_in_the_console_of_the_session(self):
+		async def scenario():
+			session = Mock()
+			session.name = 'Debug client'
+			run = self.start(Task('server', r'Listening on \d+'), owner=session)
+			await self.settle()
+			Terminal.created[0].write('  Listening on 8080  \n')
+			await run
+			self.tasks.release(session)
+
+			said = [call[0][0] for call in session.console.info.call_args_list]
+			self.assertEqual(said, [
+				"Waiting for server to be ready: a line of its output matching 'Listening on \\\\d+'",
+				'server is ready: Listening on 8080',
+				'server stopped: Debug client ended',
+			])
+			self.debugger.console.info.assert_not_called()
 
 		self.scenario(scenario())
 
@@ -271,6 +299,23 @@ class ReadyTaskTests(unittest.TestCase):
 			self.assertFalse(terminal.killed)
 			self.tasks.release('two')
 			self.assertTrue(terminal.killed)
+
+	def test_the_first_of_two_sessions_to_end_is_told_the_task_goes_on(self):
+		async def scenario():
+			one, two = Mock(), Mock()
+			one.name, two.name = 'Client one', 'Client two'
+			first = self.start(Task('server', 'ready'), owner=one)
+			await self.settle()
+			second = self.start(Task('server', 'ready'), owner=two)
+			await self.settle()
+			Terminal.created[0].write('ready\n')
+			await first
+			await second
+
+			self.tasks.release(one)
+			self.assertEqual(one.console.info.call_args[0][0], 'server keeps running for Client two')
+			self.tasks.release(two)
+			self.assertEqual(two.console.info.call_args[0][0], 'server stopped: Client two ended')
 
 		self.scenario(scenario())
 
@@ -320,6 +365,8 @@ class ReadyTaskTests(unittest.TestCase):
 				await run
 			self.assertIn('was not ready after 0.05s', str(raised.exception))
 			self.assertTrue(Terminal.created[0].killed)
+			await self.settle()
+			self.assertEqual(Terminal.created[0].note, '[Stopped: it was not ready after 0.05s]')
 
 		self.scenario(scenario())
 
@@ -355,6 +402,8 @@ class ReadyTaskTests(unittest.TestCase):
 			Terminal.created[0].end('process is terminated with return code 137.')
 			await self.settle()
 			self.debugger.console.error.assert_called_once()
+			# it ended by itself, there is no reason of the debuggers to write
+			self.assertIsNone(Terminal.created[0].note)
 			self.assertIn('server ended while it was still needed', self.debugger.console.error.call_args[0][0])
 
 		self.scenario(scenario())

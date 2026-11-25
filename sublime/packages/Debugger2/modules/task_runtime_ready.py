@@ -37,8 +37,12 @@ class ReadyShellTaskRuntime(TaskRuntime):
 		# stopped because nothing needs it any more: what it prints from here on is not an error,
 		# and the next start of the task is a new one rather than this one found still running
 		self.released = False
+		# why, which is written where its terminal ends (`watch_end`)
+		self.stop_reason = ''
 
 		self.ready: core.Future[None] = core.Future()
+		# the line that was the signal, once there has been one
+		self.ready_line = ''
 
 		# every width the terminal has had while it was read, which is what tells a row that was
 		# wrapped from one that ended (`task_ready.unwrapped`)
@@ -59,11 +63,13 @@ class ReadyShellTaskRuntime(TaskRuntime):
 		if columns := self.terminal.columns():
 			self.widths.add(columns)
 
-		if task_ready.ready_line(self.pattern, self.terminal.text(), self.widths) is None:
+		line = task_ready.ready_line(self.pattern, self.terminal.text(), self.widths)
+		if line is None:
 			return
 
 		# nothing more to look for, and a terminal is written to for as long as the task runs
 		self.terminal.on_text_changed = None
+		self.ready_line = line.strip()
 		self.ready.set_result(None)
 
 	def fail(self, reason: str) -> None:
@@ -79,6 +85,10 @@ class ReadyShellTaskRuntime(TaskRuntime):
 			error = 'was cancelled'
 		except Exception as e:
 			error = str(e)
+
+		# ended because it was told to: the tab says so and why, rather than Terminus's `[Cancelled]`
+		if self.released and self.stop_reason:
+			self.terminal.replace_cancelled(f'[Stopped: {self.stop_reason}]')
 
 		if not self.ready.done():
 			# the last thing it wrote may be the signal: a task that says it is ready and ends is ready
@@ -96,6 +106,9 @@ class ReadyShellTaskRuntime(TaskRuntime):
 			return
 
 		self.fail(f'was not ready after {timeout:g}s')
+		# said by whoever was waiting, as the reason the start failed
+		self.released = True
+		self.stop_reason = f'it was not ready after {timeout:g}s'
 		self.terminal.kill_process()
 
 	async def wait_ready(self) -> None:
@@ -107,9 +120,17 @@ class ReadyShellTaskRuntime(TaskRuntime):
 	def is_finished(self) -> bool:
 		return bool(self.terminal.is_finished())
 
-	def stop(self) -> None:
-		'''Nothing needs it any more: its process is ended, its tab stays to be read'''
+	def stop(self, reason: str = '', log: Any = None) -> None:
+		'''Nothing needs it any more: its process is ended, its tab stays to be read
+
+		`reason` is said in the console, `log`s or else the debuggers: a server that is gone
+		without a word looks the same as one that fell over.
+		'''
+		if not self.released and not self.is_finished():
+			(log or self.debugger.console).info(f'{self.task.name} stopped: {reason or "it is no longer needed"}')
+
 		self.released = True
+		self.stop_reason = self.stop_reason or reason or 'it is no longer needed'
 		self.terminal.on_text_changed = None
 
 		# whoever is still waiting for the signal is told to stop waiting, not that it failed
@@ -120,7 +141,7 @@ class ReadyShellTaskRuntime(TaskRuntime):
 			self.terminal.kill_process()
 
 	def cancel(self) -> None:
-		self.stop()
+		self.stop('it was cancelled')
 
 	def dispose(self) -> None:
 		self.terminal.on_text_changed = None

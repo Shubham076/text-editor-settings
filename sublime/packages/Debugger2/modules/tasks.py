@@ -49,7 +49,10 @@ class Tasks(core.Dispose):
 				# already up, for another session: this one waits for the same signal and shares it
 				if owner is not None:
 					t.owners.add(owner)
+				console = self.console_of(debugger, owner)
+				console.info(f'{task.name} is already running, waiting for it to be ready')
 				await t.wait_ready()
+				console.info(f'{task.name} is ready: {t.ready_line}')
 				return
 
 			if not t.is_finished():
@@ -131,9 +134,16 @@ class Tasks(core.Dispose):
 		update_when_done()
 
 		if ready:
+			console = self.console_of(debugger, owner)
+			console.info(f'Waiting for {task.name} to be ready: a line of its output matching {task.ready_regex!r}')
 			await ready.wait_ready()
+			console.info(f'{task.name} is ready: {ready.ready_line}')
 		elif not task.background:
 			await runtime.wait()
+
+	def console_of(self, debugger: Debugger, owner: Any) -> Any:
+		'''Where what happens to a task is said: the console of the session it runs for, else the debuggers'''
+		return getattr(owner, 'console', None) or debugger.console
 
 	def release(self, owner: Any) -> None:
 		'''A session has ended: the tasks that were only running for it are stopped
@@ -146,8 +156,16 @@ class Tasks(core.Dispose):
 				continue
 
 			task.owners.discard(owner)
+			if task.owners and not task.is_finished():
+				# said where it was said to be ready, so that console does not end on a task that
+				# is neither stopped nor accounted for
+				others = ', '.join(sorted(str(getattr(other, 'name', other)) for other in task.owners))
+				if console := getattr(owner, 'console', None):
+					console.info(f'{task.task.name} keeps running for {others}')
 			if not task.owners:
-				task.stop()
+				# in the console of the session that ended, which is the one being looked at
+				name = getattr(owner, 'name', None) or 'the session it was started for'
+				task.stop(f'{name} ended', getattr(owner, 'console', None))
 				self.updated(task)
 
 	def get_running(self) -> list[TaskRuntime]:

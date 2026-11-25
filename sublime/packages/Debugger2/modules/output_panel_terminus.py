@@ -217,6 +217,30 @@ class TerminusOutputPanel(OutputPanel):
 
 	def cancel(self): ...
 
+	def replace_cancelled(self, note: str) -> bool:
+		'''Says why the terminal ended in place of the `[Cancelled]` Terminus leaves when it is told to end one
+
+		`[Cancelled]` reads as something having gone wrong, and it is also what is there when the
+		debugger ended a task that was simply no longer needed. Only once the terminal has been
+		read for how it ended (`_check_status_code`), which goes by that line.
+		'''
+		view = self.view
+		if not view.is_valid():
+			return False
+
+		line = view.line(view.size())
+		if view.substr(line).strip() != '[Cancelled]':
+			return False
+
+		def replace(edit: sublime.Edit):
+			read_only = view.is_read_only()
+			view.set_read_only(False)
+			view.replace(edit, line, note)
+			view.set_read_only(read_only)
+
+		core.edit(view, replace)
+		return True
+
 	def kill_process(self):
 		self.view.run_command('terminus_cleanup', {"by_user": True})
 

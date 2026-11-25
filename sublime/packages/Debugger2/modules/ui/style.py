@@ -24,6 +24,8 @@ CHIP_PAD = 0.7
 CHIP_DOT_GAP = 0.4
 CHIP_GAP = 0.45
 CHIP_NAME = 24
+# the longest name on the tab of one console or terminal among several, in characters
+TAB_NAME = 28
 CHIP_SHORT = 14
 ZW = '<span>&#8203;</span>'  # zero-width text that keeps a row's line box at the 1rem text height
 TEXT_LINE = 1.46     # minihtml's natural line box for 1rem Menlo text (measured)

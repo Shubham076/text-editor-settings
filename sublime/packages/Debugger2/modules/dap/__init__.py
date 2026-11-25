@@ -46,6 +46,7 @@ from .configuration import (
 	ConfigurationCompound,
 	Task,
 	TaskExpanded,
+	task_names,
 )
 
 from .debugger import (

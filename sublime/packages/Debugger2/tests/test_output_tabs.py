@@ -133,6 +133,80 @@ class OutputTabsTests(unittest.TestCase):
 		ui.toolbar.select_tab('console')
 		record.console.open.assert_called_once()
 
+	def compound(self, *names):
+		'''A compound whose configurations each ran and left a console'''
+		self.backend.project.configuration_or_compound = types.SimpleNamespace(name='Both', configurations=list(names), id_ish='compound')
+		self.dap.ConfigurationCompound = types.SimpleNamespace
+		records = []
+		for name in names:
+			panel = self.console_class()
+			panel.session = None
+			panel.open = Mock()
+			panel.name = name
+			self.backend.output_panels.append(panel)
+			records.append(types.SimpleNamespace(configuration_id=name, configuration_name=name, console=panel, session=None, console_visible=True))
+		self.backend.session_panels = types.SimpleNamespace(panels=records)
+		return [record.console for record in records]
+
+	def test_each_console_of_a_compound_has_a_tab_under_its_own_name(self):
+		first, second = self.compound('Client', 'Second client with a name that is far too long for a tab')
+		ui, html = self.tab_html()
+		self.assertNotIn('>Console</a>', html)
+		self.assertIn('>Client</a>', html)
+		self.assertIn('>Second client with a name t…</a>', html)
+		# the whole name is what hovering it says
+		self.assertIn('title="Second client with a name that is far too long for a tab"', html)
+		self.assertLess(html.index('>Client</a>'), html.index('>Second client'))
+		self.assertLess(html.index('>Second client'), html.index('>Debug Console</a>'))
+
+		ui.toolbar.select_tab('console:1')
+		second.open.assert_called_once()
+		ui.toolbar.select_tab('console:0')
+		first.open.assert_called_once()
+
+		# the open one is the one underlined, and only that one
+		ui.panel = second
+		ui.state.tab = 'console'
+		tabs = ui.toolbar.tabs()
+		self.assertIn('class="tab active" title="Second client', tabs)
+		self.assertIn('class="tab" title="Client"', tabs)
+
+	def test_each_finished_console_of_a_compound_has_its_own_close_button(self):
+		first, second = self.compound('Client', 'Second client')
+		closed = []
+		self.backend.session_panels.close = lambda record: closed.append(record.configuration_name) or False
+		ui, html = self.tab_html()
+		self.assertEqual(html.count('Close console output'), 2)
+
+		# one of them is still running: it has no close button, the other keeps its own
+		self.backend.session_panels.panels[0].session = object()
+		ui, html = self.tab_html()
+		self.assertEqual(html.count('Close console output'), 1)
+		self.assertLess(html.index('>Second client</a>'), html.index('Close console output'))
+
+	def test_two_terminals_have_a_tab_each_and_one_is_still_the_terminal_tab(self):
+		record = self.record('external')
+		server = self.terminal(record.session)
+		_, html = self.tab_html()
+		self.assertIn('>Terminal</a>', html)
+
+		server.name = 'api server'
+		metrics = self.terminal(record.session)
+		metrics.name = 'metrics server'
+		ui, html = self.tab_html()
+		self.assertNotIn('>Terminal</a>', html)
+		self.assertIn('>api server</a>', html)
+		self.assertIn('>metrics server</a>', html)
+		ui.toolbar.select_tab('terminal:1')
+		metrics.open.assert_called_once()
+		server.open.assert_not_called()
+
+		# only the one that has ended can be closed
+		metrics.is_finished = lambda: True
+		_, html = self.tab_html()
+		self.assertEqual(html.count('Close finished terminal'), 1)
+		self.assertLess(html.index('>metrics server</a>'), html.index('Close finished terminal'))
+
 	def test_integrated_terminal_requires_an_actual_panel(self):
 		record = self.record('external')
 		_, html = self.tab_html()

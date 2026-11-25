@@ -76,17 +76,17 @@ class PythonAdapterTests(unittest.TestCase):
 		self.assertEqual((self.adapter.installer.type, self.adapter.installer.repo), ('debugpy', 'ms-python/debugpy'))
 
 	def test_openvsx_install_layout_is_used_when_present(self):
-		(self.path / 'bundled/libs/debugpy').mkdir(parents=True)
-		self.assertEqual(self.start(), ['/usr/bin/python3', str(self.path / 'bundled/libs/debugpy')])
+		(self.path / 'bundled/libs/debugpy/adapter').mkdir(parents=True)
+		self.assertEqual(self.start(), ['/usr/bin/python3', str(self.path / 'bundled/libs/debugpy/adapter')])
 
 	def test_legacy_install_layout_still_starts(self):
 		(self.path / 'debugpy/debugpy/adapter').mkdir(parents=True)
 		self.assertEqual(self.start(), ['/usr/bin/python3', str(self.path / 'debugpy/debugpy/adapter')])
 
 	def test_openvsx_layout_wins_over_legacy_layout(self):
-		(self.path / 'bundled/libs/debugpy').mkdir(parents=True)
+		(self.path / 'bundled/libs/debugpy/adapter').mkdir(parents=True)
 		(self.path / 'debugpy/debugpy/adapter').mkdir(parents=True)
-		self.assertEqual(self.start()[1], str(self.path / 'bundled/libs/debugpy'))
+		self.assertEqual(self.start()[1], str(self.path / 'bundled/libs/debugpy/adapter'))
 
 	def test_missing_adapter_names_the_paths_searched(self):
 		with self.assertRaisesRegex(RuntimeError, 'bundled/libs/debugpy'):

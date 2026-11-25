@@ -9,7 +9,7 @@ from ..views.session_scope import root_of
 from .configuration_picker import ConfigurationPicker
 from .output_tabs import console_panels, terminal_panels
 from .state import session_status
-from .style import CH, CHIP_DOT_GAP, CHIP_GAP, CHIP_NAME, CHIP_PAD, CHIP_SHORT, DASHBOARDS, PAD, TABS, TOOL, ZW
+from .style import CH, CHIP_DOT_GAP, CHIP_GAP, CHIP_NAME, CHIP_PAD, CHIP_SHORT, DASHBOARDS, PAD, TAB_NAME, TABS, TOOL, ZW
 
 if TYPE_CHECKING:
 	from .panel import PanelUI
@@ -263,9 +263,14 @@ class Toolbar:
 
 	def select_tab(self, tab):
 		ui = self.ui
-		if tab in ('console', 'terminal'):
-			panels = console_panels(ui.backend) if tab == 'console' else self.terminals()
-			if panels:
+		group, _, index = tab.partition(':')
+		if group in ('console', 'terminal'):
+			panels = self.tab_panels(group)
+			# `console:1` is the tab of one console among several, `console` the only one there is
+			position = int(index) if index.isdigit() else 0
+			if position < len(panels):
+				panels[position].open()
+			elif panels:
 				panels[0].open()
 			else:
 				ui.backend.callstack.open()
@@ -283,6 +288,19 @@ class Toolbar:
 					panel.open()
 					break
 
+	def tab_panels(self, tab):
+		"""The panels behind the console or the terminal tab, in the order they are gone through"""
+		return console_panels(self.ui.backend) if tab == 'console' else self.terminals()
+
+	def tab_name(self, panel, label):
+		"""What the tab of one console or terminal among several reads: whose it is
+
+		A console is named after its configuration and a terminal after its task. The terminal a
+		program was started in is named `configuration<tab>Terminal`, for the title of its panel.
+		"""
+		name = ' '.join(str(getattr(panel, 'name', '') or label).split())
+		return self.chip_label(name, TAB_NAME)
+
 	def tab_items(self):
 		from ..output_panel_console import ConsoleOutputPanel
 		from ..output_panel_terminus import TerminusOutputPanel
@@ -296,20 +314,46 @@ class Toolbar:
 			available.add('terminal')
 		if getattr(ui.backend, 'console', None) and self.is_debugger_console(ui.backend.console):
 			available.add('debugger_console')
-		items = [(key, label) for key, label, _ in TABS if key in available]
+		items = []
+		for key, label, _ in TABS:
+			if key not in available:
+				continue
+			panels = self.tab_panels(key) if key in ('console', 'terminal') else []
+			if len(panels) < 2:
+				items.append((key, label))
+				continue
+			# several behind one name: the consoles of a compound, the terminals of two tasks. Each
+			# is a tab of its own under the name of what it belongs to, one tab for all of them
+			# shows one and leaves the others to be found
+			items += [('{}:{}'.format(key, index), self.tab_name(panel, label)) for index, panel in enumerate(panels)]
 		dashboards = list(self.dashboards().values())
 		items += [(panel.output_panel_name, panel.name) for panel in ui.backend.output_panels
 			if not any(panel is dashboard for dashboard in dashboards) and not isinstance(panel, (ConsoleOutputPanel, TerminusOutputPanel))]
 		return items
 
-	def closable_console(self):
-		"""The console record whose close button the console tab shows, if no session owns it."""
-		ui = self.ui
-		outputs = console_panels(ui.backend)
-		if not outputs:
+	def tab_panel(self, key):
+		"""The panel a console or terminal tab is the tab of, `None` for every other tab
+
+		With one tab for the consoles it is the one that is open, or the first when the row is
+		drawn in some other panel.
+		"""
+		group, _, index = key.partition(':')
+		if group not in ('console', 'terminal'):
 			return None
-		target = ui.panel if ui.panel in outputs else outputs[0]
-		records = [item for item in ui.backend.session_panels.panels if item.console is target]
+		panels = self.tab_panels(group)
+		if index.isdigit():
+			return panels[int(index)] if int(index) < len(panels) else None
+		for panel in panels:
+			if panel is self.ui.panel:
+				return panel
+		return panels[0] if panels else None
+
+	def closable_console(self, target=None):
+		"""The console record whose close button a console tab shows, if no session owns it."""
+		target = target or self.tab_panel('console')
+		if not target:
+			return None
+		records = [item for item in self.ui.backend.session_panels.panels if item.console is target]
 		if records and not any(item.session for item in records):
 			return records[0]
 		return None
@@ -327,26 +371,27 @@ class Toolbar:
 		ui = self.ui
 		row = ZW
 		for key, label in self.tab_items():
-			active = key == ui.state.tab
-			row += ui.link(escape(label), partial(self.select_tab, key), label, 'tab' + (' active' if active else ''))
-			if key == 'console' and (record := self.closable_console()):
+			group = key.partition(':')[0]
+			panel = self.tab_panel(key)
+			# one of several consoles is the open tab when it is the panel this row is drawn in
+			active = key == ui.state.tab or (group != key and group == ui.state.tab and panel is ui.panel)
+			row += ui.link(escape(label), partial(self.select_tab, key), str(getattr(panel, 'name', '') or label) if group != key else label,
+				'tab' + (' active' if active else ''))
+			if group == 'console' and (record := self.closable_console(panel)):
 				row += ui.button('close', 'Close console output', partial(self.close_console, record))
-			if key == 'terminal' and (terminal := self.closable_terminal()):
+			if group == 'terminal' and (terminal := self.closable_terminal(panel)):
 				row += ui.button('close', 'Close finished terminal', terminal.dispose)
 		return '<div class="tabs" style="width:{}px;"><div class="tabrow">{}</div><div class="underline"></div></div>'.format(
 			ui.px(ui.total - 2 * PAD), row)
 
-	def closable_terminal(self):
-		"""The terminal whose close button the terminal tab shows: the one open, or the selection's first, once its process has ended
+	def closable_terminal(self, target=None):
+		"""The terminal whose close button a terminal tab shows: its own, once its process has ended
 
 		Like the console tab's close button. There is no bar of terminal chips: the tab is the
 		terminal, and a further one is opened from the command palette (`New Terminal`).
 		"""
-		terminals = self.terminals()
-		if not terminals:
-			return None
-		target = self.ui.panel if self.ui.panel in terminals else terminals[0]
-		return target if target.is_finished() else None
+		target = target or self.tab_panel('terminal')
+		return target if target and target.is_finished() else None
 
 	def close_console(self, record):
 		if self.ui.backend.session_panels.close(record):
