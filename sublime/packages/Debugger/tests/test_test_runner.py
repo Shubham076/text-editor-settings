@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
+import shutil
+import subprocess
 from pathlib import Path
 import sys
 import tempfile
@@ -427,12 +430,84 @@ class JestTests(unittest.TestCase):
 			self.assertEqual(configuration['type'], 'node')
 			self.assertEqual(configuration['cwd'], package)
 			self.assertEqual(configuration['program'], os.path.join(root, 'node_modules', 'jest', 'bin', 'jest.js'))
-			self.assertEqual(configuration['args'], ['--runInBand', '--colors', '--runTestsByPath', file, '-t', '^math adds$'])
+			self.assertEqual(configuration['args'], [
+				'--runInBand', '--colors', '--cacheDirectory', runner.JEST_CACHE, '--runTestsByPath', file, '-t', '^math adds$'])
 			# source maps are looked for in the repository, which here is as far up as jest is installed
 			self.assertEqual(configuration['resolveSourceMapLocations'], [os.path.join(root, '**'), '!**/node_modules/**', '!**/generated/**'])
 			self.assertTrue(runner.language_for(file).stderr_is_output)
 			self.assertFalse(runner.language_for('/a/b_test.go').stderr_is_output)
 			self.assertTrue(runner.jest_command(configuration)[0].endswith("-t '^math adds$'"))
+
+	def test_a_debugged_test_gets_its_source_maps_in_the_code_and_a_cache_of_its_own(self):
+		configuration = runner.jest_configuration('/repo/src/x.test.ts', 'adds')
+
+		# loaded before jest, from this package, and it is a file that is there
+		self.assertEqual(configuration['runtimeArgs'], ['--require', runner.JEST_PRELOAD])
+		self.assertTrue(os.path.isfile(runner.JEST_PRELOAD), runner.JEST_PRELOAD)
+		self.assertTrue(os.path.isabs(runner.JEST_PRELOAD))
+
+		# not jest's own cache: that one has code that was made without the map
+		cache = configuration['args'][configuration['args'].index('--cacheDirectory') + 1]
+		self.assertEqual(cache, runner.JEST_CACHE)
+		self.assertNotIn('jest_dx', cache)
+
+		# and what is said to be run is what is run
+		command = runner.jest_command(configuration)[0]
+		self.assertIn('--require', command)
+		self.assertLess(command.index('--require'), command.index('jest.js'))
+
+	@unittest.skipUnless(shutil.which('node'), 'node is not installed')
+	def test_the_preload_has_swc_write_the_map_into_the_code_and_changes_nothing_else(self):
+		with tempfile.TemporaryDirectory() as root:
+			# what a project has: swc, something that uses it, and something that does not
+			swc = os.path.join(root, 'node_modules', '@swc', 'core')
+			other = os.path.join(root, 'node_modules', 'other')
+			os.makedirs(swc)
+			os.makedirs(other)
+			with open(os.path.join(swc, 'index.js'), 'w') as f:
+				f.write('''
+					Object.defineProperty(exports, '__esModule', { value: true });
+					exports.version = '1.2.3';
+					exports.transformSync = function (source, options) { return { code: source, options: options, self: this === exports }; };
+					exports.transform = function (source, options) { return Promise.resolve({ options: options }); };
+					exports.parseSync = function (source, options) { return { options: options }; };
+				''')
+			with open(os.path.join(other, 'index.js'), 'w') as f:
+				f.write('module.exports = { transformSync: function (source, options) { return { options: options }; } };')
+			script = os.path.join(root, 'run.js')
+			with open(script, 'w') as f:
+				f.write('''
+					const swc = require('@swc/core');
+					const asked = { sourceMaps: true, jsc: { target: 'es2017' } };
+					const sync = swc.transformSync('code', asked);
+					swc.transform('code', asked).then((later) => {
+						console.log(JSON.stringify({
+							sync: sync.options, self: sync.self, later: later.options, asked: asked,
+							parse: swc.parseSync('code', { sourceMaps: true }).options,
+							version: swc.version, esModule: swc.__esModule, same: require('@swc/core') === swc,
+							other: require('other').transformSync('code', { sourceMaps: true }).options,
+						}));
+					});
+				''')
+
+			def run(*arguments):
+				return json.loads(subprocess.run(['node', *arguments, script], cwd=root, capture_output=True, text=True, check=True).stdout)
+
+			plain = run()
+			self.assertEqual(plain['sync'], {'sourceMaps': True, 'jsc': {'target': 'es2017'}})
+
+			loaded = run('--require', runner.JEST_PRELOAD)
+			# the map goes into the code, for a transform that is waited for and one that is not
+			self.assertEqual(loaded['sync'], {'sourceMaps': 'inline', 'jsc': {'target': 'es2017'}})
+			self.assertEqual(loaded['later'], {'sourceMaps': 'inline', 'jsc': {'target': 'es2017'}})
+			# what the project handed over is not written to, and swc is called as it always was
+			self.assertEqual(loaded['asked'], {'sourceMaps': True, 'jsc': {'target': 'es2017'}})
+			self.assertTrue(loaded['self'])
+			# everything else of swc is as it was, and it is the one module however often it is asked for
+			self.assertEqual(loaded['parse'], {'sourceMaps': True})
+			self.assertEqual((loaded['version'], loaded['esModule'], loaded['same']), ('1.2.3', True, True))
+			# and a module that is not swc is not touched, whatever its functions are called
+			self.assertEqual(loaded['other'], {'sourceMaps': True})
 
 	def test_files(self):
 		for file, key in (('/a/x.test.tsx', 'jest'), ('/a/x.spec.js', 'jest'), ('/a/__tests__/x.mjs', 'jest'), ('/a/x.ts', None)):

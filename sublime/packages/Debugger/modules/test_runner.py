@@ -6,6 +6,7 @@ import ast
 import os
 import re
 import shlex
+import tempfile
 
 '''Finding the tests in a file and the configuration that debugs one of them
 
@@ -759,6 +760,16 @@ JEST_BIN = os.path.join('node_modules', 'jest', 'bin', 'jest.js')
 # what marks the top of a repository, which is as far as the code a test runs is looked for
 JEST_WORKSPACES = ('.git', 'pnpm-workspace.yaml', 'lerna.json', 'nx.json', 'turbo.json')
 
+# Loaded into jest ahead of everything else. It has swc write the source map of what it makes
+# into the code, which is where the debugger looks for one (`libs/jest/inline_source_maps.js`)
+JEST_PRELOAD = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libs', 'jest', 'inline_source_maps.js')
+
+# Where jest keeps what it has transformed, for the tests run from here. Its own cache is keyed by
+# what the project asked the transformer for, not by what the preload changed that to, so it would
+# hand back code that was made without the map: the first debugged run after a plain one would
+# stop at no breakpoint. A cache of their own has only code that was made this way
+JEST_CACHE = os.path.join(tempfile.gettempdir(), 'jest_sublime_debugger')
+
 
 def jest_string(text: str, masked: str, at: int) -> tuple[str, int] | None:
 	'''The string that opens at `at` and where it ends, or None when it is not all written down'''
@@ -863,9 +874,11 @@ def jest_configuration(file: str, name: str) -> dict[str, Any]:
 		'type': 'node',
 		'request': 'launch',
 		'program': os.path.join(installed, JEST_BIN),
+		# before jest: a breakpoint in a .ts file is found through a source map the code names
+		'runtimeArgs': ['--require', JEST_PRELOAD],
 		# in this process: jest otherwise hands a file to a worker, which is not the process being debugged.
 		# `--colors`: it is not writing to a terminal and would drop them, the console draws them
-		'args': ['--runInBand', '--colors', '--runTestsByPath', file, '-t', jest_pattern(name)],
+		'args': ['--runInBand', '--colors', '--cacheDirectory', JEST_CACHE, '--runTestsByPath', file, '-t', jest_pattern(name)],
 		'cwd': root,
 		'console': 'internal',
 		# jest writes its results to stderr, and without this only what `console.log` prints is shown
@@ -883,7 +896,7 @@ def jest_configuration(file: str, name: str) -> dict[str, Any]:
 
 
 def jest_command(configuration: Any) -> list[str]:
-	command = ['node', configuration.get('program'), *(configuration.get('args') or [])]
+	command = ['node', *(configuration.get('runtimeArgs') or []), configuration.get('program'), *(configuration.get('args') or [])]
 
 	return [shell(configuration.get('cwd'), command)]
 
