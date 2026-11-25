@@ -56,6 +56,13 @@ class ExternalTerminalTerminus(ExternalTerminal):
 			'tag': self.tag,
 		})
 
+	def view(self) -> sublime.View | None:
+		'''The tab Terminus opened for it, once there is one'''
+		for view in self.window.views():
+			if view.settings().get("terminus_view.tag") == self.tag:
+				return view
+		return None
+
 	def dispose(self):
 		for view in self.window.views():
 			if view.settings().get("terminus_view.tag") == self.tag:

@@ -15,6 +15,19 @@ if TYPE_CHECKING:
 	from .debugger import Debugger
 
 
+def terminal_columns(view: sublime.View) -> int | None:
+	'''How many characters wide the terminal Terminus runs in `view` is, `None` when there is no telling'''
+	try:
+		from Terminus.terminus.terminal import Terminal
+
+		terminal = Terminal.from_id(view.id())
+		columns = terminal.screen.columns if terminal else None
+		return columns if isinstance(columns, int) and columns > 0 else None
+	except Exception:
+		# a Terminus that keeps this somewhere else: rows are then taken as they are
+		return None
+
+
 class TerminusOutputPanel(OutputPanel):
 	# called as the terminal is written to, by a task that reads what it prints (`task_runtime_ready`)
 	on_text_changed: Callable[[], None] | None = None
@@ -172,15 +185,7 @@ class TerminusOutputPanel(OutputPanel):
 
 	def columns(self) -> int | None:
 		'''How many characters wide the terminal is, which is where it wraps a line onto the next row'''
-		try:
-			from Terminus.terminus.terminal import Terminal
-
-			terminal = Terminal.from_id(self.view.id())
-			columns = terminal.screen.columns if terminal else None
-			return columns if isinstance(columns, int) and columns > 0 else None
-		except Exception:
-			# a Terminus that keeps this somewhere else: rows are then matched as they are
-			return None
+		return terminal_columns(self.view)
 
 	def on_modified(self):
 		if self.on_text_changed:

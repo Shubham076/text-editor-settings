@@ -20,7 +20,7 @@ editing the installed package:
 | [Terminus](Terminus) | Terminal emulator in a Sublime view or panel. | No file types — opened by command, not by extension |
 | [LSP](LSP) | `sublimelsp/LSP` with an API for other packages to contribute hover popup content. | Any language with a server configured |
 | [LSP-tsgo](LSP-tsgo) | `sublimelsp/LSP-tsgo` with a Goto Source Definition command (the `.js` behind a `.d.ts`). | `.js`, `.jsx`, `.ts`, `.tsx` |
-| [Debugger](Debugger) | `daveleroy/SublimeDebugger` with the hover popup merged into LSP's, value summaries, per-configuration consoles and run icons in the project file. | Any adapter, currently exercised with Go and delve |
+| [Debugger](Debugger/README.md) | `daveleroy/SublimeDebugger` carried on here with a new live UI: per-configuration consoles, inline values, run icons in the project file and test files, tasks that say when they are ready, log files. | Any adapter, currently exercised with Go, Python and Node |
 
 Both overlay packages work the same way: fold the buffer, draw a `minihtml` phantom over
 it, restore selections, scroll, folds, and read-only state on the way out. Neither one
@@ -34,27 +34,23 @@ work that is meant to go back upstream as a pull request:
 | Package | Upstream (remote `upstream`) | Fork (remote `origin`) | Branch |
 | :--- | :--- | :--- | :--- |
 | LSP | `sublimelsp/LSP` | `Shubham076/LSP` | `feat/hover-content-providers` |
-| Debugger | `daveleroy/SublimeDebugger` | `Shubham076/SublimeDebugger` | `feat/lsp-hover-integration` |
 | LSP-tsgo | `sublimelsp/LSP-tsgo` (cloned at the installed release, 1.1.7) | `shubham-dogra-s1/LSP-tsgo` | `feat/goto-source-definition`, open as [sublimelsp/LSP-tsgo#15](https://github.com/sublimelsp/LSP-tsgo/pull/15) |
-| Debugger2 | the `Debugger` clone above | — | `feat/new-ui` |
+| Debugger | `daveleroy/SublimeDebugger`, by way of `Shubham076/SublimeDebugger` | — | tracked here, see below |
 
-`Debugger2` is the same upstream code carried on as a separate package (its own settings, menus
-and command names) so it can be installed beside `Debugger`; it holds the new live UI.
+`Debugger` is the upstream code carried on here with the new live UI.
 
-This repo does **not** record `LSP`, `Debugger` or `MarkdownPreviewOverlay`: each is a plain clone
+This repo does **not** record `LSP` or `MarkdownPreviewOverlay`: each is a plain clone
 carried by its own git repo and listed in the root [.gitignore](../../.gitignore). The git that
-tracks their future updates is theirs, not this repo's. `LSP-tsgo` and `Debugger2` are the
+tracks their future updates is theirs, not this repo's. `LSP-tsgo` and `Debugger` are the
 exception — their nested `.git` was removed, so their files are tracked here directly and upstream
 updates for them are manual.
 
-Recreate the three clones on a new machine:
+Recreate the two clones on a new machine, and link `Debugger` with them:
 
 ```sh
 cd sublime/packages
 git clone --branch feat/hover-content-providers https://Shubham076@github.com/Shubham076/LSP.git LSP
 git -C LSP remote add upstream git@github.com:sublimelsp/LSP.git
-git clone --branch feat/lsp-hover-integration https://Shubham076@github.com/Shubham076/SublimeDebugger.git Debugger
-git -C Debugger remote add upstream git@github.com:daveleroy/SublimeDebugger.git
 git clone git@github.com:flashmodel/MarkdownPreviewOverlay.git MarkdownPreviewOverlay
 ln -sfn ../../LSP/popups.css LSP/popups.css && git -C LSP update-index --skip-worktree popups.css
 for n in Debugger LSP MarkdownPreviewOverlay; do
@@ -71,7 +67,7 @@ stays on SSH deliberately — read-only access to a public repo works with eithe
 Pull a maintainer release inside a clone, keeping local work on top:
 
 ```sh
-git fetch upstream && git rebase upstream/main      # upstream/master for Debugger
+git fetch upstream && git rebase upstream/main
 git push --force-with-lease origin <branch>
 ```
 
@@ -81,8 +77,8 @@ keeps upstream's version in the index and reports the clone clean. If a rebase e
 of it, clear the flag with `git update-index --no-skip-worktree popups.css`, take the upstream
 change, and set it again.
 
-Histories bundled before the `LSP-tsgo` and `Debugger2` clones were dissolved are in
-`~/git-history-backup-20260929/`. `Debugger2`'s 948-commit `feat/new-ui` branch, and five abandoned
+Histories bundled before the `LSP-tsgo` and `Debugger` clones were dissolved are in
+`~/git-history-backup-20260929/`. The debugger's 948-commit `feat/new-ui` branch, and five abandoned
 `Debugger` branches, exist only there.
 
 [notes](notes) holds the write-ups that go with the work in them, kept here rather than inside the

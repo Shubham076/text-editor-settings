@@ -1,18 +1,15 @@
-# Debugger (the Debugger2 package)
+# Debugger
 
-Standalone Sublime Text debugger using the new UI only. The directory is called `Debugger2` to sit
-next to a checkout of the original Debugger package, but everything the user sees says
-**Debugger**: commands, menus, settings and markers carry the plain `debugger` names. There is no
-legacy dashboard or UI-switching setting.
+Standalone Sublime Text debugger using the new UI only. There is no legacy dashboard or
+UI-switching setting.
 
 The debug adapter backend is retained. See [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/).
 
 ## Installing locally
 
-Place or symlink this directory into Sublime's Packages directory as `Debugger2`, then use
-**Debugger: Open** from the Command Palette. Because it shares its command and settings names
-with the Package Control `Debugger` package, that package must be disabled (listed in
-`ignored_packages`) while this one is enabled; enabling both registers the same commands twice.
+Place or symlink this directory into Sublime's Packages directory as `Debugger`, then use
+**Debugger: Open** from the Command Palette. It uses the command and settings names of the `Debugger` package on Package Control, so only one
+of the two can be installed.
 It requires Sublime Text 4199 or later and the Python 3.8 plugin host, and the
 [Terminus](https://github.com/randy3k/Terminus) package: tasks and terminals run in it. When
 Terminus is missing or disabled the debugger says so as it loads and offers to install it.
@@ -24,9 +21,8 @@ Settings are in **Preferences: Debugger Settings** (`Debugger.sublime-settings`)
 opt-in so installing this package does not automatically open another debugger. Existing project
 `debugger_configurations`, `debugger_compounds`, and `debugger_tasks` are supported unchanged.
 
-Package storage follows the directory name: adapter installations and saved debugger state are
-stored under `Package Storage/Debugger2`, separately from whatever the original Debugger package
-installed. Install adapters through **Debugger: Install Adapters** as needed.
+Adapter installations and saved debugger state are stored under `Package Storage/Debugger`.
+Install adapters through **Debugger: Install Adapters** as needed.
 Use one active debugger per project window when testing source-gutter interactions.
 
 UI module boundaries and visual checks are described in [Ui.md](Ui.md).
@@ -83,6 +79,7 @@ This project comes with some pre-configured debuggers (They can be installed usi
   - Variable substitution: variables like `${file}` are supported but the list of supported variables differs from VSCode. The supported values are those listed at http://www.sublimetext.com/docs/build_systems.html#variables plus the VSCode-specific `${workspaceFolder}` that resolves to the path of the first workspace folder.
 
   - `envFile`: a path, or a list of paths, to dotenv files whose variables are laid under `env` for every adapter. What `env` sets wins, a later file wins over an earlier one, and a relative path is looked for from `cwd` or else the project folder.
+  - `log`: `{"file": "${project_path}/logs/api.log", "append": false}` also saves what the program prints, stdout and stderr together, to a file. The file is started again on every run unless `append` is true, a relative path is looked for from `cwd` or else the project folder, and its folder is created. It works for the Console tab and for a Terminus terminal (`"console": "external"`), not for the terminal of the system.
 
 - Your configuration will look something like the following but with some debugger specific fields.
 ```

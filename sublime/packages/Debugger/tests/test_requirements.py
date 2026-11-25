@@ -13,10 +13,10 @@ spec.loader.exec_module(requirements)
 
 class TerminusRequirementTests(unittest.TestCase):
 	def test_there_to_be_used(self):
-		self.assertIsNone(requirements.state(['Debugger2', 'Terminus'], ['Vintage']))
+		self.assertIsNone(requirements.state(['Debugger', 'Terminus'], ['Vintage']))
 
 	def test_not_installed(self):
-		self.assertEqual(requirements.state(['Debugger2'], []), requirements.MISSING)
+		self.assertEqual(requirements.state(['Debugger'], []), requirements.MISSING)
 		self.assertIn('not installed', requirements.message(requirements.MISSING))
 
 	def test_installed_and_disabled_is_said_differently(self):

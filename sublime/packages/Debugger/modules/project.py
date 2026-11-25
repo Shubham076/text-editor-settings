@@ -151,7 +151,7 @@ class Project:
 	async def open_project_configurations_file(self):
 		project_name = self.window.project_file_name()
 		if not project_name:
-			self.window.run_command('edit_settings', {'base_file': '${packages}/Debugger2/Debugger.sublime-settings'})
+			self.window.run_command('edit_settings', {'base_file': '${packages}/Debugger/Debugger.sublime-settings'})
 			return None, None
 
 		view = await core.sublime_open_file_async(self.window, project_name)

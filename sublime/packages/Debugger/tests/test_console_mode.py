@@ -75,7 +75,7 @@ class LaunchTests(unittest.TestCase):
 			async def launch(self):
 				pass
 
-		debugger = types.SimpleNamespace(sessions=[], console=Mock(), open_session_output=Mock())
+		debugger = types.SimpleNamespace(sessions=[], console=Mock(), open_session_output=Mock(), open_log=Mock(return_value=None), logs={})
 		for event in ('on_session_modules_updated', 'on_session_sources_updated', 'on_session_threads_updated',
 			'on_session_variables_updated', 'on_session_updated', 'on_session_output', 'on_session_thread_or_frame_updated',
 			'on_session_added', 'on_session_active', 'session_terminal_request', 'session_task_request'):

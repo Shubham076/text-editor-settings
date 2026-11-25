@@ -24,6 +24,7 @@ class LaunchFocusTests(unittest.TestCase):
 			panel_terminals={}, external_terminals={}, output_panels=[], sessions=[],
 			session_panels=types.SimpleNamespace(visible_console_for=Mock(return_value=self.console), on_terminal_request=Mock()),
 			callstack=self.dashboard, console=Mock(), tasks=Mock(),
+			open_log=Mock(return_value=None), close_log=Mock(), log_of=Mock(return_value=None), logs={},
 		)
 		self.debugger.open_session_output = types.MethodType(debugger_method('open_session_output'), self.debugger)
 
@@ -104,6 +105,7 @@ class LaunchFocusTests(unittest.TestCase):
 		self.assertIsNone(self.debugger.session)
 		# what was running only for it is stopped with it
 		self.debugger.tasks.release.assert_called_once_with(session)
+		self.debugger.close_log.assert_called_once_with(session)
 		self.debugger.console.info.assert_called_once_with('Debugging ended')
 		# whichever tab was open stays: no console, terminal or dashboard is opened on stop
 		self.debugger.open_session_output.assert_not_called()

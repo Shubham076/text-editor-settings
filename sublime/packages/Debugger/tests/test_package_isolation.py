@@ -32,12 +32,10 @@ def registered_commands():
 
 
 class PackageIsolationTests(unittest.TestCase):
-	'''The package lives in a directory called Debugger2 but presents itself as Debugger
+	'''The package is Debugger, in its directory and in everything it shows
 
-	Commands, settings, view setting keys, markers and the LSP provider all carry the plain
-	`debugger` name, the same one the original Debugger package used, so the two cannot be
-	enabled at once (the original sits in `ignored_packages`). Only what is derived from the
-	directory keeps the `2`: the package path and the storage folder under Package Storage.
+	Commands, settings, view setting keys, markers, the LSP provider, the package path and the
+	storage folder under Package Storage all carry the one name.
 	'''
 
 	def test_all_registered_commands_use_the_debugger_namespace(self):
@@ -47,7 +45,6 @@ class PackageIsolationTests(unittest.TestCase):
 		self.assertIn('debugger_text', commands)
 		self.assertIn('debugger_memory_input', commands)
 		self.assertTrue(all(name.startswith('debugger') for name in commands), commands)
-		self.assertFalse(any('debugger2' in name for name in commands), commands)
 
 	def test_internal_commands_are_exported_by_plugin_entrypoint(self):
 		exports = {alias.name for node in ast.walk(ast.parse((ROOT / 'start.py').read_text())) if isinstance(node, ast.ImportFrom) for alias in node.names}
@@ -78,16 +75,13 @@ class PackageIsolationTests(unittest.TestCase):
 			self.assertFalse((ROOT / 'modules/views' / (name + '.py')).exists())
 		for path in python_sources():
 			self.assertNotIn('legacy_ui', path.read_text(), str(path))
-		self.assertFalse((ROOT / 'Debugger2.sublime-settings').exists())
 		self.assertTrue((ROOT / 'Debugger.sublime-settings').exists())
 		self.assertTrue((ROOT / 'contributes/Commands/DebuggerWidget.sublime-menu').exists())
 
-	def test_no_debugger2_name_is_left_except_the_package_directory(self):
-		'''Only `${packages}/Debugger2/...` paths keep the directory name; all other text says Debugger'''
-		for path in [*python_sources(), *(ROOT / 'contributes').rglob('*.sublime-*'), ROOT / 'Debugger.sublime-settings']:
-			for number, line in enumerate(path.read_text().splitlines(), 1):
-				if 'debugger2' in line.lower():
-					self.assertIn('${packages}/Debugger2/', line, (str(path), number, line.strip()))
+	def test_the_settings_are_opened_from_the_directory_the_package_is_in(self):
+		self.assertEqual(ROOT.name, 'Debugger')
+		for path in (ROOT / 'modules/project.py', ROOT / 'modules/commands/commands.py'):
+			self.assertIn('${packages}/Debugger/Debugger.sublime-settings', path.read_text())
 
 	def test_commands_and_settings_use_the_debugger_names(self):
 		settings_files, commands = set(), set()

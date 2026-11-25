@@ -17,12 +17,14 @@ from .watch import Watch
 
 from . import console_mode
 from . import env_file
+from . import log_file
+from .terminal_log import TerminalLog
 from . import project_buttons
 from . import test_buttons
 from .output_panel_console import ConsoleOutputPanel
 from .session_panels import SessionPanelsRegistry
 from .output_panel_callstack import CallstackOutputPanel, BreakpointsOutputPanel, WatchOutputPanel
-from .output_panel_terminus import TerminusOutputPanel
+from .output_panel_terminus import TerminusOutputPanel, terminal_columns
 from .output_panel import OutputPanel
 
 from .memory_view import MemoryView
@@ -121,6 +123,10 @@ class Debugger(core.Dispose, dap.Debugger):
 
 		self.external_terminals: dict[dap.Session, list[ExternalTerminal]] = {}
 		self.panel_terminals: dict[dap.Session, list[TerminusOutputPanel]] = {}
+		# what `log` of a configuration writes to, by the session it was started as, and what keeps
+		# it up to date with a terminal
+		self.logs: dict[dap.Session, log_file.LogFile] = {}
+		self.terminal_logs: dict[dap.Session, list[TerminalLog]] = {}
 		self.memory_views: list[MemoryView] = []
 		self.disassembly_view: DisassembleView | None = None
 
@@ -194,6 +200,9 @@ class Debugger(core.Dispose, dap.Debugger):
 
 		for session in self.sessions:
 			session.dispose()
+
+		for session in list(self.logs) + list(self.terminal_logs):
+			self.close_log(session)
 
 		super().dispose()
 
@@ -365,11 +374,45 @@ class Debugger(core.Dispose, dap.Debugger):
 
 			launch(configuration)
 
-	def apply_env_file(self, configuration: dap.ConfigurationExpanded):
-		'''`envFile` of a configuration becomes part of its `env`, see `env_file`'''
+	def configuration_folder(self, configuration: dap.ConfigurationExpanded) -> str | None:
+		'''Where a path of a configuration that is not absolute is looked for: its `cwd`, else the project'''
 		cwd = configuration.get('cwd')
 		folders = self.window.extract_variables()
-		base = cwd if isinstance(cwd, str) and cwd else folders.get('project_path') or folders.get('folder')
+		return cwd if isinstance(cwd, str) and cwd else folders.get('project_path') or folders.get('folder')
+
+	def open_log(self, configuration: dap.ConfigurationExpanded) -> log_file.LogFile | None:
+		'''The file `log` of a configuration names, opened, see `log_file`
+
+		`log` is taken out of the configuration: it is the debuggers, and an adapter that has a
+		`log` of its own means something else by it.
+		'''
+		try:
+			options = log_file.options(configuration.pop('log', None), self.configuration_folder(configuration))
+			if not options:
+				return None
+
+			log = log_file.LogFile(*options)
+			log.terminal = console_mode.mode(configuration.get('console')) == console_mode.EXTERNAL
+			return log
+
+		except log_file.LogError as error:
+			raise dap.Error(f'{configuration.name}: {error}', source=configuration.source)
+
+	def log_of(self, session: dap.Session | None) -> log_file.LogFile | None:
+		'''The log a session writes to, which for a child session is its parents'''
+		while session and session.parent:
+			session = session.parent
+		return self.logs.get(session) if session else None
+
+	def close_log(self, session: dap.Session) -> None:
+		for terminal_log in self.terminal_logs.pop(session, []):
+			terminal_log.close()
+		if log := self.logs.pop(session, None):
+			log.close()
+
+	def apply_env_file(self, configuration: dap.ConfigurationExpanded):
+		'''`envFile` of a configuration becomes part of its `env`, see `env_file`'''
+		base = self.configuration_folder(configuration)
 
 		try:
 			env_file.apply(configuration, base)
@@ -397,6 +440,10 @@ class Debugger(core.Dispose, dap.Debugger):
 
 			configuration['console'] = console_mode.for_adapter(console, Settings.external_terminal)
 
+		# after everything that can refuse the start, so nothing is opened that is then left open,
+		# and before the adapter sees a `log` it was not meant to
+		log = None if parent else self.open_log(configuration)
+
 		session = dap.Session(
 			adapter=adapter,
 			configuration=configuration,
@@ -421,6 +468,10 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.sessions.append(session)
 		# if a session is added select it
 		self.session = session
+
+		if log:
+			self.logs[session] = log
+			session.console.info('Output is {} `{}`'.format('added to' if log.append else 'saved to', log.path))
 
 		self.on_session_added(session)
 		self.on_session_active(session)
@@ -571,6 +622,11 @@ class Debugger(core.Dispose, dap.Debugger):
 
 		self.console_for(session).program_output(session, event)
 
+		# what the program wrote, not what the adapter said about it. A program in a terminal
+		# writes to the terminal, which is where its log is read from (`TerminalLog`)
+		if event.category in ('stdout', 'stderr') and (log := self.log_of(session)) and not log.terminal:
+			log.write(event.output)
+
 	def remove_session(self, session: dap.Session):
 		core.remove_and_dispose(self.memory_views, lambda view: view.session == session)
 		session.dispose()
@@ -579,6 +635,7 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.paused_sessions.discard(session)
 		# what was started for it and says when it is ready, a server more often than not
 		self.tasks.release(session)
+		self.close_log(session)
 		self.on_session_removed(session)
 
 		# select a new session if there is one
@@ -756,6 +813,14 @@ class Debugger(core.Dispose, dap.Debugger):
 			else:
 				terminal = ExternalTerminalTerminus(title, cwd, commands, env)
 
+			if log := self.log_of(session):
+				if isinstance(terminal, ExternalTerminalTerminus):
+					tab = terminal
+					self.follow_terminal(session, log, tab.view, lambda: (view := tab.view()) and terminal_columns(view) or None)
+				else:
+					# a window of another program, there is nothing of it here to read
+					session.console.log('warn', f'`log` cannot follow the terminal of the system: nothing is written to `{log.path}`. Set `external_terminal` to "terminus" or "terminus_panel"')
+
 			self.external_terminals.setdefault(session, []).append(terminal)
 			return dap.RunInTerminalResponse(processId=None, shellProcessId=None)
 
@@ -779,11 +844,20 @@ class Debugger(core.Dispose, dap.Debugger):
 			# so the tab strip shows it with the configuration it belongs to and hides it with the rest
 			terminal.session = session
 			self.panel_terminals.setdefault(session, []).append(terminal)
+			if log := self.log_of(session):
+				self.follow_terminal(session, log, lambda: terminal.view, terminal.columns)
 			self.on_output_panels_updated()
 			self.open_session_output(session)
 			return dap.RunInTerminalResponse(processId=None, shellProcessId=None)
 
 		raise dap.Error('`external_terminal` is "{}", it has to be one of: {}'.format(place, ', '.join(console_mode.PLACES)))
+
+	def follow_terminal(self, session: dap.Session, log: log_file.LogFile, view: Any, columns: Any) -> None:
+		'''Keeps `log` up to date with the terminal in `view` until the session is gone'''
+		root = session
+		while root.parent:
+			root = root.parent
+		self.terminal_logs.setdefault(root, []).append(TerminalLog(log, view, columns))
 
 	def dispose_terminals(self, unused_only: bool = False):
 		if unused_only:

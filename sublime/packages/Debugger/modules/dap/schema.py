@@ -131,6 +131,21 @@ def generate_lsp_json_schema():
 				'items': {'type': 'string'},
 				'description': 'Name of the task to run after debugging ends, or a list of names run in that order',
 			}
+			value['properties']['log'] = {
+				'type': 'object',
+				'description': 'Saves what the program prints (stdout and stderr together) to a file, as well as showing it in the console or the terminal',
+				'properties': {
+					'file': {'type': 'string', 'description': 'Path of the file, from `cwd` or the project folder when it is not absolute. Its folder is created'},
+					'append': {'type': 'boolean', 'description': 'Add to the file instead of starting it again on every run, false when not set'},
+				},
+				'required': ['file'],
+				'additionalProperties': False,
+			}
+			value['properties']['envFile'] = {
+				'type': ['string', 'array'],
+				'items': {'type': 'string'},
+				'description': 'A dotenv file, or a list of them, whose variables are laid under `env`',
+			}
 			# the same two values for every adapter, in place of whatever names it lists itself
 			value['properties']['console'] = console_mode.SCHEMA
 			value['properties']['osx'] = {

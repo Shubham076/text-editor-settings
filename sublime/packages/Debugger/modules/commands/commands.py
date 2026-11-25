@@ -30,7 +30,7 @@ class SettingsPreferences(Action):
 
 	def action_raw(self, view: sublime.View | sublime.Window, kwargs: dict[str, Any]):
 		if window := core.window_from_view_or_widow(view):
-			window.run_command('edit_settings', {'base_file': '${packages}/Debugger2/Debugger.sublime-settings'})
+			window.run_command('edit_settings', {'base_file': '${packages}/Debugger/Debugger.sublime-settings'})
 
 
 class Open(Action):
