@@ -95,6 +95,8 @@ class Session(TransportListener, core.Dispose):
 
 		self.threads: list[Thread] = []
 		self.variables: list[Variable] = []
+		# the frame `variables` are the scopes of, which trails `selected_frame` by a request
+		self.variables_frame: api.StackFrame | None = None
 		self.sources: dict[int | str, api.Source] = {}
 		self.modules: dict[int | str, api.Module] = {}
 
@@ -454,6 +456,41 @@ class Session(TransportListener, core.Dispose):
 
 		await self.stop_session()
 
+	@property
+	def can_restart_natively(self) -> bool:
+		'''Whether the adapter can start the program again inside this session
+
+		Not while it is starting or stopping, and not with a task before or after it: a
+		`pre_debug_task` is usually the build, and a restart that skips it runs the old program.
+		'''
+		if not self.capabilities.supportsRestartRequest or not self._transport:
+			return False
+		if self.stop_requested or self.state not in (Session.State.RUNNING, Session.State.PAUSED):
+			return False
+		return not self.configuration.pre_debug_task and not self.configuration.post_debug_task
+
+	async def restart_natively(self) -> None:
+		'''The `restart` request: the adapter ends the program and starts it again, the session stays
+
+		What the session knew about the program that was running is thrown away: its threads are
+		gone and so is the frame that was selected. The breakpoints are the adapters to keep.
+		'''
+		self._change_state_status('Restarting')
+		await self.request('restart', {'arguments': dict(self.configuration)})
+
+		self.stepping = False
+		self.stepping_hit_stopped_event = False
+		self.all_threads_stopped = False
+		self.terminated_event = None
+
+		self.threads.clear()
+		self.threads_for_id.clear()
+		self.select(None, None, explicitly=False)
+
+		self.on_updated_threads(self)
+		self.refresh_threads()
+		self._refresh_state()
+
 	async def stop_session(self) -> None:
 		if self.state == Session.State.STOPPING or self.state == Session.State.STOPPED:
 			return
@@ -657,6 +694,7 @@ class Session(TransportListener, core.Dispose):
 		body = await self.request('scopes', {'frameId': frame.id})
 		scopes: list[api.Scope] = body['scopes']
 		self.variables = [Variable.from_scope(self, scope) for scope in scopes]
+		self.variables_frame = frame
 		self.on_updated_variables(self)
 
 	async def get_source(self, source: api.Source) -> tuple[str, str | None]:
@@ -890,6 +928,7 @@ class Session(TransportListener, core.Dispose):
 			core.run(self.refresh_scopes(frame))
 		else:
 			self.variables.clear()
+			self.variables_frame = None
 			self.on_updated_variables(self)
 
 	def on_invalidated_event(self, invalidated: api.InvalidatedEvent):

@@ -55,6 +55,48 @@ class Settings:
 		description='When the LSP package is installed show the value of the hovered expression inside the LSP hover popup instead of in a separate popup. Requires a restart.',
 	)
 
+	inline_values = Setting[bool](
+		key='inline_values',
+		default=True,
+		description='''
+		While stopped, writes the values of the variables of the selected frame at the end of the lines
+		that mention them, from the top of the function down to the line that is stopped on.
+		''',
+	)
+
+	inline_values_color = Setting['str|None'](
+		key='inline_values_color',
+		default=None,
+		description='''
+		Colour of the inline values, as css: "#8a6d3b", "rgb(120, 90, 200)", "var(--bluish)". Defaults
+		to the text colour of the colour scheme.
+		''',
+	)
+
+	inline_values_opacity = Setting[float](
+		key='inline_values_opacity',
+		default=0.75,
+		description='How strongly the inline values are drawn, from 0.1 (barely there) to 1 (as solid as the code).',
+	)
+
+	inline_values_font_style = Setting[str](
+		key='inline_values_font_style',
+		default='italic',
+		description='Style of the inline values: "italic", "normal", "bold" or "bold italic".',
+	)
+
+	inline_values_font_face = Setting['str|None'](
+		key='inline_values_font_face',
+		default=None,
+		description='Font family of the inline values. Defaults to the font of the file they are drawn in.',
+	)
+
+	inline_values_font_size = Setting['float|None'](
+		key='inline_values_font_size',
+		default=None,
+		description='Font size of the inline values. Defaults to 90% of the font size of the file they are drawn in.',
+	)
+
 	font_size = Setting['float|None'](
 		key='font_size',
 		default=None,

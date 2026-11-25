@@ -16,6 +16,7 @@ from .project import Project
 from .watch import Watch
 
 from . import console_mode
+from . import env_file
 from . import project_buttons
 from . import test_buttons
 from .output_panel_console import ConsoleOutputPanel
@@ -129,6 +130,8 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.watch = Watch(self)
 
 		self.source_provider = SourceNavigationProvider(self.project, self)
+		self.on_session_variables_updated.add(lambda _: self.source_provider.refresh_inline_values())
+		self.on_project_or_settings_updated.add(self.source_provider.refresh_inline_values)
 		self.dispose_add(Suggestions(self))
 
 		self.tasks = Tasks()
@@ -324,6 +327,7 @@ class Debugger(core.Dispose, dap.Debugger):
 				try:
 					adapter = dap.Adapter.get(configuration.type)
 					configuration_expanded = await configuration.Expanded(self.project.tasks, variables)
+					self.apply_env_file(configuration_expanded)
 
 					pre_debug_task = configuration_expanded.get('pre_debug_task')
 					post_debug_task = configuration_expanded.get('post_debug_task')
@@ -359,6 +363,17 @@ class Debugger(core.Dispose, dap.Debugger):
 
 
 			launch(configuration)
+
+	def apply_env_file(self, configuration: dap.ConfigurationExpanded):
+		'''`envFile` of a configuration becomes part of its `env`, see `env_file`'''
+		cwd = configuration.get('cwd')
+		folders = self.window.extract_variables()
+		base = cwd if isinstance(cwd, str) and cwd else folders.get('project_path') or folders.get('folder')
+
+		try:
+			env_file.apply(configuration, base)
+		except env_file.EnvFileError as error:
+			raise dap.Error(str(error), source=configuration.source)
 
 	async def launch(self, adapter: dap.Adapter, configuration: dap.ConfigurationExpanded, restart: Any | None = None, no_debug: bool = False, parent: dap.Session | None = None) -> dap.Session:
 		for session in self.sessions:

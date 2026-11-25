@@ -80,6 +80,8 @@ This project comes with some pre-configured debuggers (They can be installed usi
   - Consult the debugger specific documentation links above for creating a configuration for your debugger. Most debuggers come with some configuration snippets to choose from but I highly recommend looking at the documentation for the debugger.
   - Variable substitution: variables like `${file}` are supported but the list of supported variables differs from VSCode. The supported values are those listed at http://www.sublimetext.com/docs/build_systems.html#variables plus the VSCode-specific `${workspaceFolder}` that resolves to the path of the first workspace folder.
 
+  - `envFile`: a path, or a list of paths, to dotenv files whose variables are laid under `env` for every adapter. What `env` sets wins, a later file wins over an earlier one, and a relative path is looked for from `cwd` or else the project folder.
+
 - Your configuration will look something like the following but with some debugger specific fields.
 ```
 "debugger_configurations" : [

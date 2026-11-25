@@ -198,6 +198,9 @@ async def restart(debugger: Debugger, name: str, no_debug: bool | None = None) -
 		if no_debug is None:
 			no_debug = bool(sessions) and all(getattr(session, 'no_debug', False) for session in sessions)
 
+		if await _restart_natively(debugger, sessions, names, no_debug):
+			return
+
 		for session in sessions:
 			await debugger.stop(session)
 
@@ -212,6 +215,33 @@ async def restart(debugger: Debugger, name: str, no_debug: bool | None = None) -
 
 	except dap.Error as e:
 		debugger.console.error(f'Unable to restart {name}: {e}')
+
+
+async def _restart_natively(debugger: Debugger, sessions: list[dap.Session], names: list[str], no_debug: bool) -> bool:
+	'''Restarts with the `restart` request of the adapter where every session can, and says whether it did
+
+	Faster than stopping and starting, and the session keeps its console and its place in the
+	panels. It is all of them or none: a compound that is half restarted and half started again has
+	to be stopped as a whole anyway. Changing between run and debug is a different launch, and a
+	configuration that is not running has nothing to restart.
+	'''
+	if not sessions or {session.configuration.name for session in sessions} != set(names):
+		return False
+
+	for session in sessions:
+		if not getattr(session, 'can_restart_natively', False) or bool(getattr(session, 'no_debug', False)) != bool(no_debug):
+			return False
+
+	try:
+		for session in sessions:
+			await session.restart_natively()
+			session.console.info('Restarted')
+		return True
+
+	except dap.Error as e:
+		# the adapter said it could and then could not: what stopping and starting does still works
+		core.info(f'restart request failed, stopping and starting instead: {e}')
+		return False
 
 
 @core.run

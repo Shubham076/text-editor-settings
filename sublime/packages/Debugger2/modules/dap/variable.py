@@ -55,6 +55,10 @@ class Variable:
 		self.type = type
 		self.fetched: Future[list[Variable]]|None = None
 
+		# only of a scope: whether it is costly to ask for, and what kind it says it is
+		self.expensive = False
+		self.presentationHint: str|None = None
+
 
 	@staticmethod
 	def from_variable(session: Session, containerVariablesReference: int, variable: api.Variable):
@@ -71,12 +75,15 @@ class Variable:
 
 	@staticmethod
 	def from_scope(session: Session, scope: api.Scope):
-		return Variable(
+		variable = Variable(
 			session,
 			scope.name,
 			None,
 			scope.variablesReference,
 		)
+		variable.expensive = bool(scope.expensive)
+		variable.presentationHint = scope.presentationHint
+		return variable
 
 	@staticmethod
 	def from_evaluate(session: Session, name: str, evaluate: api.EvaluateResponse):

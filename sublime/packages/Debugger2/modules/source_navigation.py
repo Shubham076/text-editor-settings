@@ -5,6 +5,8 @@ from . import core
 from . import dap
 
 from .views.selected_line import SelectedLine
+from .views.inline_values import InlineValues, frame_values
+from .settings import Settings
 from .debugger import Project
 
 if TYPE_CHECKING:
@@ -49,6 +51,9 @@ class SourceNavigationProvider:
 		self.generated_view: sublime.View | None = None
 		self.selected_frame_line: SelectedLine | None = None
 
+		self.inline_values: InlineValues | None = None
+		self.inline_values_updating: Any | None = None
+
 	def dispose(self):
 		self.clear()
 
@@ -71,6 +76,7 @@ class SourceNavigationProvider:
 
 			self.clear_selected()
 			self.selected_frame_line = SelectedLine(view, source.line or 1, source.column, thread)
+			self.refresh_inline_values()
 
 		self.updating = core.run(select_async(source, thread), on_error=on_error)
 
@@ -95,7 +101,60 @@ class SourceNavigationProvider:
 		self.clear_selected()
 		self.clear_generated_view()
 
+	def refresh_inline_values(self):
+		'''Writes the variables of the selected frame beside the lines of its function, see `InlineValues`
+
+		Called when the stopped line is drawn and again when the variables of the frame arrive,
+		whichever is last has both. Also when a setting changes, which is how turning
+		`inline_values` off takes them away without waiting for the next step.
+		'''
+		if self.inline_values_updating:
+			self.inline_values_updating.cancel()
+			self.inline_values_updating = None
+
+		session = self.debugger.session
+		selected = self.selected_frame_line
+		frame = session.selected_frame if session else None
+
+		if not Settings.inline_values or not session or not selected or not frame:
+			self.clear_inline_values()
+			return
+
+		# the scopes of the frame before this one are still what the session has, until its own arrive
+		if session.variables_frame is not frame or frame.line != selected.line:
+			self.clear_inline_values()
+			return
+
+		async def refresh_async():
+			values = await frame_values(session.variables)
+
+			# stepped on or continued while the variables were being asked for
+			if self.selected_frame_line is not selected or session.variables_frame is not frame:
+				return
+
+			self.clear_inline_values()
+			if values:
+				self.inline_values = InlineValues(selected, values)
+
+		def on_error(error: BaseException):
+			if not isinstance(error, (core.CancelledError, dap.Error)):
+				core.error(error)
+
+		self.inline_values_updating = core.run(refresh_async(), on_error=on_error)
+
+	def clear_inline_values(self):
+		if self.inline_values:
+			self.inline_values.dispose()
+			self.inline_values = None
+
 	def clear_selected(self):
+		if self.inline_values_updating:
+			self.inline_values_updating.cancel()
+			self.inline_values_updating = None
+
+		# before the line they sit on: the values of the stopped line are drawn by its phantom
+		self.clear_inline_values()
+
 		if self.selected_frame_line:
 			self.selected_frame_line.dispose()
 			self.selected_frame_line = None
