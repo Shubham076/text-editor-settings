@@ -51,7 +51,9 @@
             { "key": "setting.git_savvy.branch_view", "operator": "equal", "operand": false },
             { "key": "setting.git_savvy.remotes_view", "operator": "equal", "operand": false },
             { "key": "setting.git_savvy.log_graph_view", "operator": "equal", "operand": false },
-            { "key": "setting.git_savvy.rebase_view", "operator": "equal", "operand": false }
+            { "key": "setting.git_savvy.rebase_view", "operator": "equal", "operand": false },
+            // ...and in Terminus, so tab reaches the shell for completion.
+            { "key": "terminus_view", "operator": "not_equal", "operand": true }
         ]
     },
     {
@@ -68,7 +70,9 @@
             { "key": "setting.git_savvy.branch_view", "operator": "equal", "operand": false },
             { "key": "setting.git_savvy.remotes_view", "operator": "equal", "operand": false },
             { "key": "setting.git_savvy.log_graph_view", "operator": "equal", "operand": false },
-            { "key": "setting.git_savvy.rebase_view", "operator": "equal", "operand": false }
+            { "key": "setting.git_savvy.rebase_view", "operator": "equal", "operand": false },
+            // ...and in Terminus, so tab reaches the shell for completion.
+            { "key": "terminus_view", "operator": "not_equal", "operand": true }
         ]
     },
 
