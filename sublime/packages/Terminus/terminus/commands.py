@@ -9,6 +9,7 @@ import logging
 from .clipboard import g_clipboard_history
 from .const import DEFAULT_PANEL, DEFAULT_TITLE, EXEC_PANEL, CONTINUATION
 from .key import get_key_code
+from .json_logs import mode_of
 from .recency import RecencyManager
 from .render import refresh_terminus_status
 from .terminal import Terminal
@@ -53,6 +54,7 @@ class TerminusOpenCommand(sublime_plugin.WindowCommand):
             reactivable=True,
             timeit=False,
             paths=[],
+            json_logs=None,
     ):
         config = None
 
@@ -214,6 +216,14 @@ class TerminusOpenCommand(sublime_plugin.WindowCommand):
             else:
                 view = window.new_file(syntax="Terminus View.sublime-syntax")
 
+        # How a line that is a json object (a structured log) is shown, see `json_logs.py`.
+        # Whoever opens the terminal says so with the `json_logs` argument (the Debugger passes
+        # its own setting), then the shell config, then the `json_logs` setting.
+        json_logs = mode_of(
+            json_logs,
+            config.get("json_logs") if config else None,
+            sublime.load_settings("Terminus.sublime-settings").get("json_logs"))
+
         # pre_window_hooks
         for hook in pre_window_hooks:
             window.run_command(*hook)
@@ -236,6 +246,7 @@ class TerminusOpenCommand(sublime_plugin.WindowCommand):
                 "file_regex": file_regex,
                 "line_regex": line_regex,
                 "view_settings": view_settings,
+                "json_logs": json_logs,
             })
 
         if show_in_panel:
@@ -599,7 +610,9 @@ class TerminusActivateCommand(sublime_plugin.TextCommand):
             tag=kwargs["tag"],
             auto_close=kwargs["auto_close"],
             cancellable=kwargs["cancellable"],
-            timeit=kwargs["timeit"]
+            timeit=kwargs["timeit"],
+            # a terminal restored from before the argument existed has none
+            json_logs=kwargs.get("json_logs")
         )
         recency_manager = RecencyManager.from_view(view)
         if recency_manager:

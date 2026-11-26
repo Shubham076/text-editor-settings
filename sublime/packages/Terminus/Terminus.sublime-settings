@@ -139,6 +139,17 @@
         // "Terminus View.sublime-settings".
     },
 
+    // A line of output that is a json object (a structured log) is formatted to be read.
+    // Lines that are not json, and full screen programs (an editor, a pager), are left alone.
+    //   "compact"  one line a log: 10:32:01.123 INFO  request completed  status=200 ms=31
+    //   "fields"   the time, level and message, then one line for each field
+    //   "pretty"   the json itself, indented
+    //   "off"      as the program printed it (the default)
+    // Applies to terminals opened after the change. A shell config can have its own
+    // "json_logs", and `terminus_open` takes it as an argument, which comes first: the
+    // Debugger passes its own `json_logs` setting for the terminals it opens.
+    "json_logs": "off",
+
     // reactivate terminals when window starts
     "reactivate_terminals": true,
 

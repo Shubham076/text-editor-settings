@@ -100,15 +100,16 @@ See [MarkdownPreviewOverlay/README.md](MarkdownPreviewOverlay/README.md).
 
 ### Terminus
 
-Note that Sublime does **not** load Terminus from this folder. Its symlink points at a
-working checkout instead:
+Sublime loads Terminus from this folder:
 
 ```
 ~/Library/Application Support/Sublime Text/Packages/Terminus
-    -> ~/PycharmProjects/Terminus
+    -> <this repository>/sublime/packages/Terminus
 ```
 
-The copy here is a snapshot of that checkout, so the two can drift apart.
+This is the only copy. It started as a snapshot of a checkout of the fork
+(`Shubham076/terminus`) at `~/PycharmProjects/Terminus`, which was removed on 2026-11-26; the
+changes made since exist only here.
 
 ## Version check — 2026-09-06
 
@@ -116,24 +117,21 @@ The copy here is a snapshot of that checkout, so the two can drift apart.
 | :--- | :--- | :--- | :--- |
 | CsvGridOverlay | written 2026-09-06, not under version control | none | Local only. Nothing to publish or pull. |
 | MarkdownPreviewOverlay | `975a84d` | `975a84d` (`github.com/flashmodel/MarkdownPreviewOverlay`) | Up to date, working tree clean. |
-| Terminus | snapshot of `~/PycharmProjects/Terminus` | fork `Shubham076/terminus`, `origin/master` at `0cccd3f` | Not published. See below. |
+| Terminus | the only copy; began as a snapshot of the fork's checkout (removed 2026-11-26) | fork `Shubham076/terminus`, `origin/master` at `0cccd3f` | Not published. See below. |
 
 **Update 2026-09-29.** `MarkdownPreviewOverlay` was re-cloned and now sits on `master` at `6222007`
 (`v0.1.4`), 11 commits ahead of the `975a84d` in the table above — native keyboard scrolling, scroll
 sync and image-path fixes. Update it with a plain `git -C MarkdownPreviewOverlay pull`.
 
 **Terminus is the one to watch.** The checkout Sublime loads sits on branch
-`refactored_forward_backward_panel` at `ecbd61b` with uncommitted changes in
-`terminus/commands.py` and `terminus/render.py`. Those edits exist only in that working
-tree and in the snapshot here — they are not committed, not pushed, and not on
-`origin/master`. Commit and push that branch if you want them backed up.
+The fork's branch `refactored_forward_backward_panel` is pushed at `ecbd61b`. Everything after
+that (the status bar labels, tab handling, json logs) was never committed to the fork: it is in
+this folder and in this repository's history only.
 
 Re-run the check with:
 
 ```sh
 git -C MarkdownPreviewOverlay fetch && git -C MarkdownPreviewOverlay status -sb
-git -C ~/PycharmProjects/Terminus status -sb
-diff -rq Terminus ~/PycharmProjects/Terminus -x .git -x '*.pyc' -x __pycache__
 ```
 
 ## Adding a package

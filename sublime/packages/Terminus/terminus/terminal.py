@@ -13,6 +13,11 @@ from .utils import responsive, intermission
 from .view import get_panel_window, view_size
 from .key import get_key_code
 from .image import get_image_info, image_resize
+from .json_logs import Stream as JsonLogStream, mode_of
+
+# passes of the render loop (30ms each) the start of a possible json log waits for the rest of
+# its line before it is shown as it is
+JSON_LOG_PARTIAL_PASSES = 8
 
 
 IMAGE = """
@@ -154,11 +159,23 @@ class Terminal:
 
         def renderer():
 
-            def feed_data():
+            # passes of the loop (30ms each) since output last arrived
+            idle = [0]
+
+            def feed_data(final=False):
                 if len(data[0]) > 0:
                     logger.debug("receieved: {}".format(data[0]))
-                    self.stream.feed(data[0])
+                    self.stream.feed(self.json_logs.feed_text(data[0]))
                     data[0] = ""
+                    idle[0] = 0
+                elif self.json_logs.pending:
+                    # The start of a line that may be a json log is held until the line ends.
+                    # When the rest does not come (a program printed `{` and waits) it is shown
+                    # as it is.
+                    idle[0] += 1
+                    if final or idle[0] >= JSON_LOG_PARTIAL_PASSES:
+                        for text, _ in self.json_logs.flush():
+                            self.stream.feed(text)
 
             while True:
                 with intermission(period=0.03), self.lock:
@@ -177,6 +194,7 @@ class Terminal:
                         break
 
             feed_data()
+            feed_data(final=True)
             done[0] = True
 
             def _cleanup():
@@ -201,7 +219,7 @@ class Terminal:
     def start(
             self, cmd, cwd=None, env=None, default_title=None, title=None,
             show_in_panel=None, panel_name=None, tag=None, auto_close=True, cancellable=False,
-            timeit=False):
+            timeit=False, json_logs=None):
 
         view = self.view
         if view:
@@ -221,6 +239,9 @@ class Terminal:
             self.start_time = time.time()
         self.default_title = default_title
         self.title = title
+        # formats the lines of output that are json logs before they reach the screen; the
+        # mode is fixed when the terminal starts (`terminus_open` works it out)
+        self.json_logs = JsonLogStream(mode_of(json_logs), terminal=True)
 
         if view:
             self.set_offset()
