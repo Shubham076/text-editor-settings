@@ -61,6 +61,10 @@ class Tasks(core.Dispose):
 					await t.wait()
 				return
 
+			# one that ended is in the way of the one about to start, as above: its tab is taken
+			# away so the task has one tab, the one of its last run, and not one for every run
+			self.cancel(t)
+
 		depends_on = task.depends_on
 		sequence = task.depends_on_order == 'sequence'
 		type = task.type

@@ -421,3 +421,33 @@ class ReadyTaskTests(unittest.TestCase):
 			self.assertFalse(Terminal.created[0].killed)
 
 		self.scenario(scenario())
+
+	def test_a_task_that_is_run_again_has_one_tab_and_not_one_for_every_run(self):
+		async def scenario():
+			for count in (1, 2, 3):
+				run = self.start(Task('build'), owner='session')
+				await self.settle()
+				# the tab of the run before is gone, the one of this run is the only one
+				self.assertEqual(len(self.tasks.tasks), 1)
+				self.assertEqual(len(Terminal.created), count)
+				for terminal in Terminal.created[:-1]:
+					terminal.dispose.assert_called_once()
+				Terminal.created[-1].dispose.assert_not_called()
+				Terminal.created[-1].end()
+				await run
+
+			# also one that failed: it stays to be read until the task is run again
+			run = self.start(Task('build'), owner='session')
+			await self.settle()
+			Terminal.created[-1].end('exit 1')
+			with self.assertRaises(RuntimeError):
+				await run
+			self.assertEqual(len(self.tasks.tasks), 1)
+			run = self.start(Task('build'), owner='session')
+			await self.settle()
+			self.assertEqual(len(self.tasks.tasks), 1)
+			Terminal.created[-2].dispose.assert_called_once()
+			Terminal.created[-1].end()
+			await run
+
+		self.scenario(scenario())
