@@ -385,7 +385,7 @@ class Debugger(core.Dispose, dap.Debugger):
 	def configuration_folder(self, configuration: dap.ConfigurationExpanded) -> str | None:
 		'''Where a path of a configuration that is not absolute is looked for: its `cwd`, else the project'''
 		cwd = configuration.get('cwd')
-		folders = self.window.extract_variables()
+		folders = self.project.variables()
 		return cwd if isinstance(cwd, str) and cwd else folders.get('project_path') or folders.get('folder')
 
 	def open_log(self, configuration: dap.ConfigurationExpanded) -> log_file.LogFile | None:

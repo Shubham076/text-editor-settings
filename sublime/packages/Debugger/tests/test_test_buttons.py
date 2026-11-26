@@ -128,6 +128,8 @@ class TestButtonsTests(unittest.TestCase):
 		commands = types.ModuleType('_tbt.modules.commands')
 		commands.__path__ = []
 		self.timeouts = []
+		project = types.ModuleType('_tbt.modules.project')
+		project.read_project_data = lambda window: window.project_data()
 		sublime = types.ModuleType('sublime')
 		sublime.Region = Region
 		sublime.LAYOUT_INLINE = 1
@@ -140,7 +142,7 @@ class TestButtonsTests(unittest.TestCase):
 			'_tbt': root, '_tbt.modules': package, '_tbt.modules.core': core, '_tbt.modules.ui': ui,
 			'_tbt.modules.ui.view': ui_view, '_tbt.modules.ui.icons': ui_icons, '_tbt.modules.settings': settings, '_tbt.modules.dap': dap,
 			'_tbt.modules.configurations': self.configurations, '_tbt.modules.debugger': debugger_module,
-			'_tbt.modules.commands': commands, 'sublime': sublime, 'sublime_plugin': sublime_plugin,
+			'_tbt.modules.commands': commands, '_tbt.modules.project': project, 'sublime': sublime, 'sublime_plugin': sublime_plugin,
 		})
 		self.modules.start()
 		self.addCleanup(self.modules.stop)

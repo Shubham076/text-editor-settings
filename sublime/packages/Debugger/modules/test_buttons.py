@@ -9,6 +9,7 @@ from . import core
 from . import dap
 from . import test_runner
 
+from .project import read_project_data
 from .project_buttons import ACTION_RUN, ACTION_STOP, Icon, ProjectButtons
 from .settings import Settings
 
@@ -25,7 +26,7 @@ started: dict[str, test_runner.Language] = {}
 
 def overrides(window: sublime.Window | None) -> list[Any]:
 	'''What the user laid over the generated configurations: the setting, then the project on top of it'''
-	project: Any = (window.project_data() if window else None) or {}
+	project: Any = (read_project_data(window) if window else None) or {}
 
 	return [Settings.test_configurations, project.get('debugger_test_configurations')]
 

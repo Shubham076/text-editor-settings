@@ -78,13 +78,13 @@ class OpenUiTests(unittest.TestCase):
 		debugger.console.debugger = debugger
 		suggestions = module.Suggestions(debugger)
 		# with a project open nothing is written and the console keeps whatever is in it
-		debugger.console.window.project_file_name.return_value = '/project/demo.sublime-project'
+		debugger.project.location = '/project/demo.sublime-project'
 		suggestions.refresh()
 		debugger.console.log.assert_not_called()
 		debugger.console.error.assert_not_called()
 		debugger.console.clear.assert_not_called()
 		# without a project the warning is written once, and cleared again once a project appears
-		debugger.console.window.project_file_name.return_value = None
+		debugger.project.location = None
 		suggestions.refresh()
 		debugger.console.clear.assert_called_once()
 		debugger.console.error.assert_called_once()
@@ -92,7 +92,7 @@ class OpenUiTests(unittest.TestCase):
 		self.assertIn('Sublime Project', messages)
 		for text in ('Getting Started', 'Example Projects', 'Suggested Packages', 'Terminus'):
 			self.assertNotIn(text, messages)
-		debugger.console.window.project_file_name.return_value = '/project/demo.sublime-project'
+		debugger.project.location = '/project/demo.sublime-project'
 		suggestions.refresh()
 		self.assertEqual(debugger.console.clear.call_count, 2)
 		suggestions.refresh()

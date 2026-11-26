@@ -16,6 +16,57 @@ import os
 import contextlib
 
 
+# where a project file is looked for in a folder of the window: the folder itself, then `.sublime`
+PROJECT_FILE_FOLDERS = ('', '.sublime')
+PROJECT_FILE_EXTENSION = '.sublime-project'
+
+
+def find_project_file(window: sublime.Window) -> str | None:
+	'''The `.sublime-project` file the debugger reads, whether or not the window was opened as that project
+
+	A window that has a project open reads that one. A window that has only folders open reads the
+	project file that is in one of them, so a folder opened without its project has its configurations.
+	Of several in one folder the one named after the folder is taken, else the first by name.
+	'''
+	if project_name := window.project_file_name():
+		return project_name
+
+	for folder in window.folders():
+		for sub in PROJECT_FILE_FOLDERS:
+			directory = os.path.join(folder, sub) if sub else folder
+			try:
+				names = sorted(name for name in os.listdir(directory) if name.endswith(PROJECT_FILE_EXTENSION))
+			except OSError:
+				continue
+
+			named_after_folder = os.path.basename(folder.rstrip(os.sep)) + PROJECT_FILE_EXTENSION
+			if named_after_folder in names:
+				return os.path.join(directory, named_after_folder)
+			if names:
+				return os.path.join(directory, names[0])
+
+	return None
+
+
+def read_project_data(window: sublime.Window) -> dict[str, Any] | None:
+	'''What the project file says: from the window when it has the project open, else from the file'''
+	if window.project_file_name():
+		return cast(Any, window.project_data())
+
+	location = find_project_file(window)
+	if not location:
+		return cast(Any, window.project_data())
+
+	try:
+		with open(location, 'r', encoding='utf-8') as file:
+			data: Any = sublime.decode_value(file.read())
+	except (OSError, ValueError) as error:
+		core.info(f'Unable to read {location}: {error}')
+		return cast(Any, window.project_data())
+
+	return data if isinstance(data, dict) else {}
+
+
 class Project:
 	def __init__(self, window: sublime.Window):
 		self.window = window
@@ -41,13 +92,11 @@ class Project:
 
 	@property
 	def location(self) -> str | None:
-		if project_name := self.window.project_file_name():
-			return project_name
-		return None
+		return find_project_file(self.window)
 
 	@property
 	def project_file_name(self) -> str | None:
-		if project_name := self.window.project_file_name():
+		if project_name := self.location:
 			return Path(project_name).name
 		return ''
 
@@ -154,7 +203,7 @@ class Project:
 
 	@core.run
 	async def open_project_configurations_file(self):
-		project_name = self.window.project_file_name()
+		project_name = self.location
 		if not project_name:
 			self.window.run_command('edit_settings', {'base_file': '${packages}/Debugger/Debugger.sublime-settings'})
 			return None, None
@@ -224,7 +273,7 @@ class Project:
 		return configurations
 
 	def project_data(self)-> dict[str, Any]:
-		return cast(Any, self.window.project_data())
+		return cast(Any, read_project_data(self.window))
 
 	def _load_configurations(self, console: dap.Console):
 		data = self.project_data()
@@ -233,7 +282,8 @@ class Project:
 			data = {}
 
 		# add the empty debugger_configurations if needed
-		elif not 'debugger_configurations' in data:
+		# only into a project the window has open: a file that was found in a folder is the users to edit
+		elif not 'debugger_configurations' in data and self.window.project_file_name():
 			core.info('Adding `debugger_configurations` to sublime-project data')
 			data['debugger_configurations'] = []
 			self.window.set_project_data(data)
@@ -288,8 +338,23 @@ class Project:
 
 		return view.file_name()
 
+	def variables(self) -> dict[str, str]:
+		'''The variables of the window, with those of the project file when the window has none open'''
+		variables: dict[str, str] = dict(self.window.extract_variables())
+
+		if 'project' not in variables and (location := self.location):
+			name = os.path.basename(location)
+			base, extension = os.path.splitext(name)
+			variables['project'] = location
+			variables['project_path'] = os.path.dirname(location)
+			variables['project_name'] = name
+			variables['project_base_name'] = base
+			variables['project_extension'] = extension.lstrip('.')
+
+		return variables
+
 	def extract_variables(self):
-		variables: dict[str, str] = self.window.extract_variables()
+		variables = self.variables()
 
 		# patch in some vscode variables
 		if folder := variables.get('folder'):

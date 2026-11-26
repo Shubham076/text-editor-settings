@@ -25,7 +25,7 @@ class Suggestions(core.Dispose):
 	def refresh(self):
 		console = self.debugger.console
 
-		if console.window.project_file_name():
+		if self.debugger.project.location:
 			# the warning, if it was written, is stale now that a project is open
 			if self.warned:
 				self.warned = False

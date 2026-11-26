@@ -70,6 +70,24 @@ class ProjectButtons(core.Dispose):
 		buttons.render()
 
 	@staticmethod
+	def reload_found_project(view: sublime.View) -> None:
+		'''Reads a saved project file again when it is one the debugger found in a folder
+
+		Sublime says when the project a window has open was saved. It says nothing of a project file
+		that is only in a folder of the window, so a save of that one is noticed here.
+		'''
+		from .debugger import Debugger
+
+		file = view.file_name()
+		window = view.window()
+		if not file or not window or not file.endswith('.sublime-project') or window.project_file_name():
+			return
+
+		debugger = Debugger.get(window)
+		if debugger and debugger.project.location == file:
+			debugger.project_or_settings_updated()
+
+	@staticmethod
 	def refresh_all() -> None:
 		'''Redraws every open project file, an icon shows whether its configuration is running'''
 		for window in sublime.windows():
@@ -239,6 +257,7 @@ class DebuggerProjectFileListener(sublime_plugin.EventListener):
 		ProjectButtons.refresh(view)
 
 	def on_post_save(self, view: sublime.View) -> None:
+		ProjectButtons.reload_found_project(view)
 		ProjectButtons.refresh(view)
 
 	def on_close(self, view: sublime.View) -> None:
