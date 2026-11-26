@@ -152,6 +152,8 @@ class Session(TransportListener, core.Dispose):
 
 		except Exception as e:
 			core.exception()
+			# the line of the start gets its cross before the error is written under it
+			self.end_start_progress(False)
 			self.console.error(str(e), self.configuration.source)
 			await self.stop_session()
 			raise e
@@ -184,6 +186,7 @@ class Session(TransportListener, core.Dispose):
 			raise Error(f'Unable to start adapter: {e}')
 
 		self._transport = transport
+		self.start_progress()
 		await self._transport.start(self, self.configuration, self.console)
 		self._transport_started = True
 
@@ -234,6 +237,30 @@ class Session(TransportListener, core.Dispose):
 		# At this point we are running?
 		self._change_state_status('Running')
 		self._change_state(Session.State.RUNNING)
+		self.end_start_progress(True)
+
+	def start_progress(self) -> None:
+		'''A line in the console for the start of the session, with a mark that spins until it is up
+
+		`⠹ Starting server`, then `✓ Starting server · 1.4s`, or a cross when it did not start. From
+		when the adapter is there to talk to until it says the program is running or attached to,
+		whichever adapter it is. What an adapter does before that (delve's build) has a line of its
+		own. A session an adapter starts inside another (a child process, a browser tab) has none:
+		it is part of a start that already has its line.
+		'''
+		if self.parent or getattr(self, '_start_progress', None):
+			return
+		progress = getattr(self.console, 'progress', None)
+		if not progress:
+			return
+		verb = 'Attaching to' if self.configuration.request == 'attach' else 'Running' if self.no_debug else 'Starting'
+		self._start_progress = progress('{} {}'.format(verb, self.name))
+
+	def end_start_progress(self, ok: bool) -> None:
+		done = getattr(self, '_start_progress', None)
+		if done:
+			self._start_progress = None
+			done(ok)
 
 	async def request(self, command: str, arguments: Any) -> Any:
 		if not self._transport_started:
@@ -510,6 +537,9 @@ class Session(TransportListener, core.Dispose):
 		self._refresh_state()
 
 	async def stop_session(self) -> None:
+		# Ended before it was said to be up: the mark stops spinning. A program that ran to its end
+		# by then started well enough; anything else did not get there
+		self.end_start_progress(bool(getattr(self, 'terminated_event', None)))
 		if self.state == Session.State.STOPPING or self.state == Session.State.STOPPED:
 			return
 
