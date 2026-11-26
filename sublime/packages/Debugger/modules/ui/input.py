@@ -135,7 +135,8 @@ class InputList(sublime_plugin.ListInputHandler):
 		return (items, self.index)
 
 	def confirm(self, arg: int, event: Any = None):
-		modifier_keys = event.get('modifier_keys', {})
+		# enter comes with no event at all, only a click has one: without this enter chose nothing
+		modifier_keys = (event or {}).get('modifier_keys', {})
 		is_alt = modifier_keys.get('super') or modifier_keys.get('alt')
 
 		if is_alt:
