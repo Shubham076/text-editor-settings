@@ -303,5 +303,9 @@
 	{
 		"caption": "Debugger",
 		"command": "debugger_input"
+	},
+	{
+		"caption": "Debugger: Search Output",
+		"command": "debugger_search"
 	}
 ]

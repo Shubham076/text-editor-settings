@@ -13,16 +13,44 @@
 			},
 		]
 	},
-	// Don't allow closing output panels that have focus with the escape key
+	// Search what the panel printed (`modules/search.py`): the popup asks for the text and highlights
+	// the matches, then primary+g steps up through them and primary+shift+g back down. A terminal
+	// is a Terminus view and has the same search from Terminus.
+	{
+		"keys": ["primary+f"],
+		"command": "debugger_search",
+		"context": [
+			{"key": "debugger.output"},
+			{"key": "setting.terminus_view", "operator": "not_equal", "operand": true}
+		]
+	},
+	{
+		"keys": ["primary+g"],
+		"command": "debugger_search_next",
+		"context": [
+			{"key": "debugger.output"},
+			{"key": "setting.terminus_view", "operator": "not_equal", "operand": true}
+		]
+	},
+	{
+		"keys": ["primary+shift+g"],
+		"command": "debugger_search_next",
+		"args": {"forward": true},
+		"context": [
+			{"key": "debugger.output"},
+			{"key": "setting.terminus_view", "operator": "not_equal", "operand": true}
+		]
+	},
+	// Escape does not close a panel of the debugger that has the focus. Sublime's own escape hides
+	// whatever panel is showing, and the popups over a panel (searching it, renaming, inputs) are
+	// closed with escape: one press too many and the panel went with them. `always_keep_visible`
+	// is about the panel being brought back when something else hides it, not about this key.
 	{
 		"keys": [
 			"escape"
 		],
 		"command": "noop",
 		"context": [
-			{
-				"key": "debugger.always_keep_visible"
-			},
 			{
 				"key": "debugger.output"
 			},

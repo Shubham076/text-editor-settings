@@ -23,6 +23,7 @@ from .modules.command import DebuggerCommand, DebuggerTextCommand, DebuggerInput
 
 from .modules.output_panel import OutputPanelEventListener, DebuggerPromptCancelCommand
 from .modules.output_panel_terminus import DebuggerTerminusPostViewHooks
+from .modules.search import DebuggerSearchCommand, DebuggerSearchNextCommand, DebuggerSearchListener
 from .modules import requirements
 from .modules.project_buttons import DebuggerProjectFileListener, ProjectButtons
 from .modules.test_buttons import DebuggerTestFileListener, TestButtons

@@ -98,6 +98,8 @@ class DebuggerCommand(sublime_plugin.WindowCommand):
 		commands_palette = generate_commands(menu_commands, prefix='Debugger: ', include_seperators=False)
 		# hidden command used for gathering input from the command palette
 		commands_palette.append({'caption': 'Debugger', 'command': 'debugger_input'})
+		# searching the panel that is showing (`search.py`): asks for the text in the palette
+		commands_palette.append({'caption': 'Debugger: Search Output', 'command': 'debugger_search'})
 
 		save_commands('contributes/Commands/Default.sublime-commands', commands_palette)
 
