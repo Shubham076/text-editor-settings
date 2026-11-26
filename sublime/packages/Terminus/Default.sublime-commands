@@ -38,6 +38,14 @@
         "command": "terminus_rename_title"
     },
     {
+        "caption": "Terminus: Rename Terminal",
+        "command": "terminus_rename_tab"
+    },
+    {
+        "caption": "Terminus: Search",
+        "command": "terminus_search"
+    },
+    {
         "caption": "Terminus: Close",
         "command": "terminus_close"
     },

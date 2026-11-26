@@ -51,6 +51,15 @@ from .terminus.render import (  # noqa: E402
     TerminusRenderCommand,
     TerminusShowCursorCommand
 )
+from .terminus.search import (  # noqa: E402
+    TerminusSearchCommand,
+    TerminusSearchListener,
+    TerminusSearchNextCommand
+)
+from .terminus.tabs import (  # noqa: E402
+    TerminusRenameTabCommand,
+    TerminusTabsListener
+)
 from .terminus.theme import (  # noqa: E402
     TerminusColorSchemeSavedListener,
     TerminusGenerateThemeCommand,
@@ -68,6 +77,11 @@ from .terminus.view import (  # noqa: E402
 
 __all__ = [
     "TerminusActivateCommand",
+    "TerminusRenameTabCommand",
+    "TerminusSearchCommand",
+    "TerminusSearchListener",
+    "TerminusSearchNextCommand",
+    "TerminusTabsListener",
     "TerminusCancelBuildCommand",
     "TerminusCleanupCommand",
     "TerminusClearUndoStackCommand",

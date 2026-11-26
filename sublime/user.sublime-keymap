@@ -417,6 +417,17 @@
     { "keys": ["super+shift+["], "command": "toggle_terminus_panel", "args": {"cycle": true, "reverse": true}, "context": [{"key": "terminus_view"}] },
     { "keys": ["super+w"], "command": "terminus_close", "context": [{"key": "terminus_view"}] },
 
+    // Search what the terminal printed: the popup asks for the text and highlights the matches,
+    // then super+g steps up through them (older output) and super+shift+g back down
+    // ...and the same for a panel of the debugger (its console). Here and not only in the
+    // Debugger's own keymap: the super+f above, for Find, has no context and would win over it.
+    { "keys": ["super+f"], "command": "debugger_search", "context": [{"key": "debugger.output"}, {"key": "setting.terminus_view", "operator": "not_equal", "operand": true}] },
+    { "keys": ["super+g"], "command": "debugger_search_next", "context": [{"key": "debugger.output"}, {"key": "setting.terminus_view", "operator": "not_equal", "operand": true}] },
+    { "keys": ["super+shift+g"], "command": "debugger_search_next", "args": {"forward": true}, "context": [{"key": "debugger.output"}, {"key": "setting.terminus_view", "operator": "not_equal", "operand": true}] },
+    { "keys": ["super+f"], "command": "terminus_search", "context": [{"key": "terminus_view"}] },
+    { "keys": ["super+g"], "command": "terminus_search_next", "context": [{"key": "terminus_view"}] },
+    { "keys": ["super+shift+g"], "command": "terminus_search_next", "args": {"forward": true}, "context": [{"key": "terminus_view"}] },
+
     // Claude Code context refs (@path:start-end)
     // { "keys": ["super+."], "command": "send_selection_context", "args": { "target": "clipboard", "format": "mention" } },
     // { "keys": ["super+shift+."], "command": "send_selection_context","args": { "target": "clipboard", "format": "snippet" } },

@@ -11,7 +11,7 @@ from .const import DEFAULT_PANEL, DEFAULT_TITLE, EXEC_PANEL, CONTINUATION
 from .key import get_key_code
 from .json_logs import mode_of
 from .recency import RecencyManager
-from .render import refresh_terminus_status
+from . import tabs
 from .terminal import Terminal
 from .utils import available_panel_name
 from .utils import shlex_split
@@ -212,7 +212,8 @@ class TerminusOpenCommand(sublime_plugin.WindowCommand):
                 panel_name = available_panel_name(window, DEFAULT_PANEL)
 
             if show_in_panel:
-                view = window.get_output_panel(panel_name)
+                # an io panel: the strip under the terminal holds the tabs (`tabs.py`)
+                view = tabs.create_panel(window, panel_name)
             else:
                 view = window.new_file(syntax="Terminus View.sublime-syntax")
 
@@ -254,6 +255,9 @@ class TerminusOpenCommand(sublime_plugin.WindowCommand):
 
         if focus:
             window.focus_view(view)
+
+        if show_in_panel:
+            tabs.refresh(window)
 
         # post_window_hooks
         for hook in post_window_hooks:
@@ -405,6 +409,8 @@ class TerminusCloseCommand(sublime_plugin.TextCommand):
             panel_view = window.find_output_panel(panel_name)
             if panel_view and panel_view.settings().get("terminus_view"):
                 terminus_panels.append(panel_name)
+        # the order of the tabs, so closing one lands on the tab before it
+        terminus_panels.sort(key=lambda name: tabs.order_of(window, name))
 
         # If we have multiple panels and this is a panel view
         panel_name = get_panel_name(view)
@@ -429,7 +435,7 @@ class TerminusCloseCommand(sublime_plugin.TextCommand):
                     window.run_command("show_panel", {"panel": f"output.{prev_panel}"})
                     window.focus_view(prev_view)
 
-                refresh_terminus_status(window)
+                tabs.refresh(window)
                 return
             except (ValueError, IndexError):
                 # Fall back to default behavior if anything goes wrong
@@ -447,7 +453,7 @@ class TerminusCloseCommand(sublime_plugin.TextCommand):
         else:
             view.close()
 
-        refresh_terminus_status(window)
+        tabs.refresh(window)
 
 
 class TerminusCloseAllCommand(sublime_plugin.WindowCommand):
@@ -656,13 +662,14 @@ class TerminusResetCommand(sublime_plugin.TextCommand):
                     panel_name = terminal.panel_name
                     window = get_panel_window(view)
                     window.destroy_output_panel(panel_name)  # do not reuse
-                    new_view = window.get_output_panel(panel_name)
+                    new_view = tabs.create_panel(window, panel_name, like=view)
 
                     def run_attach():
                         new_view.run_command("terminus_initialize_view", args)
                         terminal.attach_view(new_view)
                         window.run_command("show_panel", {"panel": "output.{}".format(panel_name)})
                         window.focus_view(new_view)
+                        tabs.refresh(window)
                 else:
                     window = view.window()
                     has_focus = view == window.active_view()
@@ -741,6 +748,7 @@ class TerminusMaximizeCommand(sublime_plugin.TextCommand):
                 offset = terminal.offset
                 window = get_panel_window(view)
                 window.destroy_output_panel(terminal.panel_name)
+                tabs.refresh(window)
                 new_view = window.new_file(syntax="Terminus View.sublime-syntax")
 
                 def run_attach():
@@ -800,7 +808,7 @@ class TerminusMinimizeCommand(sublime_plugin.TextCommand):
                     if not panel_name:
                         panel_name = available_panel_name(window, DEFAULT_PANEL)
 
-                new_view = window.get_output_panel(panel_name)
+                new_view = tabs.create_panel(window, panel_name)
 
                 def run_attach():
                     terminal.show_in_panel = True
@@ -811,6 +819,7 @@ class TerminusMinimizeCommand(sublime_plugin.TextCommand):
                     window.run_command("show_panel", {"panel": "output.{}".format(panel_name)})
                     window.focus_view(new_view)
                     terminal.attach_view(new_view, offset)
+                    tabs.refresh(window)
 
                 sublime.set_timeout_async(run_attach)
 
@@ -1023,6 +1032,8 @@ class ToggleTerminusPanelCommand(sublime_plugin.WindowCommand):
             if view and view.settings().get("terminus_view"):
                 panels.append(panel_name)
 
+        # ctrl+tab goes along the tabs as they are drawn
+        panels.sort(key=lambda name: tabs.order_of(window, name))
         return panels
 
 

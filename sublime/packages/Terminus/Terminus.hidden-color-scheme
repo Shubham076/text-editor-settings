@@ -36,6 +36,16 @@
     },
     "rules": [
         {
+            "scope": "terminus.search.match",
+            "foreground": "var(foreground)",
+            "background": "var(selection)"
+        },
+        {
+            "scope": "terminus.search.current",
+            "foreground": "var(foreground)",
+            "background": "color(var(green) blend(var(background) 50%))"
+        },
+        {
             "scope": "terminus.black.black",
             "foreground": "var(black)",
             "background": "var(black)"

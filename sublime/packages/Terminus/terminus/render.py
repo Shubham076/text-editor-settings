@@ -33,8 +33,22 @@ def find_terminus_panel_name(window):
     return None
 
 
+def terminus_status_text(window, panel_name):
+    """What the status bar says: how many terminals are open in the window.
+
+    The tab strip under the terminal (``tabs.py``) names the one that is
+    showing, so the status bar only counts them. A terminal without a tab (one
+    another package opened in a panel of its own) is still named, as before.
+    """
+    from . import tabs
+    count = len(tabs.panels(window)) if window else 0
+    if count:
+        return "{} terminal{}".format(count, "" if count == 1 else "s")
+    return "Terminal: {}".format(panel_name)
+
+
 def set_terminus_status(view, panel_name):
-    """Pin ``Terminal: <panel_name>`` to the status bar.
+    """Pin the count of terminals to the status bar.
 
     Problem:
         ``Window.status_message()`` only writes to the transient, window-global
@@ -53,9 +67,9 @@ def set_terminus_status(view, panel_name):
         rendered. ``TerminusStatusBarListener.on_activated`` then re-applies it
         as focus moves between views, since each view carries its own keys.
     """
-    status = "Terminal: {}".format(panel_name)
-    view.set_status(TERMINUS_STATUS_KEY, status)
     window = view.window() or sublime.active_window()
+    status = terminus_status_text(window, panel_name)
+    view.set_status(TERMINUS_STATUS_KEY, status)
     if not window:
         return
     active_view = window.active_view()
