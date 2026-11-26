@@ -132,6 +132,13 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.disassembly_view: DisassembleView | None = None
 
 		self.project = Project(window)
+		# The icons on the configurations of an open sublime-project file are drawn from the names
+		# the project was loaded with. Saving the file draws them at once, but Sublime reads the
+		# project again only after that, so a configuration that was just added had no icon until
+		# the file was activated again; and a file that was open before the debugger was had none
+		# at all. Drawn again whenever the project is read, and once this debugger is there to ask
+		# (`ProjectButtons.render` finds it by its window, so not before the constructor is done).
+		self.project.on_updated.add(lambda: sublime.set_timeout(project_buttons.refresh_all, 0))
 		self.panel_height = self.load_panel_height()
 		self.breakpoints = dap.Breakpoints()
 		self.watch = Watch(self)
