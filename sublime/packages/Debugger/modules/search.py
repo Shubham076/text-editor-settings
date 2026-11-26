@@ -12,7 +12,7 @@ The same search, keys and behaviour as the one Terminus has for its terminals (a
 debugger opened is a Terminus view and is searched by Terminus). Upper case in the query makes
 the search case sensitive. The matches are highlighted while the popup is open and not after:
 enter leaves the panel scrolled to the match. Stepping marks the one match it lands on, until
-the panel is written to or typed into.
+something is typed into the panel: what the program prints meanwhile leaves the marks alone.
 '''
 
 from __future__ import annotations
@@ -257,10 +257,16 @@ class DebuggerSearchNextCommand(sublime_plugin.WindowCommand):
 
 class DebuggerSearchListener(sublime_plugin.EventListener):
 	def on_modified(self, view: sublime.View):
-		# more was printed, or something was typed: the mark is in the way, the search is kept
+		# Something was typed: the mark is in the way, the search is kept for the next step. Not
+		# when the program printed more, which the console writes with `debugger_edit`: the marks
+		# stay on their text as it moves, and a program that prints all the time would otherwise
+		# take them away as soon as they are drawn, and with them the place enter steps on from.
 		state = _searches.get(view.id())
-		if state and state.get('shown'):
-			clear(view, forget=False)
+		if not state or not state.get('shown'):
+			return
+		if view.command_history(0, True)[0] == 'debugger_edit':
+			return
+		clear(view, forget=False)
 
 	def on_pre_close(self, view: sublime.View):
 		_searches.pop(view.id(), None)
