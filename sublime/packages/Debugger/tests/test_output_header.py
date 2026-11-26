@@ -461,6 +461,7 @@ class OutputHeaderTests(unittest.TestCase):
 		dependencies.update({
 			'_live_test.modules.ansi': types.SimpleNamespace(ansi_colorize=lambda *args: '',
 				stderr_runs=lambda text, unfinished=None: ([(text, 'red')], None)),
+			'_live_test.modules.json_logs': load_module('_live_test.modules.json_logs', ROOT / 'modules/json_logs.py', {}),
 			'_live_test.modules.output_window_protocol': types.SimpleNamespace(ProtocolConsoleWindow=Mock),
 			'_live_test.modules.output_panel': types.SimpleNamespace(OutputPanel=FakeOutputPanel),
 			'_live_test.modules.lsp_completions': types.SimpleNamespace(),

@@ -40,7 +40,9 @@ class ConsoleBatchingTests(unittest.TestCase):
 		class OutputPanel: ...
 		class Console: ...
 
+		json_logs = load_module('_console_batch_test.modules.json_logs', ROOT / 'modules/json_logs.py', {})
 		dependencies = {
+			'_console_batch_test.modules.json_logs': json_logs,
 			'_console_batch_test': package,
 			'_console_batch_test.modules': modules,
 			'_console_batch_test.modules.views': views,
@@ -170,6 +172,155 @@ class ConsoleBatchingTests(unittest.TestCase):
 		self.console.clear()
 		callback()
 		self.console._write.assert_not_called()
+
+	def json_logs(self, mode):
+		settings = self.module.Settings
+		settings.json_logs = mode
+		self.addCleanup(lambda: delattr(settings, 'json_logs'))
+
+	def written(self):
+		self.console.flush_program_output()
+		return [(call.args[0], call.args[1]) for call in self.console._write.call_args_list]
+
+	def test_a_json_log_is_formatted_and_takes_its_own_colours_even_on_stderr(self):
+		self.json_logs('compact')
+		self.console.program_output(None, self.output('boom\n{"level":"info","msg":"listening","port":3000}\n', 'stderr'))
+		(plain, plain_color), (log, log_color) = self.written()
+		self.assertEqual((plain, plain_color), ('boom\n', 'red'))
+		self.assertEqual(log_color, 'foreground')
+		self.assertIn('listening', log)
+		self.assertNotIn('{', log)
+
+	def test_a_configuration_can_show_json_logs_its_own_way_or_not_at_all(self):
+		self.json_logs('compact')
+		session = types.SimpleNamespace(configuration={'json_logs': 'off'})
+		self.console.program_output(session, self.output('{"msg":"as it is"}\n'))
+		self.assertEqual(self.written(), [('{"msg":"as it is"}\n', 'foreground')])
+
+	def test_the_start_of_a_json_log_waits_for_its_end_and_is_shown_as_it_is_when_none_comes(self):
+		self.json_logs('compact')
+		self.console.program_output(None, self.output('{"msg":"he'))
+		self.assertEqual(self.written(), [])
+		self.console.program_output(None, self.output('llo"}\n{ waiting'))
+		self.assertEqual(self.written(), [('hello\n', 'foreground')])
+		# the timer of the piece still held
+		callback, delay = [item for item in self.scheduled if item[1] == self.module.JSON_LOG_PARTIAL_DELAY_MS][-1]
+		callback()
+		self.assertEqual(self.written()[-1], ('{ waiting', 'foreground'))
+
+	def test_what_the_adapters_process_printed_is_formatted_too(self):
+		# delve: the program's output is the output of the adapter's process, not output events
+		self.json_logs('compact')
+		self.console.protocol = Mock()
+		self.console.session = None
+		self.console.debugger = types.SimpleNamespace(session_panels=None)
+		self.console.log('stdout', 'Building main.go\n{"level":"info","msg":"started"}\n')
+		self.console.log('stderr', '2026/11/26 loading config\n{"level":"fatal","msg":"no database","error":"refused"}\n')
+		written = [(call.args[0], call.args[1]) for call in self.console._write.call_args_list]
+		self.assertEqual([(text if '{' in text or 'config' in text or 'Building' in text else 'formatted', color) for text, color in written], [
+			('Building main.go\n', None), ('formatted', None), ('2026/11/26 loading config\n', 'red'), ('formatted', None)])
+		self.assertIn('started', written[1][0])
+		self.assertIn('no database', written[3][0])
+		self.assertIn('refused', written[3][0])
+
+	def progress_console(self):
+		'''The console over a buffer that is a string, with the regions a view keeps'''
+		console = self.console
+		buffer = ['\u200b']
+		regions = {}
+
+		class View:
+			def insert(self, edit, at, text):
+				buffer[0] = buffer[0][:at] + text + buffer[0][at:]
+				# a region after the insertion moves with the text, as a view's does
+				for key, (a, b) in list(regions.items()):
+					if a >= at:
+						regions[key] = (a + len(text), b + len(text))
+				return len(text)
+
+			def replace(self, edit, region, text):
+				buffer[0] = buffer[0][:region[0]] + text + buffer[0][region[1]:]
+
+			def add_regions(self, key, values):
+				regions[key] = values[0]
+
+			def get_regions(self, key):
+				return [types.SimpleNamespace(a=regions[key][0], size=lambda: regions[key][1] - regions[key][0])] if key in regions else []
+
+			def erase_regions(self, key):
+				regions.pop(key, None)
+
+		console.view = View()
+		console.at = lambda: len(buffer[0]) - 1
+		console.edit = lambda fn: fn(None)
+
+		def write(text, color, ensure_new_line=False, **_):
+			at = console.at()
+			if ensure_new_line and at and buffer[0][at - 1] != '\n':
+				text = '\n' + text
+			console.view.insert(None, at, text)
+
+		console.write = write
+		return console, buffer, regions
+
+	def ticks(self):
+		return [callback for callback, delay in self.scheduled if delay == self.module.PROGRESS_INTERVAL_MS]
+
+	def test_the_mark_of_a_progress_line_spins_and_then_says_how_it_ended(self):
+		console, buffer, regions = self.progress_console()
+		console.write('before', None)
+		done = console.progress('Building main.go')
+		frames = self.module.PROGRESS_FRAMES
+		self.assertEqual(buffer[0], 'before\n' + frames[0] + ' Building main.go\u200b')
+
+		self.ticks()[-1]()
+		self.assertIn(frames[1] + ' Building main.go', buffer[0])
+		# output written below does not move the mark off its line
+		console.write('program output\n', None, ensure_new_line=True)
+		self.ticks()[-1]()
+		self.assertIn(frames[2] + ' Building main.go\nprogram output', buffer[0])
+
+		done(True)
+		self.assertRegex(buffer[0], '^before\n' + self.module.PROGRESS_DONE + r' Building main\.go · \d+\.\ds\nprogram output\n\u200b$')
+		self.assertEqual(regions, {})
+		# the timer that was still waiting does nothing more
+		before = buffer[0]
+		self.ticks()[-1]()
+		self.assertEqual(buffer[0], before)
+
+	def test_a_failed_progress_line_is_marked_and_a_cleared_one_stops(self):
+		console, buffer, regions = self.progress_console()
+		console.progress('Building a')(False)
+		self.assertTrue(buffer[0].startswith(self.module.PROGRESS_FAILED + ' Building a · '))
+
+		done = console.progress('Building b')
+		# the console was cleared: the text and its regions are gone
+		buffer[0] = '\u200b'
+		regions.clear()
+		scheduled = len(self.scheduled)
+		self.ticks()[-1]()
+		done(True)
+		self.assertEqual(buffer[0], '\u200b')
+		self.assertEqual(len(self.scheduled), scheduled)
+
+	def test_what_the_debugger_says_is_marked_for_what_it_is_and_what_the_program_prints_is_not(self):
+		self.console.protocol = Mock()
+		self.console.session = None
+		self.console.debugger = types.SimpleNamespace(session_panels=None)
+		self.console.open = Mock()
+		self.console.phantoms = []
+		written = []
+		self.console.write = lambda text, color, **_: written.append((text, color))
+		self.console.log('error', 'no adapter\nsecond line\n')
+		self.console.log('error-no-open', 'quiet')
+		self.console.log('warn', 'careful')
+		self.console.log('success', 'done')
+		self.console.log('comment', 'just saying')
+		self.console.log('error', '● has a mark already')
+		self.console.log('stderr', 'the program failed\n')
+		self.assertEqual(written, [
+			('✗ no adapter\nsecond line', 'red'), ('✗ quiet', 'red'), ('⚠ careful', 'yellow'), ('✓ done', 'green'),
+			('just saying', 'comment'), ('● has a mark already', 'red'), ('the program failed\n', 'red')])
 
 
 if __name__ == '__main__':

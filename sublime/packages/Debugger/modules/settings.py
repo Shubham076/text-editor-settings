@@ -8,32 +8,147 @@ import sublime
 T = TypeVar('T')
 
 
+# What a group of settings is for, the comment above its object in the settings file. A setting is
+# in a group by its key: `console.font_size` is `font_size` of the `console` object.
+GROUPS = {
+	'ui': 'The debugger ui: the toolbar, tabs, panes (breakpoints, call stack, variables) and menus.',
+	'console': 'The console and terminal panels the debugger creates (the text, not the header above it).',
+	'inline_values': 'The values of variables written at the end of the lines that mention them, while stopped.',
+	'editor': 'What the debugger draws in your files.',
+	'adapters': 'Paths and options of the debug adapters.',
+	'global': 'Configurations, tasks, inputs and compounds that every project has, as a project file lists them under `debugger_configurations` and the like.',
+}
+# the order of the settings file; a key that is not listed comes after these
+ORDER = ['open_at_startup', 'always_keep_visible', 'session_panels', 'inputs_ask', 'ui', 'console', 'inline_values', 'editor',
+	'test_configurations', 'adapters', 'global', 'integrated_output_panels', 'development']
+
+
 class Setting(Generic[T], object):
+	"""One setting of `Debugger.sublime-settings`
+
+	`key` is its name in the file, `group.name` for one inside an object: `console.font_size` is
+
+		"console": {"font_size": 17}
+
+	Sublime lays the user's file over the package's a top level key at a time, so a user who sets
+	one key of a group has replaced the whole object, and the other keys of the group are not in
+	it. They are then what `default` says, which is why the defaults are here and the objects in
+	the package's file are only what is shown to be copied.
+	"""
+
+	# every setting, in the order they were defined; the settings file and its schema are made of these
+	all: list[Setting] = []
+
 	def __init__(self, key: str, default: T, description: str = '', visible=True, schema: Any | None = None) -> None:
 		self.key = key
+		self.group, _, self.name = key.rpartition('.')
 		self.default: Any = default
 		self.description = description
 		self.visible = visible
 		self.schema = schema
+		Setting.all.append(self)
+
+	def get(self) -> T:
+		if not self.group:
+			return cast(T, SettingsRegistery.settings.get(self.key, self.default))
+		values = SettingsRegistery.settings.get(self.group)
+		if isinstance(values, dict) and self.name in values:
+			return cast(T, values[self.name])
+		return cast(T, self.default)
+
+	def set(self, value: T) -> None:
+		if not self.group:
+			SettingsRegistery.settings.set(self.key, cast(Any, value))
+			return
+		# the object is replaced by one with this key changed, the rest of it as it was
+		values = SettingsRegistery.settings.get(self.group)
+		values = dict(values) if isinstance(values, dict) else {}
+		values[self.name] = value
+		SettingsRegistery.settings.set(self.group, values)
 
 	@property
 	def value(self) -> T:
-		return cast(T, SettingsRegistery.settings.get(self.key, self.default))
+		return self.get()
 
 	@value.setter
 	def value(self, value: T):
-		return SettingsRegistery.settings.set(self.key, cast(Any, value))
+		self.set(value)
 
 	def __get__(self, obj, objtype=None) -> T:
-		return cast(T, SettingsRegistery.settings.get(self.key, self.default))
+		return self.get()
 
 	def update(self, value: T):
-		SettingsRegistery.settings.set(self.key, cast(Any, value))
+		self.set(value)
 		SettingsRegistery.save()
 
 	def __set__(self, obj, value: T):
-		SettingsRegistery.settings.set(self.key, cast(Any, value))
+		self.set(value)
 		SettingsRegistery.save()
+
+	def json_schema(self) -> dict[str, Any]:
+		import textwrap
+		import typing
+
+		t = typing.get_args(self.__orig_class__)[0]  # type: ignore
+		types: dict[Any, Any] = {
+			bool: 'boolean', int: 'number', float: 'number', str: 'string',
+			ForwardRef('int|None'): ['number', 'null'], ForwardRef('float|None'): ['number', 'null'], ForwardRef('str|None'): ['string', 'null'],
+		}
+		schema = dict(self.schema) if self.schema else {'type': types.get(t, ['object', 'array'])}
+		schema['description'] = textwrap.dedent(self.description).strip().split('\n')[0]
+		return schema
+
+
+def settings_in_order(visible_only: bool = False) -> list[tuple[str, list[Setting]]]:
+	"""(top level key, its settings) in the order of the file: a setting of its own, or the settings of a group"""
+	entries: dict[str, list[Setting]] = {}
+	for setting in Setting.all:
+		if visible_only and not setting.visible:
+			continue
+		entries.setdefault(setting.group or setting.key, []).append(setting)
+	return sorted(entries.items(), key=lambda entry: ORDER.index(entry[0]) if entry[0] in ORDER else len(ORDER))
+
+
+def settings_file_text() -> str:
+	"""The package's `Debugger.sublime-settings`: every visible setting at its default under its description"""
+	import json
+	import textwrap
+
+	def comment(text: str, indent: str) -> str:
+		lines = textwrap.dedent(text).strip().split('\n')
+		return ''.join(f'{indent}// {line}\n' if line else f'{indent}//\n' for line in lines) if text.strip() else ''
+
+	output = '{\n' + comment('''
+		The settings of a group are the keys of one object. To change one, give its object with
+		only that key in your own file; the other keys of the group keep their defaults:
+
+		    "console": {"font_size": 17}
+	''', '\t') + '\n'
+	for key, settings in settings_in_order(visible_only=True):
+		if key not in GROUPS and not settings[0].group:
+			setting = settings[0]
+			output += comment(setting.description, '\t') + f'\t{json.dumps(key)}: {json.dumps(setting.default)},\n\n'
+			continue
+		output += comment(GROUPS.get(key, ''), '\t') + f'\t{json.dumps(key)}: {{\n'
+		for index, setting in enumerate(settings):
+			output += ('\n' if index else '') + comment(setting.description, '\t\t') + f'\t\t{json.dumps(setting.name)}: {json.dumps(setting.default)},\n'
+		output += '\t},\n\n'
+	return output + '}\n'
+
+
+def settings_schema() -> dict[str, Any]:
+	properties: dict[str, Any] = {}
+	for key, settings in settings_in_order():
+		if key not in GROUPS and not settings[0].group:
+			properties[key] = settings[0].json_schema()
+			continue
+		properties[key] = {
+			'type': 'object',
+			'description': GROUPS.get(key, ''),
+			'additionalProperties': False,
+			'properties': {setting.name: setting.json_schema() for setting in settings},
+		}
+	return {'additionalProperties': False, 'properties': properties}
 
 
 class Settings:
@@ -50,13 +165,13 @@ class Settings:
 	)
 
 	hover_in_lsp_popup = Setting[bool](
-		key='hover_in_lsp_popup',
+		key='editor.hover_in_lsp_popup',
 		default=True,
 		description='When the LSP package is installed show the value of the hovered expression inside the LSP hover popup instead of in a separate popup. Requires a restart.',
 	)
 
 	inline_values = Setting[bool](
-		key='inline_values',
+		key='inline_values.enabled',
 		default=True,
 		description='''
 		While stopped, writes the values of the variables of the selected frame at the end of the lines
@@ -65,7 +180,7 @@ class Settings:
 	)
 
 	inline_values_color = Setting['str|None'](
-		key='inline_values_color',
+		key='inline_values.color',
 		default=None,
 		description='''
 		Colour of the inline values, as css: "#8a6d3b", "rgb(120, 90, 200)", "var(--bluish)". Defaults
@@ -74,25 +189,25 @@ class Settings:
 	)
 
 	inline_values_opacity = Setting[float](
-		key='inline_values_opacity',
+		key='inline_values.opacity',
 		default=0.75,
 		description='How strongly the inline values are drawn, from 0.1 (barely there) to 1 (as solid as the code).',
 	)
 
 	inline_values_font_style = Setting[str](
-		key='inline_values_font_style',
+		key='inline_values.font_style',
 		default='italic',
 		description='Style of the inline values: "italic", "normal", "bold" or "bold italic".',
 	)
 
 	inline_values_font_face = Setting['str|None'](
-		key='inline_values_font_face',
+		key='inline_values.font_face',
 		default=None,
 		description='Font family of the inline values. Defaults to the font of the file they are drawn in.',
 	)
 
 	inline_values_font_size = Setting['float|None'](
-		key='inline_values_font_size',
+		key='inline_values.font_size',
 		default=None,
 		description='Font size of the inline values. Defaults to 90% of the font size of the file they are drawn in.',
 	)
@@ -110,25 +225,25 @@ class Settings:
 	)
 
 	font_size = Setting['float|None'](
-		key='font_size',
+		key='ui.font_size',
 		default=None,
 		description='Font size of the debugger ui: toolbar, tabs, panes and menus. Defaults to 87.5% of the font size in your preferences.',
 	)
 
 	font_face = Setting['str|None'](
-		key='font_face',
+		key='ui.font_face',
 		default=None,
 		description='Font family of the debugger ui: toolbar, tabs, panes and menus. Defaults to the font_face in your preferences.',
 	)
 
 	line_padding = Setting[int](
-		key='line_padding',
+		key='ui.line_padding',
 		default=0,
 		description='Extra space in pixels above and below each row of the debugger ui panes (breakpoints, call stack, variables).',
 	)
 
 	console_bar_position = Setting[str](
-		key='console_bar_position',
+		key='ui.bar_position',
 		default='bottom',
 		description="""
 		Where the console's toolbar and tabs sit. "bottom": a fixed strip below the output that stays
@@ -138,37 +253,27 @@ class Settings:
 	)
 
 	console_font_size = Setting['float|None'](
-		key='console_font_size',
+		key='console.font_size',
 		default=None,
 		description='Text size of the console and terminal panels the debugger creates. Defaults to the debugger ui font size.',
 	)
 
 	console_font_face = Setting['str|None'](
-		key='console_font_face',
+		key='console.font_face',
 		default=None,
 		description='Font for the text of the console and terminal panels the debugger creates. Defaults to the font_face in your preferences.',
 	)
 
 	console_line_padding = Setting[int](
-		key='console_line_padding',
+		key='console.line_padding',
 		default=2,
 		description='Extra space in pixels above and below each line of text in the console and terminal panels the debugger creates.',
 	)
 
-	internal_font_scale = Setting[float](
-		key='internal_font_scale',
-		default=1,
-		description='Expected values of around 0.95 to 1.05. Only change this if the text/images/content are not aligning correctly within the panels (could cause the last panel to be clipped).',
-	)
 
-	internal_width_modifier = Setting[float](
-		key='internal_width_modifier',
-		default=0,
-		description='Expected values of around 0 to -5. Only change this if the size of the panels is too large and the last panel is cropped off (adjust internal_font_scale first if text/images/content are not aligned correctly). Negative values make the panels smaller. Postive make them bigger.',
-	)
 
 	external_terminal = Setting[str](
-		key='external_terminal',
+		key='console.external_terminal',
 		default='terminus',
 		description="""
 		A configuration says where its output goes with "console": "internal" (the Console tab of the
@@ -181,7 +286,7 @@ class Settings:
 	)
 
 	icon_foreground_color = Setting[bool](
-		key='icon_foreground_color',
+		key='ui.icons_follow_color_scheme',
 		default=True,
 		description="""
 		Draws the debugger icons in the foreground colour of the colour scheme. The artwork is unchanged,
@@ -191,7 +296,7 @@ class Settings:
 	)
 
 	project_file_buttons = Setting[bool](
-		key='project_file_buttons',
+		key='editor.project_file_buttons',
 		default=True,
 		description="""
 		Draws a play icon at the head of each configuration in the .sublime-project file, and a settings
@@ -201,7 +306,7 @@ class Settings:
 	)
 
 	test_buttons = Setting[bool](
-		key='test_buttons',
+		key='editor.test_buttons',
 		default=True,
 		description="""
 		Draws a play icon at the head of each test in a test file, which debugs that one test.
@@ -234,23 +339,28 @@ class Settings:
 	)
 
 	console_minimum_height = Setting[int](
-		key='console_minimum_height',
+		key='console.minimum_height',
 		default=20,
 		description="""
 		Controls the minimum height of the debugger output panels in lines
 		""",
 	)
+	json_logs = Setting[str](
+		key='console.json_logs',
+		default='off',
+		description="""
+		How a line of output that is a json object (a structured log) is shown, in the console and in
+		the terminals the debugger opens. "compact": one line, `10:32:01 INFO message key=value`.
+		"fields": the message, then a line for each field. "pretty": the json, indented. "off" (the default): as
+		it was printed. A configuration or a task can set its own with a `json_logs` key.
+		""",
+	)
 	console_scrollback_limit = Setting[int](
-		key='console_scrollback_limit',
+		key='console.scrollback_limit',
 		default=2000,
 		description="""
 		Limits the number of lines allowed in the console before lines are removed
 		""",
-	)
-	console_scrollback_annotation_limit = Setting[int](
-		key='console_scrollback_annotation_limit',
-		default=100,
-		description='Limits the number of annotationed regions/phantoms (source locations, variables, etc) allowed in the console',
 	)
 
 	bring_window_to_front_on_pause: bool = False
@@ -262,9 +372,9 @@ class Settings:
 	)
 
 	node = Setting['str|None'](
-		key='node',
+		key='adapters.node',
 		default=None,
-		description='Sets a specific path for node if not set adapters that require node to run will use whatever is in your path',
+		description='Path of `node`, for the adapters that run on it; without it the one in your path is used.',
 	)
 
 	integrated_output_panels = Setting['dict[str, dict[str, str]]'](
@@ -287,7 +397,7 @@ class Settings:
 	)
 
 	global_debugger_configurations = Setting['list[Any]'](
-		key='global_debugger_configurations',
+		key='global.configurations',
 		default=[],
 		description='Global debugger configurations that are accessible from every project',
 		schema={
@@ -297,7 +407,7 @@ class Settings:
 	)
 
 	global_debugger_tasks = Setting['list[Any]'](
-		key='global_debugger_tasks',
+		key='global.tasks',
 		default=[],
 		description='Global debugger tasks that are accessible from every project',
 		schema={
@@ -307,7 +417,7 @@ class Settings:
 	)
 
 	global_debugger_inputs = Setting['list[Any]'](
-		key='global_debugger_inputs',
+		key='global.inputs',
 		default=[],
 		description='Global debugger inputs, the values `${input:id}` asks for, that are accessible from every project',
 		schema={
@@ -317,7 +427,7 @@ class Settings:
 	)
 
 	global_debugger_compounds = Setting['list[Any]'](
-		key='global_debugger_compounds',
+		key='global.compounds',
 		default=[],
 		description='Global debugger compounds that are accessible from every project',
 		schema={
@@ -362,71 +472,9 @@ class SettingsRegistery:
 
 	@staticmethod
 	def schema():
-		import gc
-		import typing
-		import textwrap
-
-		properties = {}
-		for setting in gc.get_objects():
-			if not isinstance(setting, Setting):
-				continue
-
-			t = typing.get_args(setting.__orig_class__)[0]  # type: ignore
-
-			schema: dict[str, Any] = {}
-			if setting.schema:
-				schema = setting.schema
-			elif t == bool:
-				schema = {'type': 'boolean'}
-			elif t == int:
-				schema = {'type': 'number'}
-			elif t == ForwardRef('int|None'):
-				schema = {'type': ['number', 'null']}
-			elif t == float:
-				schema = {'type': 'number'}
-			elif t == ForwardRef('float|None'):
-				schema = {'type': ['number', 'null']}
-			elif t == str:
-				schema = {'type': 'string'}
-			elif t == ForwardRef('str|None'):
-				schema = {'type': ['string', 'null']}
-			else:
-				schema = {'type': ['object', 'array']}
-
-			schema['description'] = textwrap.dedent(setting.description).strip().split('\n')[0]
-			properties[setting.key] = schema
-
-		return {'additionalProperties': False, 'properties': properties}
+		return settings_schema()
 
 	@staticmethod
 	def generate_settings():
-		import gc
-		import json
-		import textwrap
-
-		output = '{\n'
-
-		for setting in gc.get_objects():
-			if not isinstance(setting, Setting):
-				continue
-
-			if not setting.visible:
-				continue
-
-			lines = textwrap.dedent(setting.description).strip().split('\n')
-			comment = ''
-			for line in lines:
-				# skip leading empty lines
-				if not comment and not line:
-					continue
-
-				comment += f'\t// {line}\n'
-
-			output += comment
-			output += f'\t{json.dumps(setting.key)}: {json.dumps(setting.default)},'
-			output += '\n\n'
-
-		output += '}'
-
 		with open(f'{core.package_path()}/Debugger.sublime-settings', 'w') as f:
-			f.write(output)
+			f.write(settings_file_text())

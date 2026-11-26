@@ -42,6 +42,7 @@ class TerminusScrollTests(unittest.TestCase):
 			'_terminus_scroll_test.modules.core': types.SimpleNamespace(run=lambda fn: fn),
 			'_terminus_scroll_test.modules.dap': types.SimpleNamespace(Error=Exception),
 			'_terminus_scroll_test.modules.ui': types.SimpleNamespace(),
+			'_terminus_scroll_test.modules.json_logs': types.SimpleNamespace(),
 			'_terminus_scroll_test.modules.output_panel': types.SimpleNamespace(OutputPanel=OutputPanel),
 			'sublime': sublime,
 			'sublime_plugin': sublime_plugin,

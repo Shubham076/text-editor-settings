@@ -36,19 +36,19 @@ class LLDB(dap.Adapter):
 	)
 
 	lldb_display_format = settings.Setting[str](
-		key='lldb_display_format',
+		key='adapters.lldb_display_format',
 		default='auto',
 		visible=False,
 	)
 	lldb_dereference_pointers = settings.Setting[bool](
-		key='lldb_dereference_pointers',
+		key='adapters.lldb_dereference_pointers',
 		default=True,
 		visible=False,
 	)
 	lldb_library = settings.Setting['str|None'](
-		key='lldb_library',
+		key='adapters.lldb_library',
 		default=None,
-		description='Which lldb library to use',
+		description='Which lldb library to use.',
 	)
 
 	async def start(self, console: dap.Console, configuration: dap.ConfigurationExpanded):

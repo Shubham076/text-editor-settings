@@ -17,6 +17,7 @@ from .watch import Watch
 
 from . import console_mode
 from . import env_file
+from . import json_logs
 from . import log_file
 from .terminal_log import TerminalLog
 from . import project_buttons
@@ -24,7 +25,7 @@ from . import test_buttons
 from .output_panel_console import ConsoleOutputPanel
 from .session_panels import SessionPanelsRegistry
 from .output_panel_callstack import CallstackOutputPanel, BreakpointsOutputPanel, WatchOutputPanel
-from .output_panel_terminus import TerminusOutputPanel, terminal_columns
+from .output_panel_terminus import TerminusOutputPanel, terminal_columns, terminus_formats_json_logs
 from .output_panel import OutputPanel
 
 from .memory_view import MemoryView
@@ -811,7 +812,9 @@ class Debugger(core.Dispose, dap.Debugger):
 					raise dap.Error('unreachable')
 
 			else:
-				terminal = ExternalTerminalTerminus(title, cwd, commands, env)
+				# json logs read in the tab as they do in the console: the configuration's own way, or the setting
+				mode = json_logs.mode_of(session.configuration.get('json_logs'), Settings.json_logs) if terminus_formats_json_logs() else None
+				terminal = ExternalTerminalTerminus(title, cwd, commands, env, json_logs=mode)
 
 			if log := self.log_of(session):
 				if isinstance(terminal, ExternalTerminalTerminus):
@@ -819,7 +822,7 @@ class Debugger(core.Dispose, dap.Debugger):
 					self.follow_terminal(session, log, tab.view, lambda: (view := tab.view()) and terminal_columns(view) or None)
 				else:
 					# a window of another program, there is nothing of it here to read
-					session.console.log('warn', f'`log` cannot follow the terminal of the system: nothing is written to `{log.path}`. Set `external_terminal` to "terminus" or "terminus_panel"')
+					session.console.log('warn', f'`log` cannot follow the terminal of the system: nothing is written to `{log.path}`. Set `external_terminal` of `console` in the settings to "terminus" or "terminus_panel"')
 
 			self.external_terminals.setdefault(session, []).append(terminal)
 			return dap.RunInTerminalResponse(processId=None, shellProcessId=None)
@@ -836,6 +839,8 @@ class Debugger(core.Dispose, dap.Debugger):
 						'working_dir': request.cwd,
 						'cmd': request.args,
 						'env': request.env,
+						# the configuration's own way of showing json logs, as its console has it
+						**({'json_logs': session.configuration['json_logs']} if 'json_logs' in session.configuration else {}),
 					}
 				).Expanded({}, allow_cmd=True),
 				show_panel=False,
@@ -850,7 +855,7 @@ class Debugger(core.Dispose, dap.Debugger):
 			self.open_session_output(session)
 			return dap.RunInTerminalResponse(processId=None, shellProcessId=None)
 
-		raise dap.Error('`external_terminal` is "{}", it has to be one of: {}'.format(place, ', '.join(console_mode.PLACES)))
+		raise dap.Error('`external_terminal` of `console` in the settings is "{}", it has to be one of: {}'.format(place, ', '.join(console_mode.PLACES)))
 
 	def follow_terminal(self, session: dap.Session, log: log_file.LogFile, view: Any, columns: Any) -> None:
 		'''Keeps `log` up to date with the terminal in `view` until the session is gone'''

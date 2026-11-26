@@ -464,9 +464,6 @@ class OutputPanel(core.Dispose):
 	def update_settings(self):
 		# these settings control the size of the ui calculated in ui/layout
 		settings = self.view.settings()
-		settings['internal_font_scale'] = Settings.internal_font_scale
-		settings['internal_width_modifier'] = Settings.internal_width_modifier
-
 		if Settings.font_size:
 			settings['font_size'] = Settings.font_size
 		else:

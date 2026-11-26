@@ -1,33 +1,18 @@
 {
+	// The settings of a group are the keys of one object. To change one, give its object with
+	// only that key in your own file; the other keys of the group keep their defaults:
+	//
+	//     "console": {"font_size": 17}
+
 	// Open the debugger automatically when a project that is set up for debugging is opened.
 	"open_at_startup": false,
 
 	// Always keep the debugger panel visible
 	"always_keep_visible": false,
 
-	// When the LSP package is installed show the value of the hovered expression inside the LSP hover popup instead of in a separate popup. Requires a restart.
-	"hover_in_lsp_popup": true,
-
-	// While stopped, writes the values of the variables of the selected frame at the end of the lines
-	// that mention them, from the top of the function down to the line that is stopped on.
-	"inline_values": true,
-
-	// How the inline values are drawn.
-	// Colour, as css: "#8a6d3b", "rgb(120, 90, 200)", "var(--bluish)"; defaults to the text colour
-	// of the colour scheme.
-	"inline_values_color": null,
-
-	// How strongly they are drawn, from 0.1 (barely there) to 1 (as solid as the code).
-	"inline_values_opacity": 0.75,
-
-	// "italic", "normal", "bold" or "bold italic".
-	"inline_values_font_style": "italic",
-
-	// Font family; defaults to the font of the file they are drawn in.
-	"inline_values_font_face": null,
-
-	// Font size; defaults to 90% of the font size of the file they are drawn in.
-	"inline_values_font_size": null,
+	// Gives each running configuration a callstack and a console of its own instead of sharing one of
+	// each, so two configurations running at the same time can be told apart.
+	"session_panels": true,
 
 	// How often a value of `debugger_inputs` (`${input:id}`) is asked for.
 	// "always": on every start, offering the last answer first.
@@ -36,57 +21,101 @@
 	// An input can say for itself with `"ask": "once"` or `"ask": "always"`, which wins over this.
 	"inputs_ask": "always",
 
-	// Debugger ui: the toolbar, tabs, panes (breakpoints, call stack, variables) and menus.
-	// Font size; defaults to 87.5% of the font size in your preferences.
-	"font_size": null,
-	// Font family, e.g. "JetBrains Mono"; defaults to the font_face in your preferences.
-	"font_face": null,
-	// Extra space in pixels above and below each row of the panes. Larger values spread the rows out.
-	"line_padding": 0,
+	// The debugger ui: the toolbar, tabs, panes (breakpoints, call stack, variables) and menus.
+	"ui": {
+		// Font size of the debugger ui: toolbar, tabs, panes and menus. Defaults to 87.5% of the font size in your preferences.
+		"font_size": null,
 
-	// Where the console's toolbar and tabs sit. "bottom" keeps them in a fixed strip below the output,
-	// visible however far the output scrolls. "top" draws them above the first line, scrolling with
-	// the output. Applies to consoles created after the change (restart or reopen the debugger).
-	"console_bar_position": "bottom",
+		// Font family of the debugger ui: toolbar, tabs, panes and menus. Defaults to the font_face in your preferences.
+		"font_face": null,
 
-	// Console and terminal panels the debugger creates (the text, not the header above it).
-	// Text size; defaults to the debugger ui font size.
-	"console_font_size": null,
-	// Font family, e.g. "JetBrains Mono"; defaults to the font_face in your preferences.
-	"console_font_face": null,
-	// Extra space in pixels above and below each line of text. Larger values spread the lines out.
-	"console_line_padding": 2,
+		// Extra space in pixels above and below each row of the debugger ui panes (breakpoints, call stack, variables).
+		"line_padding": 0,
 
-	// Expected values of around 0.95 to 1.05. Only change this if the text/images/content are not aligning correctly within the panels (could cause the last panel to be clipped).
-	"internal_font_scale": 1,
+		// Where the console's toolbar and tabs sit. "bottom": a fixed strip below the output that stays
+		// put while the output scrolls. "top": drawn above the first line, scrolling with the output.
+		// Applies to consoles created after the change.
+		"bar_position": "bottom",
 
-	// Expected values of around 0 to -5. Only change this if the size of the panels is too large and the last panel is cropped off (adjust internal_font_scale first if text/images/content are not aligned correctly). Negative values make the panels smaller. Postive make them bigger.
-	"internal_width_modifier": 0,
+		// Draws the debugger icons in the foreground colour of the colour scheme. The artwork is unchanged,
+		// only the colour: minihtml cannot tint an image, so the tint is applied to the png before it is
+		// handed over. Breakpoints keep their own colours.
+		"icons_follow_color_scheme": true,
+	},
 
-	// A configuration says where its output goes with "console": "internal" (the Console tab of the
-	// debugger, and what it gets when it does not say) or "console": "external" (a terminal, for a
-	// program that reads what is typed or draws on the screen). This is which terminal that is:
-	// "terminus" Terminus as a tab of the editor. The Terminus package must be installed https://github.com/randy3k/Terminus
-	// "terminus_panel" Terminus in the debugger panel, as its Terminal tab
-	// "platform" Terminal on MacOS, CMD (Not tested) on Windows, (Unimplemented) on Linux
-	"external_terminal": "terminus",
+	// The console and terminal panels the debugger creates (the text, not the header above it).
+	"console": {
+		// Text size of the console and terminal panels the debugger creates. Defaults to the debugger ui font size.
+		"font_size": null,
 
-	// Draws the debugger icons in the foreground colour of the colour scheme. The artwork is unchanged,
-	// only the colour. Breakpoints keep their own colours.
-	"icon_foreground_color": true,
+		// Font for the text of the console and terminal panels the debugger creates. Defaults to the font_face in your preferences.
+		"font_face": null,
 
-	// Draws a play icon at the head of each configuration in the .sublime-project file, and a settings
-	// icon on debugger_configurations. They are clickable, which is why they sit in the text rather
-	// than the gutter: Sublime will draw a gutter icon but has no event for a click on one.
-	"project_file_buttons": true,
+		// Extra space in pixels above and below each line of text in the console and terminal panels the debugger creates.
+		"line_padding": 2,
 
-	// Draws a play icon at the head of each test in a test file, which debugs that one test.
-	// Go: the Test, Benchmark, Fuzz and Example functions of a _test.go file, and the subtests whose
-	// names are written in the file: t.Run("name", ...) and the rows of a table.
-	// Python: the test functions, test classes and their methods in test_*.py and *_test.py, run by pytest.
-	// Java: the methods junit runs (@Test and the like) and their classes, run by the maven or gradle build of the project.
-	// Jest: the describe, it and test calls of *.test.* and *.spec.* files and of files in __tests__.
-	"test_buttons": true,
+		// A configuration says where its output goes with "console": "internal" (the Console tab of the
+		// debugger, and what it gets when it does not say) or "console": "external" (a terminal, for a
+		// program that reads what is typed or draws on the screen). This is which terminal that is:
+		// "terminus" Terminus as a tab of the editor. The Terminus package must be installed https://github.com/randy3k/Terminus
+		// "terminus_panel" Terminus in the debugger panel, as its Terminal tab
+		// "platform" Terminal on MacOS, CMD (Not tested) on Windows, (Unimplemented) on Linux
+		"external_terminal": "terminus",
+
+		// Controls the minimum height of the debugger output panels in lines
+		"minimum_height": 20,
+
+		// How a line of output that is a json object (a structured log) is shown, in the console and in
+		// the terminals the debugger opens. "compact": one line, `10:32:01 INFO message key=value`.
+		// "fields": the message, then a line for each field. "pretty": the json, indented. "off" (the default): as
+		// it was printed. A configuration or a task can set its own with a `json_logs` key.
+		"json_logs": "off",
+
+		// Limits the number of lines allowed in the console before lines are removed
+		"scrollback_limit": 2000,
+	},
+
+	// The values of variables written at the end of the lines that mention them, while stopped.
+	"inline_values": {
+		// While stopped, writes the values of the variables of the selected frame at the end of the lines
+		// that mention them, from the top of the function down to the line that is stopped on.
+		"enabled": true,
+
+		// Colour of the inline values, as css: "#8a6d3b", "rgb(120, 90, 200)", "var(--bluish)". Defaults
+		// to the text colour of the colour scheme.
+		"color": null,
+
+		// How strongly the inline values are drawn, from 0.1 (barely there) to 1 (as solid as the code).
+		"opacity": 0.75,
+
+		// Style of the inline values: "italic", "normal", "bold" or "bold italic".
+		"font_style": "italic",
+
+		// Font family of the inline values. Defaults to the font of the file they are drawn in.
+		"font_face": null,
+
+		// Font size of the inline values. Defaults to 90% of the font size of the file they are drawn in.
+		"font_size": null,
+	},
+
+	// What the debugger draws in your files.
+	"editor": {
+		// When the LSP package is installed show the value of the hovered expression inside the LSP hover popup instead of in a separate popup. Requires a restart.
+		"hover_in_lsp_popup": true,
+
+		// Draws a play icon at the head of each configuration in the .sublime-project file, and a settings
+		// icon on debugger_configurations. They are clickable, which is why they sit in the text rather
+		// than the gutter: Sublime will draw a gutter icon but has no event for a click on one.
+		"project_file_buttons": true,
+
+		// Draws a play icon at the head of each test in a test file, which debugs that one test.
+		// Go: the Test, Benchmark, Fuzz and Example functions of a _test.go file, and the subtests whose
+		// names are written in the file: t.Run("name", ...) and the rows of a table.
+		// Python: the test functions, test classes and their methods in test_*.py and *_test.py, run by pytest.
+		// Java: the methods junit runs (@Test and the like) and their classes, run by the maven or gradle build of the project.
+		// Jest: the describe, it and test calls of *.test.* and *.spec.* files and of files in __tests__.
+		"test_buttons": true,
+	},
 
 	// Values laid over the configuration that is generated to debug a test, by language (go, python, java, jest):
 	// {"go": {"env": {"SKIP_IO_TESTS": "1"}, "buildFlags": "-tags=integration", "args": ["-test.count=1"]}}
@@ -94,28 +123,49 @@
 	// replaces. A project can set the same under `debugger_test_configurations`, which wins.
 	"test_configurations": {},
 
-	// Gives each running configuration a callstack and a console of its own instead of sharing one of
-	// each, so two configurations running at the same time can be told apart.
-	"session_panels": true,
+	// Paths and options of the debug adapters.
+	"adapters": {
+		// Path of `node`, for the adapters that run on it; without it the one in your path is used.
+		"node": null,
 
-	// Controls the minimum height of the debugger output panels in lines
-	"console_minimum_height": 20,
+		// Path of `dlv`; without it the one in your path is used.
+		"go_dlv": null,
 
-	// Limits the number of lines allowed in the console before lines are removed
-	"console_scrollback_limit": 2000,
+		// Go: the debugger builds the program itself and keeps the binary between starts, so a start
+		// with nothing changed builds nothing and one after a change builds only what changed. Off,
+		// delve builds it, into a binary it deletes afterwards, and links it again on every start.
+		// A configuration can say for itself with `"go_build_cache": false`.
+		"go_build_cache": true,
 
-	// Limits the number of annotationed regions/phantoms (source locations, variables, etc) allowed in the console
-	"console_scrollback_annotation_limit": 100,
+		// Go: a kept binary that was not started for this many hours is removed, as a configuration
+		// is started. It is built again the next time it is wanted. 0 keeps them all.
+		"go_build_cache_hours": 24,
 
-	// Additional console logs and some new features are locked behind this flag
-	"development": false,
+		// Which lldb library to use.
+		"lldb_library": null,
 
-	// Sets a specific path for node if not set adapters that require node to run will use whatever is in your path
-	"node": null,
+		// Personal access token for requests to the github api while installing adapters; set it if they fail with 429.
+		"github_personal_access_token": null,
+	},
+
+	// Configurations, tasks, inputs and compounds that every project has, as a project file lists them under `debugger_configurations` and the like.
+	"global": {
+		// Global debugger configurations that are accessible from every project
+		"configurations": [],
+
+		// Global debugger tasks that are accessible from every project
+		"tasks": [],
+
+		// Global debugger inputs, the values `${input:id}` asks for, that are accessible from every project
+		"inputs": [],
+
+		// Global debugger compounds that are accessible from every project
+		"compounds": [],
+	},
 
 	// Output panels outside of the debugger can be integrated into the tabbed debugger interface (note: In some cases output panels may cause issues and not work correctly depending on who owns them)
 	// An example for interating the Diagnostics panel of LSP and a Terminus output panel.
-	// 
+	//
 	// "integrated_output_panels": {
 	// 	"diagnostics": {
 	// 		"name": "Diagnostics",
@@ -127,25 +177,7 @@
 	// }
 	"integrated_output_panels": {},
 
-	// Global debugger configurations that are accessible from every project
-	"global_debugger_configurations": [],
-
-	// Global debugger tasks that are accessible from every project
-	"global_debugger_tasks": [],
-
-	// Global debugger inputs, the values `${input:id}` asks for, that are accessible from every project
-	"global_debugger_inputs": [],
-
-	// Global debugger compounds that are accessible from every project
-	"global_debugger_compounds": [],
-
-	// Personal access token used for github api requests. If you are testing installing adapters you may need to set this to have higher api limits if you are getting 429 errors.
-	"github_personal_access_token": null,
-
-	// Which lldb library to use
-	"lldb_library": null,
-
-	// Sets a specific path for dlv if not set go will use whatever is in your path
-	"go_dlv": null,
+	// Additional console logs and some new features are locked behind this flag
+	"development": false,
 
 }

@@ -197,7 +197,8 @@ class Project:
 				configurations.append((configuration_or_file, source))
 
 		if global_configurations := getattr(Settings, f'global_{key}'):
-			source = dap.SourceLocation.from_path('Debugger.sublime-settings', line_regex=key)
+			# under `global` in the settings they are `configurations`, `tasks`, ... without the `debugger_`
+			source = dap.SourceLocation.from_path('Debugger.sublime-settings', line_regex='"{}"'.format(key.replace('debugger_', '', 1)))
 			configurations += map(lambda i: (i, source), global_configurations)
 
 		# This is basically only for developing the Debugger package so we can have all the example configurations accessible

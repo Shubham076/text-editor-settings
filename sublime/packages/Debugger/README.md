@@ -164,7 +164,6 @@ so there is no reason not to run it on every change to the label logic.
   the tests are checking.
 
 ## Troubleshooting
-- To fix issues with things aligning correctly or the last panel not being visible try adjusting the `internal_font_scale` and `internal_width_modifier` in the settings
 - Look in the debug console for errors (usually red)
 - Look in the sublime console for errors
 - Try the same configuration/adapter in Visual Studio Code (There is a good chance your issue is with the adapter so check out the outstanding issues for it)

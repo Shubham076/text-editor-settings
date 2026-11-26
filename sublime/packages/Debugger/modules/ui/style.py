@@ -67,6 +67,7 @@ a { color: var(--foreground); text-decoration: none; }
 .brand { color: color(var(--foreground) alpha(0.72)); }
 .picker { padding: 0.43rem 0.95rem; border: 1px solid color(var(--foreground) alpha(0.16)); border-radius: 0.4rem; background-color: color(var(--foreground) alpha(0.08)); font-weight: bold; }
 .cfg { padding: 0.43rem $chippadrem; border: 1px solid color(var(--foreground) alpha(0.16)); border-radius: 0.4rem; color: color(var(--foreground) alpha(0.72)); }
+.cfg.more { border: 1px solid color(var(--foreground) alpha(0.3)); color: var(--foreground); }
 .cfg.active { border: 1px solid color(var(--foreground) alpha(0.3)); background-color: color(var(--foreground) alpha(0.08)); color: var(--foreground); font-weight: bold; }
 .state { padding: 0.27rem 0.5rem; border-radius: 1rem; font-weight: bold; }
 .paused { color: color(var(--yellowish) min-contrast(var(--background) 4)); background-color: color(var(--yellowish) alpha(0.15)); }

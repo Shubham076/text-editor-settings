@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 	from .debugger import Debugger
 
 import os
+import time
 
 import sublime
 
@@ -18,12 +19,36 @@ from .variable_format import value_summary
 from .views.variable import VariableView
 
 from .ansi import ansi_colorize, stderr_runs
+from . import json_logs
 
 from .output_window_protocol import ProtocolConsoleWindow
 from .output_panel import OutputPanel
 
 
 PROGRAM_OUTPUT_BATCH_DELAY_MS = 16
+# The mark in front of a line for something that is going on (`progress`): these in turn while it
+# is, then one of the two that say how it ended
+PROGRESS_FRAMES = '⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+PROGRESS_INTERVAL_MS = 90
+PROGRESS_DONE = '✓'
+PROGRESS_FAILED = '✗'
+# What the debugger says itself (not what the program prints) starts with a mark for what kind of
+# message it is, in the colour of the line: one plain character, so a console of them is not a
+# row of pictures. A message that already starts with a mark of its own keeps that one.
+MARKS = {'error': '✗', 'error-no-open': '✗', 'warn': '⚠', 'success': '✓'}
+MARKED = '✓✗⚠●◆◯◇⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+
+
+def marked(type: str, text: str) -> str:
+	'''`text` with the mark of its kind in front of its first line'''
+	mark = MARKS.get(type)
+	if not mark or not text.strip() or text.lstrip()[0] in MARKED:
+		return text
+	return mark + ' ' + text
+# how many annotations (source locations, expandable values) the console keeps before the oldest go
+SCROLLBACK_ANNOTATION_LIMIT = 100
+# how long the start of a line that may be a json log waits for its end before it is shown as it is
+JSON_LOG_PARTIAL_DELAY_MS = 250
 
 
 class ConsoleOutputPanel(OutputPanel, dap.Console):
@@ -104,7 +129,7 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 			self.scroll_to_end()
 
 	def ensure_scrollback_size(self):
-		while len(self.phantoms) > Settings.console_scrollback_annotation_limit:
+		while len(self.phantoms) > SCROLLBACK_ANNOTATION_LIMIT:
 			self.phantoms.pop(0).dispose()
 
 		line_count = self.view.rowcol(self.view.size())[0]
@@ -152,8 +177,8 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 		# each line. Collect only plain stream output for one UI frame; structured output keeps the
 		# existing immediate path below.
 		if event.output and type in ('stdout', 'stderr') and not event.group and not event.variablesReference and not event.source:
-			for text, run_color in self.stderr_runs(event.output) if type == 'stderr' else [(event.output, color)]:
-				self.queue_program_output(text, run_color)
+			for output, formatted in self.json_log_pieces(session, type, event.output):
+				self.queue_stream_output(output, type, color, formatted)
 			return
 
 		# A structured event must remain after all stream output that preceded it.
@@ -194,6 +219,54 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 
 		if event.group == 'start' or event.group == 'startCollapsed':
 			self.start_indent()
+
+	def queue_stream_output(self, output: str, type: str, color: str, formatted: bool = False) -> None:
+		# a formatted json log brings its own colours, the level among them; all of it in the red of
+		# stderr, where many loggers write, would say that every line is an error
+		if formatted:
+			self.queue_program_output(output, 'foreground')
+			return
+		for text, run_color in self.stderr_runs(output) if type == 'stderr' else [(output, color)]:
+			self.queue_program_output(text, run_color)
+
+	def json_log_mode(self, session: dap.Session | None) -> str:
+		'''How json logs are shown: what the configuration says (`"json_logs": "pretty"`), or else the setting'''
+		configuration = getattr(session, 'configuration', None)
+		own = configuration.get('json_logs') if isinstance(configuration, dict) else None
+		return json_logs.mode_of(own, getattr(Settings, 'json_logs', None))
+
+	def json_log_pieces(self, session: dap.Session | None, type: str, output: str) -> list[tuple[str, bool]]:
+		'''`output` as (text, formatted) pieces, the lines that are json logs formatted (`json_logs`)
+
+		An adapter sends output as it reads it, which is not always a line at a time, so each stream
+		has a `json_logs.Stream` that holds the start of a line that may be an object until its end
+		arrives. What it holds is shown as it is when the end does not come.
+		'''
+		mode = self.json_log_mode(session)
+		streams: dict[str, json_logs.Stream] | None = getattr(self, '_json_log_streams', None)
+		if streams is None:
+			streams = self._json_log_streams = {}
+		stream = streams.get(type)
+		if not stream:
+			if mode == 'off':
+				return [(output, False)]
+			stream = streams[type] = json_logs.Stream(mode)
+		# a change of the setting applies from the next line on; turned off, what is held goes out first
+		held = stream.flush() if mode != stream.mode else []
+		stream.mode = mode
+		pieces = held + stream.feed(output)
+		if stream.pending:
+			self._json_log_revision = revision = getattr(self, '_json_log_revision', 0) + 1
+			sublime.set_timeout(lambda: self.flush_json_log_partial(type, revision), JSON_LOG_PARTIAL_DELAY_MS)
+		return pieces
+
+	def flush_json_log_partial(self, type: str, revision: int) -> None:
+		# more output since: the line is still arriving, and that output asked again
+		if revision != getattr(self, '_json_log_revision', 0):
+			return
+		stream = getattr(self, '_json_log_streams', {}).get(type)
+		for output, _ in stream.flush() if stream else []:
+			self.queue_stream_output(output, type, 'red' if type == 'stderr' else 'foreground')
 
 	def logpoint_output(self, event: dap.OutputEvent) -> str:
 		'''What a logpoint printed, saying that it is one and which: `logpoint main.go:12: user is bob`
@@ -401,6 +474,9 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 
 	def clear(self):
 		self.discard_program_output()
+		# the half of a line held back as a possible json log goes with the output
+		self._json_log_streams = {}
+		self._json_log_revision = getattr(self, '_json_log_revision', 0) + 1
 		self.indent = ''
 		self.forced_indent = ''
 
@@ -610,9 +686,9 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 		if type == 'transport':
 			self.protocol.log('transport', value, source, session)
 		elif type == 'error-no-open':
-			self.write(str(value).rstrip('\n'), 'red', ensure_new_line=True)
+			self.write(marked(type, str(value).rstrip('\n')), 'red', ensure_new_line=True)
 		elif type == 'error':
-			self.write(str(value).rstrip('\n'), 'red', ensure_new_line=True)
+			self.write(marked(type, str(value).rstrip('\n')), 'red', ensure_new_line=True)
 			self.open()
 		elif type == 'group-start':
 			if value is not None:
@@ -622,19 +698,24 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 			self.end_indent(forced=True)
 			if value is not None:
 				self.write(str(value), None, ensure_new_line=True)
-		elif type == 'stdout':
-			self.protocol.log('stdout', value, source, session)
-			self.write(str(value), None)
-		elif type == 'stderr':
-			self.protocol.log('stderr', value, source, session)
-			for text, color in self.stderr_runs(str(value)):
-				self.write(text, color)
+		elif type in ('stdout', 'stderr'):
+			# What the adapter's own process printed. For some adapters that is the program: delve
+			# sends nothing of what a Go program prints as output events, the program writes to
+			# delve's stdout and stderr and they are read here (`adapters/go.py`). So a json log
+			# is formatted on this way in as it is in `program_output`
+			self.protocol.log(type, value, source, session)
+			for output, formatted in self.json_log_pieces(session or getattr(self, 'session', None), type, str(value)):
+				if formatted or type == 'stdout':
+					self.write(output, None)
+				else:
+					for text, color in self.stderr_runs(output):
+						self.write(text, color)
 		elif type == 'stdout':
 			self.write(str(value), None)
 		elif type == 'warn':
-			self.write(str(value).rstrip('\n'), 'yellow', ensure_new_line=True)
+			self.write(marked(type, str(value).rstrip('\n')), 'yellow', ensure_new_line=True)
 		elif type == 'success':
-			self.write(str(value).rstrip('\n'), 'green', ensure_new_line=True)
+			self.write(marked(type, str(value).rstrip('\n')), 'green', ensure_new_line=True)
 		else:
 			self.write(str(value).rstrip('\n'), 'comment', ensure_new_line=True)
 
@@ -643,6 +724,58 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 
 		if html:
 			self.phantoms.append(ui.RawPhantom(self.view, self.at() - 1, html=html.html, on_navigate=html.on_navigate))
+
+	def progress(self, text: str) -> Callable[..., None]:
+		'''A line with a mark in front that spins until the function returned is called: `⠹ Building main.go`
+
+		Called with `ok` it turns the mark into a tick or a cross and adds how long it took:
+		`✓ Building main.go · 1.2s`. The mark is one character of the text, replaced on a timer; a
+		region follows it as the output above is trimmed and more is written below. When the line
+		is gone (the console was cleared) the timer finds no region and stops.
+		'''
+		self._progress_count = count = getattr(self, '_progress_count', 0) + 1
+		key = f'debugger.progress.{count}'
+		line = PROGRESS_FRAMES[0] + ' ' + text.strip('\n')
+		self.write(line, 'comment', ensure_new_line=True)
+		# the text was put in where `at` was and ends where it is now
+		start = self.at() - len(line)
+		self.view.add_regions(key, [sublime.Region(start, start + 1)])
+		started = time.time()
+		state = {'frame': 0, 'over': False}
+
+		def mark(character: str, suffix: str = '') -> bool:
+			regions = self.view.get_regions(key)
+			if not regions or regions[0].size() != 1:
+				return False
+			at = regions[0].a
+
+			def edit(edit: sublime.Edit):
+				# the end first, the mark is then still where the region says
+				if suffix:
+					self.view.insert(edit, at + len(line), suffix)
+				self.view.replace(edit, sublime.Region(at, at + 1), character)
+
+			self.edit(edit)
+			# replacing what a region covers can leave it empty
+			self.view.add_regions(key, [sublime.Region(at, at + 1)])
+			return True
+
+		def tick():
+			if state['over']:
+				return
+			state['frame'] += 1
+			if mark(PROGRESS_FRAMES[state['frame'] % len(PROGRESS_FRAMES)]):
+				sublime.set_timeout(tick, PROGRESS_INTERVAL_MS)
+
+		def done(ok: bool = True):
+			if state['over']:
+				return
+			state['over'] = True
+			mark(PROGRESS_DONE if ok else PROGRESS_FAILED, ' · {:.1f}s'.format(time.time() - started))
+			self.view.erase_regions(key)
+
+		sublime.set_timeout(tick, PROGRESS_INTERVAL_MS)
+		return done
 
 	def dispose_phantoms(self):
 		for phantom in self.phantoms:

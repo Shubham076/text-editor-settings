@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Callable, Protocol
 
 from .. import core
 
@@ -45,7 +45,8 @@ class Console(Protocol):
 		self.log('error', text, source)
 
 	def warn(self, text: str, source: SourceLocation | None = None):
-		self.log('error', text, source)
+		# as a warning, in yellow under its own mark; it was written as an error, in red
+		self.log('warn', text, source)
 
 	def info(self, text: str, source: SourceLocation | None = None):
 		self.log('comment', text, source)
@@ -54,6 +55,15 @@ class Console(Protocol):
 		self.log(type, value, source, session)
 
 	def log(self, type: str, value: Any, source: SourceLocation | None = None, session: Session | None = None): ...
+
+	def progress(self, text: str) -> Callable[..., None]:
+		'''Writes a line for something that takes a while; the function returned is called when it is over
+
+		`done(ok=True)`. A console that can shows that it is still going on (the debugger's panel
+		spins a mark in front of the line), this one only writes the line.
+		'''
+		self.info(text)
+		return lambda ok=True: None
 
 
 class ConsoleSessionBound(Console):
@@ -68,6 +78,9 @@ class ConsoleSessionBound(Console):
 
 	def log(self, type: str, value: Any, source: SourceLocation | None = None, session: Session | None = None):
 		self.console.log(type, value, source=source, session=session or self.session)
+
+	def progress(self, text: str) -> Callable[..., None]:
+		return self.console.progress(text)
 
 
 class StdioLogger(Console):

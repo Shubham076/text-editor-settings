@@ -8,11 +8,23 @@ import re
 from . import core
 from . import dap
 from . import ui
+from . import json_logs
 
 from .output_panel import OutputPanel
 
 if TYPE_CHECKING:
 	from .debugger import Debugger
+
+
+def terminus_formats_json_logs() -> bool:
+	'''Whether the Terminus that is installed takes `json_logs`; one that does not would refuse to open with it'''
+	try:
+		import inspect
+		from Terminus.terminus.commands import TerminusOpenCommand
+
+		return 'json_logs' in inspect.signature(TerminusOpenCommand.run_async).parameters
+	except Exception:
+		return False
 
 
 def terminal_columns(view: sublime.View) -> int | None:
@@ -54,7 +66,7 @@ class TerminusOutputPanel(OutputPanel):
 		try:
 			settings = sublime.load_settings('Terminus.sublime-settings')
 			if not settings:
-				raise dap.Error('Terminus must be installed for a configuration with `"console": "external"` to open a terminal in it. Either install it from Package Control, set `external_terminal` to "platform", or change the configuration to `"console": "internal"`.')
+				raise dap.Error('Terminus must be installed for a configuration with `"console": "external"` to open a terminal in it. Either install it from Package Control, set `external_terminal` of `console` in the settings to "platform", or change the configuration to `"console": "internal"`.')
 
 			self.task = task
 			core.edit(self.view, lambda edit: self.view.insert(edit, 0, ''))
@@ -79,6 +91,14 @@ class TerminusOutputPanel(OutputPanel):
 
 				core.error('Unable to start Terminus', e)
 				raise dap.Error(str(e))
+
+			# How a json log reads in this terminal: Terminus formats it, as the console does, and is
+			# told which way here. The task's own `json_logs` comes first, then the debugger's setting,
+			# so a session reads the same in its console and in its terminal. Left out, Terminus
+			# would go by its own setting.
+			mode = json_logs.mode_of(arguments.pop('json_logs', None), Settings.json_logs)
+			if terminus_formats_json_logs():
+				arguments['json_logs'] = mode
 
 			arguments['tag'] = self.output_panel_name
 			arguments['panel_name'] = self.panel_name
@@ -133,6 +153,7 @@ class TerminusOutputPanel(OutputPanel):
 		reactivable=True,
 		timeit=False,
 		paths=[],
+		json_logs=None,
 	): ...
 
 	def _check_status_code(self):

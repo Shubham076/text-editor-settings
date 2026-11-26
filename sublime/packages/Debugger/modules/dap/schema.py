@@ -13,8 +13,24 @@ SCHEMA_PATH = Path(core.package_path('contributes/Schema/sublime-package.json'))
 
 
 def initialize_lsp_json_schema():
-	if not SCHEMA_PATH.exists():
+	if not SCHEMA_PATH.exists() or settings_schema_is_stale():
 		generate_lsp_json_schema()
+
+
+def settings_schema_is_stale() -> bool:
+	'''Whether the schema file describes other settings than the package has now
+
+	The file is generated, and was only ever generated when it was missing or an adapter was
+	installed. A setting that was added, renamed or grouped since was then unknown to it, and
+	LSP-json underlined it in the settings file as a property that is not allowed.
+	'''
+	try:
+		contributions = json.loads(SCHEMA_PATH.read_text())['contributions']['settings']
+		written = next(item['schema'] for item in contributions if 'Debugger.sublime-settings' in item.get('file_patterns', []))
+	except Exception:
+		return True
+	# through json, as the file went: a tuple in the schema is a list there
+	return written != json.loads(json.dumps(SettingsRegistery.schema()))
 
 
 def generate_lsp_json_schema():

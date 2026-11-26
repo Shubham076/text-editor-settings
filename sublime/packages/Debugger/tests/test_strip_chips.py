@@ -45,7 +45,7 @@ class StripChipsTests(unittest.TestCase):
 	def test_nothing_running_shows_the_selection_and_only_the_start_button(self):
 		self.configure(['ps-api-gateway', 'ps-backend'], 'ps-api-gateway')
 		html = self.strip_html()
-		self.assertEqual(self.chips(html), [('cfg active', 'ps-api-gateway · Stopped'), ('cfg', 'Select run configuration')])
+		self.assertEqual(self.chips(html), [('cfg active', 'ps-api-gateway · Stopped'), ('cfg more', 'Select run configuration')])
 		# nothing running: one button runs it, one debugs it, in that order
 		self.assertLess(html.index('title="Run without the debugger"'), html.index('title="Debug"'))
 		for title in ('Step over', 'Step into', 'Step out', 'Restart', 'Stop'):
@@ -60,7 +60,7 @@ class StripChipsTests(unittest.TestCase):
 		html = self.strip_html()
 		self.assertEqual(self.chips(html), [
 			('cfg', 'ps-api-gateway · Running'), ('cfg', 'ps-backend · Paused'), ('cfg active', 'ps-agentic · Running'),
-			('cfg', 'Select run configuration')])
+			('cfg more', 'Select run configuration')])
 		# the selected chip keeps its whole name, the others lose the words they share
 		for text in ('>ps-agentic</a>', '>api-gateway</a>', '>backend</a>'):
 			self.assertIn(text, html)

@@ -43,18 +43,22 @@ class ExternalTerminal(Protocol):
 class ExternalTerminalTerminus(ExternalTerminal):
 	id = 0
 
-	def __init__(self, title: str, cwd: str, commands: list[str], env: dict[str, str|None]):
+	def __init__(self, title: str, cwd: str, commands: list[str], env: dict[str, str|None], json_logs: str | None = None):
 		self.window = sublime.active_window()
 		self.tag = 'sublime_debugger_{}'.format(ExternalTerminalTerminus.id)
 		ExternalTerminalTerminus.id += 1
-		self.window.run_command('terminus_open', {
+		arguments = {
 			'title': title,
 			'cwd': cwd,
 			'cmd': commands,
 			'env': env,
 			'auto_close': False,
 			'tag': self.tag,
-		})
+		}
+		# how json logs are shown in it; `None` for a Terminus that does not know the argument
+		if json_logs is not None:
+			arguments['json_logs'] = json_logs
+		self.window.run_command('terminus_open', arguments)
 
 	def view(self) -> sublime.View | None:
 		'''The tab Terminus opened for it, once there is one'''

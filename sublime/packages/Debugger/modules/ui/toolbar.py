@@ -155,7 +155,29 @@ class Toolbar:
 			controls += ui.tool('restart', 'Restart', partial(self.transport, 'restart'), session.is_stoppable)
 			controls += ui.tool('stop', 'Stop', partial(self.transport, 'stop'), session.is_stoppable, css='stop')
 			width += 2 * TOOL
+		if self.console():
+			# after stop, set off from the buttons that act on the program: this one only empties
+			# the output on screen. It is there on a console tab alone, the only thing it clears
+			controls += ui.separator() + ui.tool('trash', 'Clear console', self.clear_console)
+			width += TOOL + 1.5
 		return controls, width
+
+	def console(self):
+		"""The console this bar is drawn under, `None` under any other panel"""
+		from ..output_panel_console import ConsoleOutputPanel
+		panel = self.ui.panel
+		return panel if isinstance(panel, ConsoleOutputPanel) else None
+
+	def clear_console(self):
+		"""Empties the console that is open, and no other: the program and its session go on as they were"""
+		console = self.console()
+		if not console:
+			return
+		# clearing takes the prompt with the output, a console that was being typed into gets it back
+		typing = bool(console.input_region())
+		console.clear()
+		if typing:
+			console.enable_input_mode()
 
 	def chip_items(self):
 		"""(item, status, selected) for each chip, in the order the project lists them
@@ -231,8 +253,10 @@ class Toolbar:
 		label = more_label(hidden)
 		# the zero-width text gives a chip holding nothing but the chevron the line box, and so the
 		# height, of the chips with a name
-		content = ZW + (escape(label).replace(' ', '&nbsp;') + ui.slot('', CHIP_DOT_GAP) if label else '') + ui.icon('down', 'muted')
-		html += ui.link(content, self.picker.show, 'Select run configuration', 'cfg')
+		# the chevron in the full text colour and the border of the selected chip: a small arrow in a
+		# faint box, dimmed like the names of the chips that are not selected, was hard to make out
+		content = ZW + (escape(label).replace(' ', '&nbsp;') + ui.slot('', CHIP_DOT_GAP) if label else '') + ui.icon('down', 'primary')
+		html += ui.link(content, self.picker.show, 'Select run configuration', 'cfg more')
 		return html, total(hidden)
 
 	@staticmethod

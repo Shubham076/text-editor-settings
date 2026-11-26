@@ -12,9 +12,9 @@ import string
 
 
 github_personal_access_token = Setting['str|None'](
-	key='github_personal_access_token',
+	key='adapters.github_personal_access_token',
 	default=None,
-	description='Personal access token used for github api requests. If you are testing installing adapters you may need to set this to have higher api limits if you are getting 429 errors.',
+	description='Personal access token for requests to the github api while installing adapters; set it if they fail with 429.',
 )
 
 

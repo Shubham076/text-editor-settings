@@ -24,8 +24,8 @@ the argument `fail`, tries to read a port from the text `eighty`.
 In each, put a breakpoint on the line marked `<- breakpoint here` and start the configuration:
 
 - **Inline values**: every line of the function above the stopped line ends in the values of the
-  variables it mentions, `subtotal = 59.97`. Off with `"inline_values": false`, and drawn as the
-  `inline_values_*` settings say.
+  variables it mentions, `subtotal = 59.97`. Off with `"inline_values": {"enabled": false}`, and drawn as
+  the other keys of `inline_values` say.
 - **Return values**: step out, and the line that called the function starts with what it
   returned.
 - **Hover, watch, set a value**: as in any debugger.
