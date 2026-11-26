@@ -43,9 +43,9 @@ class Renderer:
 		mixed = [round(int(colour[i:i + 2], 16) * opacity + int(background[i:i + 2], 16) * (1 - opacity)) for i in (1, 3, 5)]
 		return '#%02x%02x%02x' % tuple(max(0, min(255, value)) for value in mixed)
 
-	def icon(self, name, tone='default', css=''):
+	def icon(self, name, tone='default', css='', drop=0.0):
 		size = self.px(ICON_SIZES[name])
-		uri = icon_data_uri(name, self.tint(tone), size * 2, 0.0 if tone == 'ghost' else 1.0)
+		uri = icon_data_uri(name, self.tint(tone), size * 2, 0.0 if tone == 'ghost' else 1.0, drop)
 		return '<img class="icon {}" src="{}" style="width:{}px;height:{}px;">'.format(css, uri, size, size)
 
 	def slot(self, content, width, css=''):

@@ -4,12 +4,14 @@ from functools import partial
 from html import escape
 from typing import TYPE_CHECKING
 
+import sublime
+
 from .. import configurations, core, dap
 from ..views.session_scope import root_of
 from .configuration_picker import ConfigurationPicker
 from .output_tabs import console_panels, terminal_panels
 from .state import session_status
-from .style import CH, CHIP_DOT_GAP, CHIP_GAP, CHIP_NAME, CHIP_PAD, CHIP_SHORT, DASHBOARDS, PAD, TAB_NAME, TABS, TOOL, ZW
+from .style import CH, CHIP_CROSS, CHIP_CROSS_DROP, CHIP_CROSS_GAP, CHIP_DOT_GAP, CHIP_GAP, CHIP_NAME, CHIP_PAD, CHIP_SHORT, DASHBOARDS, PAD, TAB_NAME, TABS, TOOL, ZW
 
 if TYPE_CHECKING:
 	from .panel import PanelUI
@@ -185,8 +187,13 @@ class Toolbar:
 		A chip for each configuration that is running or paused, and one for the selection whatever
 		it is doing, so the controls always have a name beside them. A compound is only a chip while
 		it is the selection: what it started are chips of their own.
+
+		One that was running keeps its chip when it stops (`kept`): it is the one about to be
+		started again, and a chip that went with the stop had to be found in the list first. Every
+		chip goes when its cross is pressed (`remove_chip`).
 		"""
 		backend = self.ui.backend
+		kept = self.kept()
 		selection = backend.project.configuration_or_compound
 		# `is not None`: a configuration is a dict, and an empty one is still a selection
 		selected_id = selection.id_ish if selection is not None else None
@@ -194,12 +201,72 @@ class Toolbar:
 		for item in (*backend.project.compounds, *backend.project.configurations):
 			selected = item.id_ish == selected_id
 			status = configurations.status_of(backend, item)
-			if selected or (status != 'Stopped' and item not in backend.project.compounds):
+			compound = item in backend.project.compounds
+			if status != 'Stopped' and not compound:
+				kept.add(item.name)
+			if selected or (not compound and item.name in kept):
 				rows.append((item, status, selected))
 		if selection is not None and not any(selected for _, _, selected in rows):
 			# a selection the project no longer lists still names what the controls act on
 			rows.append((selection, configurations.status_of(backend, selection), True))
 		return rows
+
+	def kept(self):
+		"""The names of the configurations that have a chip: those that were seen running
+
+		Of the debugger and not of this bar: every panel has a bar, and they show the same chips.
+		"""
+		backend = self.ui.backend
+		kept = getattr(backend, 'strip_kept', None)
+		if kept is None:
+			kept = backend.strip_kept = set()
+		return kept
+
+	def remove_chip(self, item):
+		"""The cross of a chip: it goes off the bar, and what it is running is stopped first
+
+		Stopping is asked about first, in Sublime's own dialog: a cross pressed by mistake would
+		otherwise end a debug session. The selected chip can go too, and the selection passes to the
+		chip after it (or before it, at the end of the row); with no chip left, nothing is selected.
+		"""
+		backend = self.ui.backend
+		if configurations.status_of(backend, item) != 'Stopped':
+			if not sublime.ok_cancel_dialog('{} is running.\n\nStop it and remove it from the bar?'.format(item.name), 'Stop and remove'):
+				return
+		return self.stop_and_remove(item)
+
+	@core.run
+	async def stop_and_remove(self, item):
+		backend = self.ui.backend
+		rows = self.chip_items()
+		names = set(item.configurations) if isinstance(item, dap.ConfigurationCompound) else {item.name}
+		roots = []
+		for session in backend.sessions:
+			root = root_of(session)
+			if root.configuration.name in names and root not in roots:
+				roots.append(root)
+		try:
+			for root in roots:
+				await backend.stop(root)
+		except dap.Error as error:
+			backend.console.error(str(error))
+		# after the stop: a bar drawn while the session was going would have kept it again
+		self.kept().difference_update(names)
+		selection = backend.project.configuration_or_compound
+		if selection is not None and selection.id_ish == item.id_ish:
+			others = [row[0] for row in rows if row[0].id_ish != item.id_ish]
+			index = next((i for i, row in enumerate(rows) if row[0].id_ish == item.id_ish), len(others))
+			after = others[index:] + others[:index][::-1]
+			if after:
+				self.picker.select(after[0].id_ish)
+			else:
+				backend.project.load_configuration('')
+		# every bar of the debugger, not only the one that was clicked
+		updated = getattr(backend, 'on_output_panels_updated', None)
+		if updated:
+			updated()
+		else:
+			self.ui.invalidate()
 
 	def chips(self, room):
 		"""The chips and the list button that fit in `room` rem, and the width they take
@@ -215,8 +282,8 @@ class Toolbar:
 		entries = [(item, status, selected, self.chip_label(item.name if selected else name, CHIP_NAME if selected else CHIP_SHORT))
 			for (item, status, selected), name in zip(rows, short)]
 
-		def chip_width(label):
-			return 2 * CHIP_PAD + CH + CHIP_DOT_GAP + len(label) * CH + 0.15 + CHIP_GAP
+		def chip_width(entry):
+			return 2 * CHIP_PAD + CH + CHIP_DOT_GAP + len(entry[3]) * CH + CHIP_CROSS_GAP + CHIP_CROSS + 0.15 + CHIP_GAP
 
 		def more_label(hidden):
 			return '+{}'.format(hidden) if hidden else '' if entries else 'Select configuration'
@@ -226,7 +293,7 @@ class Toolbar:
 			return 2 * CHIP_PAD + 0.8 + (len(label) * CH + CHIP_DOT_GAP if label else 0) + 0.15
 
 		def total(hidden):
-			return sum(chip_width(entry[3]) for entry in entries) + more_width(hidden)
+			return sum(chip_width(entry) for entry in entries) + more_width(hidden)
 
 		hidden = 0
 		while total(hidden) > room and any(not entry[2] for entry in entries):
@@ -238,7 +305,8 @@ class Toolbar:
 			entries[0] = (item, status, selected, self.chip_label(label, keep))
 
 		html = ''
-		for item, status, selected, label in entries:
+		for entry in entries:
+			item, status, selected, label = entry
 			# The dot is a glyph coloured by the stylesheet, as the status badge it replaces was, so
 			# it is the very green and yellow the rest of the debugger uses: `var(--greenish)` held
 			# to a readable contrast by minihtml. A rasterised icon would have to resolve that colour
@@ -248,7 +316,16 @@ class Toolbar:
 			content = dot + ui.slot('', CHIP_DOT_GAP) + escape(label).replace(' ', '&nbsp;')
 			# the selected chip opens the list, as the picker it replaces did
 			callback = self.picker.show if selected else partial(self.picker.select, item.id_ish)
-			html += ui.link(content, callback, '{} · {}'.format(item.name, status), 'cfg' + (' active' if selected else ''))
+			# The box is a span holding two links, the name and its cross: a link cannot hold another,
+			# and two boxes side by side show a seam where they meet, as minihtml rounds every corner
+			# of each or none. Its room on the right is a slot and not padding: minihtml leaves the
+			# right padding of a span out of the line, so the cross met the border and the next chip
+			# met this one.
+			active = ' active' if selected else ''
+			name = ui.link(content, callback, '{} · {}'.format(item.name, status), 'cfg-name' + active)
+			cross = ui.link(ui.slot(ui.icon('chip-close', 'default', drop=CHIP_CROSS_DROP), CHIP_CROSS, 'center'),
+				partial(self.remove_chip, item), 'Remove {} from the bar'.format(item.name), 'cfg-cross')
+			html += '<span class="cfg boxed{}">{}{}{}{}</span>'.format(active, name, ui.slot('', CHIP_CROSS_GAP), cross, ui.slot('', CHIP_PAD))
 			html += ui.slot('', CHIP_GAP)
 		label = more_label(hidden)
 		# the zero-width text gives a chip holding nothing but the chevron the line box, and so the

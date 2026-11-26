@@ -119,6 +119,9 @@ class Debugger(core.Dispose, dap.Debugger):
 		self.output_panels: list[OutputPanel] = []
 		# the sessions already seen at a breakpoint; see `_on_session_updated`
 		self.paused_sessions: set[dap.Session] = set()
+		# the tab each configuration was last looked at on, by its name: moving back to one, by a
+		# breakpoint or its chip, shows that tab again
+		self.session_tabs: dict[str, str] = {}
 		# the height, in pixels, the debugger's panels are created at; see `OutputPanel.open_at_shared_height`
 		self.panel_height: float | None = None
 
@@ -521,34 +524,87 @@ class Debugger(core.Dispose, dap.Debugger):
 		return await response
 
 	def _on_session_updated(self, session: dap.Session):
+		'''A stop at a breakpoint and a continue leave the tab that is showing as it is
+
+		Which tab is showing is the user's choice: someone reading the console when a breakpoint is hit,
+		or when they continue from it, is still reading it. Only with no panel of the debugger showing
+		does a stop open the call stack, and a continue what the session is looked at in.
+		'''
+		shown = self.shown_panel()
 		# `on_session_updated` fires for many things while a session sits at a breakpoint, so the
 		# moment it stopped is found by remembering which sessions were already seen paused
+		stopped = False
 		if session.state == dap.Session.State.PAUSED:
 			if session not in self.paused_sessions:
 				self.paused_sessions.add(session)
-				if not session.stepping:
-					self.focus_paused_session(session)
+				stopped = not session.stepping
+				if stopped:
+					self.focus_paused_session(session, shown)
 		else:
 			self.paused_sessions.discard(session)
 
 		if self.session and self.session != session:
 			return
 
-		if session.state == dap.Session.State.PAUSED:
-			if not session.stepping:
-				self.callstack.open()
+		if stopped and not shown:
+			self.callstack.open()
 
 		if session.state.previous == dap.Session.State.PAUSED and session.state == dap.Session.State.RUNNING:
-			if not session.stepping:
+			if not session.stepping and not shown:
 				self.open_session_output(session)
 
-	def focus_paused_session(self, session: dap.Session):
+	def shown_panel(self):
+		'''The panel of the debugger that is showing, if one is'''
+		return next((panel for panel in self.output_panels if panel.is_open()), None)
+
+	def tab_of(self, panel) -> str | None:
+		'''The tab of the strip `panel` is shown under, by the names the strip gives them'''
+		for tab, dashboard in (('debugger', self.callstack), ('watch', self.watch_panel), ('breakpoints', self.breakpoints_panel)):
+			if panel is dashboard:
+				return tab
+		if self.session_panels and self.session_panels.panels_for_console(panel):
+			return 'console'
+		if panel is self.console:
+			return 'debugger_console'
+		if any(panel is terminal for terminals in self.panel_terminals.values() for terminal in terminals):
+			return 'terminal'
+		return None
+
+	def open_tab(self, tab: str | None, session: dap.Session, shown=None):
+		'''Shows the tab `tab` of `session`: its console or its terminal, or the call stack, the watch,
+		the breakpoints or the debug console, which are those of whichever session is selected
+
+		A console or terminal tab that `session` has none for leaves `shown` as it is.
+		'''
+		root = session
+		while root.parent:
+			root = root.parent
+		group = (tab or '').partition(':')[0]
+		panel = None
+		if group == 'console':
+			panel = self.session_panels.visible_console_for(session) if self.session_panels else None
+		elif group == 'terminal':
+			for owner, terminals in reversed(list(self.panel_terminals.items())):
+				while owner.parent:
+					owner = owner.parent
+				if owner is root:
+					panel = next((terminal for terminal in reversed(terminals) if terminal in self.output_panels), None)
+					if panel:
+						break
+		elif group == 'debugger_console':
+			panel = self.console
+		else:
+			panel = {'debugger': self.callstack, 'watch': self.watch_panel, 'breakpoints': self.breakpoints_panel}.get(group)
+		if panel and panel is not shown:
+			panel.open()
+
+	def focus_paused_session(self, session: dap.Session, shown=None):
 		'''A session just stopped at a breakpoint: make it the one the debugger is about
 
 		With several configurations running, the one that stops is rarely the one being looked at,
 		and finding it meant going through them one by one. Its configuration becomes the selection,
-		so the bar, the call stack and the variables are its, and `_on_session_updated` then opens
-		the call stack as it does for the selected session.
+		so the bar, the call stack and the variables are its. It is shown on the tab it was last
+		looked at on (`session_tabs`), and one never looked at on the tab that was `shown`.
 
 		Not while another session of the selection is itself paused: that is someone in the middle
 		of reading a frame, and taking the panel from under them is worse than a yellow dot on the
@@ -570,12 +626,18 @@ class Debugger(core.Dispose, dap.Debugger):
 			if other_root.configuration.name in names:
 				return
 
+		tab = self.tab_of(shown) if shown else None
 		if root.configuration.name not in names:
+			if tab:
+				self.session_tabs[self.project.name] = tab
 			self.project.load_configuration(root.configuration.name)
+			tab = self.session_tabs.get(root.configuration.name, tab)
 
 		if self.session is not session:
 			self.session = session
 			self.on_session_active(session)
+			if shown:
+				self.open_tab(tab, session, shown)
 
 	def open_session_output(self, session: dap.Session):
 		if session.is_paused:
@@ -586,8 +648,9 @@ class Debugger(core.Dispose, dap.Debugger):
 			root = root.parent
 
 		# What is looked at follows how it was started. Under the debugger that is the call stack, from
-		# the start and again after every continue: it is being debugged to be stopped and read, and
-		# the output is one tab away. Run without the debugger there is no call stack to come, so it
+		# the start, and after a continue when no panel of the debugger is showing (a tab that is showing
+		# stays, see `_on_session_updated`): it is being debugged to be stopped and read, and the output
+		# is one tab away. Run without the debugger there is no call stack to come, so it
 		# is what the program prints
 		if not getattr(root, 'no_debug', False):
 			self.callstack.open()

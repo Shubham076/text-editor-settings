@@ -20,6 +20,7 @@ editing the installed package:
 | [Terminus](Terminus) | Terminal emulator in a Sublime view or panel. | No file types — opened by command, not by extension |
 | [LSP](LSP) | `sublimelsp/LSP` with an API for other packages to contribute hover popup content. | Any language with a server configured |
 | [LSP-tsgo](LSP-tsgo) | `sublimelsp/LSP-tsgo` with a Goto Source Definition command (the `.js` behind a `.d.ts`). | `.js`, `.jsx`, `.ts`, `.tsx` |
+| [GitSavvy](GitSavvy) | `timbrel/GitSavvy` with a side by side view of the diff: `v`, or the Unified / Split buttons on the first line of the diff view. | Git repositories — opened by command |
 | [Debugger](Debugger/README.md) | `daveleroy/SublimeDebugger` carried on here with a new live UI: per-configuration consoles, inline values, run icons in the project file and test files, tasks that say when they are ready, log files. | Any adapter, currently exercised with Go, Python and Node |
 
 Both overlay packages work the same way: fold the buffer, draw a `minihtml` phantom over
@@ -35,15 +36,22 @@ work that is meant to go back upstream as a pull request:
 | :--- | :--- | :--- | :--- |
 | LSP | `sublimelsp/LSP` | `Shubham076/LSP` | `feat/hover-content-providers` |
 | LSP-tsgo | `sublimelsp/LSP-tsgo` (cloned at the installed release, 1.1.7) | `shubham-dogra-s1/LSP-tsgo` | `feat/goto-source-definition`, open as [sublimelsp/LSP-tsgo#15](https://github.com/sublimelsp/LSP-tsgo/pull/15) |
+| GitSavvy | `timbrel/GitSavvy` (remote `origin`, cloned at the installed release, 2.62.2) | `shubham-dogra-s1/GitSavvy` (remote `fork`) | `feat/diff-split-view` is what Sublime loads; the same work rebased onto `master` is `diff-split-view`, open as [timbrel/GitSavvy#2136](https://github.com/timbrel/GitSavvy/pull/2136) |
 | Debugger | `daveleroy/SublimeDebugger`, by way of `Shubham076/SublimeDebugger` | — | tracked here, see below |
 
 `Debugger` is the upstream code carried on here with the new live UI.
 
-This repo does **not** record `LSP` or `MarkdownPreviewOverlay`: each is a plain clone
+This repo does **not** record `LSP`, `MarkdownPreviewOverlay` or `GitSavvy`: each is a plain clone
 carried by its own git repo and listed in the root [.gitignore](../../.gitignore). The git that
 tracks their future updates is theirs, not this repo's. `LSP-tsgo` and `Debugger` are the
 exception — their nested `.git` was removed, so their files are tracked here directly and upstream
 updates for them are manual.
+
+`GitSavvy` replaces the Package Control install: `Installed Packages/GitSavvy.sublime-package` was
+removed on 2026-11-26, the clone is the only copy Sublime loads. Its split view lives in
+`core/interfaces/diff_split.py`. Recreating the clone from `timbrel/GitSavvy` alone does not bring
+it back until the pull request is merged: fetch `diff-split-view` from the fork. The fork has a
+`pr-assets/diff-split-view` branch too, which only holds the screenshots the pull request shows.
 
 Recreate the two clones on a new machine, and link `Debugger` with them:
 

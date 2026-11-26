@@ -9,7 +9,7 @@
         "--orangish": "#F78D8C",
         "--pinkish": "#D3859A",
         "--purplish": "#e5bb00",
-        "--redish": "#af483c",
+        "--redish": "#9A6B6BFF",
         "--yellowish": "#B28C00",
         "inserted": "#BEE6BE",
         "deleted": "#e4bbb2",
@@ -317,5 +317,5 @@
             "foreground": "var(textcolor)",
             "background": "var(modified)"
         }
-    ]
+
 }

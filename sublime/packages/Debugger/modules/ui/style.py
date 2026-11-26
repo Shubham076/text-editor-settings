@@ -23,6 +23,11 @@ TAB_PAD = 1.0
 CHIP_PAD = 0.7
 CHIP_DOT_GAP = 0.4
 CHIP_GAP = 0.45
+# The cross inside every chip: the gap before it, its box, and how far its icon is drawn down its
+# square to sit on the middle of the name (see `icon_data_uri`)
+CHIP_CROSS_GAP = 0.7
+CHIP_CROSS = 1.0
+CHIP_CROSS_DROP = 2.2
 CHIP_NAME = 24
 # the longest name on the tab of one console or terminal among several, in characters
 TAB_NAME = 28
@@ -69,6 +74,9 @@ a { color: var(--foreground); text-decoration: none; }
 .cfg { padding: 0.43rem $chippadrem; border: 1px solid color(var(--foreground) alpha(0.16)); border-radius: 0.4rem; color: color(var(--foreground) alpha(0.72)); }
 .cfg.more { border: 1px solid color(var(--foreground) alpha(0.3)); color: var(--foreground); }
 .cfg.active { border: 1px solid color(var(--foreground) alpha(0.3)); background-color: color(var(--foreground) alpha(0.08)); color: var(--foreground); font-weight: bold; }
+.cfg.boxed { padding-right: 0; }
+.cfg-name { color: color(var(--foreground) alpha(0.72)); }
+.cfg-name.active { color: var(--foreground); font-weight: bold; }
 .state { padding: 0.27rem 0.5rem; border-radius: 1rem; font-weight: bold; }
 .paused { color: color(var(--yellowish) min-contrast(var(--background) 4)); background-color: color(var(--yellowish) alpha(0.15)); }
 .running { color: color(var(--greenish) min-contrast(var(--background) 4)); background-color: color(var(--greenish) alpha(0.15)); }

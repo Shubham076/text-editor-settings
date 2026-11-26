@@ -32,11 +32,19 @@ class ConfigurationPicker:
 			return
 		for item in (*ui.backend.project.compounds, *ui.backend.project.configurations):
 			if item.id_ish == value:
-				# The tab stays the one that is open: on the console, picking another configuration shows
-				# that one's console, on the call stack its frames. Read before the selection changes,
-				# which can open a panel of its own. A tab the new selection has nothing for (a console
-				# before its first run) falls back to the call stack in `select_tab`.
+				# Each configuration is shown on the tab it was last looked at on, and one never looked
+				# at on the tab that is open: on the console, picking another configuration shows that
+				# one's console, on the call stack its frames. Read before the selection changes, which
+				# can open a panel of its own. A tab the new selection has nothing for (a console before
+				# its first run) falls back to the call stack in `select_tab`.
+				backend = ui.backend
+				tabs = getattr(backend, 'session_tabs', None)
+				if tabs is None:
+					tabs = backend.session_tabs = {}
 				tab = ui.state.tab
+				if backend.project.configuration_or_compound is not None:
+					tabs[backend.project.name] = tab
+				tab = tabs.get(item.name, tab)
 				configurations.select(ui.backend, item.name)
 				ui.toolbar.select_tab(tab)
 				return

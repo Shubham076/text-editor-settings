@@ -11,7 +11,7 @@ import zlib
 # Icon sizes in rem, measured from the mockups (toolbar icons 24px, tree chevrons 16px, ...).
 ICON_SIZES = {
 	'play': 1.2, 'run': 1.2, 'pause': 1.2, 'stop': 1.2, 'restart': 1.2, 'over': 1.2, 'into': 1.2, 'out': 1.2, 'settings': 1.2, 'back': 1.2, 'bug': 1.2,
-	'chevron': 0.8, 'down': 0.8, 'up': 0.8, 'plus': 1.0, 'close': 0.8, 'edit': 0.9, 'breakpoint': 1.0, 'unchecked': 1.0,
+	'chevron': 0.8, 'down': 0.8, 'up': 0.8, 'plus': 1.0, 'close': 0.8, 'chip-close': 0.9, 'edit': 0.9, 'breakpoint': 1.0, 'unchecked': 1.0,
 	'breakpoints': 1.2, 'tasks': 1.2, 'trash': 1.2,
 }
 # The buttons of the bar are drawn larger inside their box, about the centre: the shapes keep a
@@ -57,6 +57,9 @@ ICONS = {
 	'up': (('poly', ((18, 15), (12, 9), (6, 15)), False),),
 	'plus': (('line', (12, 5), (12, 19)), ('line', (5, 12), (19, 12))),
 	'close': (('line', (18, 6), (6, 18)), ('line', (6, 6), (18, 18))),
+	# the cross inside a chip of the bar: the same cross, drawn a little larger and heavier, as the
+	# thin one next to bold text read as a smudge (`STROKES`)
+	'chip-close': (('line', (18, 6), (6, 18)), ('line', (6, 6), (18, 18))),
 	'edit': (('poly', ((2, 22), (3.5, 16.5), (17, 3), (21, 7), (7.5, 20.5)), True), ('line', (15, 5), (19, 9))),
 	'breakpoint': (('disc', (12, 12), 6),),
 	'unchecked': (('arc', (12, 12), 6, 0, 360),),
@@ -78,6 +81,8 @@ ICONS = {
 		' M4 19l3.35 -2 M20 19l-3.35 -2 M4 7l3.75 2.4 M20 7l-3.75 2.4'),),
 }
 STROKE = 2.0
+# Icons drawn with a stroke of their own instead of `STROKE`
+STROKES = {'chip-close': 2.6}
 
 
 def _arc_points(x1, y1, rx, ry, large, sweep, x2, y2):
@@ -171,9 +176,9 @@ def _segment_distance(px, py, ax, ay, bx, by):
 	return math.hypot(px - ax - t * dx, py - ay - t * dy)
 
 
-def _icon_coverage(shapes, x, y, pixel):
+def _icon_coverage(shapes, x, y, pixel, stroke=STROKE):
 	"""Coverage in 0..1 of the icon at point (x, y) in 24-unit space; `pixel` is one device pixel."""
-	half = STROKE / 2
+	half = stroke / 2
 	coverage = 0.0
 	for shape in shapes:
 		kind = shape[0]
@@ -230,9 +235,15 @@ def _png(width, height, rows):
 
 
 @lru_cache(maxsize=256)
-def icon_data_uri(name, color, size, alpha=1.0):
-	"""PNG data URI of `name` drawn in `color` (#rrggbb) at `size` device pixels square."""
+def icon_data_uri(name, color, size, alpha=1.0, drop=0.0):
+	"""PNG data URI of `name` drawn in `color` (#rrggbb) at `size` device pixels square
+
+	`drop` draws the shape that many grid units lower in its square. minihtml stands an image on
+	the baseline of the text beside it and moves it for no css, so a small icon in a line of text
+	sits above the middle of the line; this is the one way to bring it down.
+	"""
 	shapes = ICONS[name]
+	stroke = STROKES.get(name, STROKE)
 	rgb = tuple(int(color[i:i + 2], 16) for i in (1, 3, 5))
 	zoom = TOOL_ZOOM if name in TOOL_ICONS else 1.0
 	pixel = 24 / size / zoom
@@ -240,8 +251,8 @@ def icon_data_uri(name, color, size, alpha=1.0):
 	rows = bytearray()
 	for row in range(size):
 		rows.append(0)
-		y = origin + (row + 0.5) * pixel
+		y = origin + (row + 0.5) * pixel - drop
 		for column in range(size):
-			coverage = _icon_coverage(shapes, origin + (column + 0.5) * pixel, y, pixel)
+			coverage = _icon_coverage(shapes, origin + (column + 0.5) * pixel, y, pixel, stroke)
 			rows.extend((*rgb, int(round(coverage * alpha * 255))))
 	return 'data:image/png;base64,' + base64.b64encode(_png(size, size, rows)).decode('ascii')

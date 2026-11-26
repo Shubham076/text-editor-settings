@@ -234,9 +234,15 @@ class PanelUI(Renderer):
 		self.generation += 1
 		self.handlers = {}
 		style = self.view.style()
-		self.palette = {key: style.get(key) or default for key, default in (
-			('foreground', '#606060'), ('background', '#ffffff'), ('bluish', '#343e5e'), ('redish', '#9b362b'))}
-		self.palette['accent'] = style.get('accent') or self.palette['bluish']
+		# The colours that mean something (the red of stop, the blue of a link) are those of the
+		# editor's scheme, whatever panel the bar is drawn on: a terminal's view has the Terminus
+		# scheme, whose red is the pure red of the terminal and not the red of the theme. Foreground
+		# and background stay this view's, which the icons are blended against.
+		reference = getattr(getattr(self.backend, 'callstack', None), 'view', None)
+		meaning = reference.style() if reference is not None and reference is not self.view and reference.is_valid() else style
+		self.palette = {key: style.get(key) or default for key, default in (('foreground', '#606060'), ('background', '#ffffff'))}
+		self.palette.update({key: meaning.get(key) or default for key, default in (('bluish', '#343e5e'), ('redish', '#9b362b'))})
+		self.palette['accent'] = meaning.get('accent') or self.palette['bluish']
 		self.palette['selection'] = style.get('selection') or style.get('line_highlight') or 'color(var(--foreground) alpha(0.1))'
 		preferences = sublime.load_settings('Preferences.sublime-settings')
 		editor_font = preferences.get('font_size', 12) or 12

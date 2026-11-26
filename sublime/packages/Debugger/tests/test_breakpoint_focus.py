@@ -57,13 +57,87 @@ class BreakpointFocusTests(unittest.TestCase):
 		self.project = project
 		self.debugger = types.SimpleNamespace(
 			sessions=[self.gateway, self.backend, self.agentic], session=self.gateway, paused_sessions=set(),
-			project=project, callstack=Mock(), on_session_active=Mock(), open_session_output=Mock())
-		for name in ('_on_session_updated', 'focus_paused_session'):
+			project=project, callstack=Mock(), on_session_active=Mock(), open_session_output=Mock(),
+			output_panels=[], panel_terminals={}, session_panels=None, session_tabs={}, console=Mock(), watch_panel=Mock(), breakpoints_panel=Mock())
+		self.debugger.callstack.is_open.return_value = False
+		self.debugger.output_panels.append(self.debugger.callstack)
+		for name in ('_on_session_updated', 'focus_paused_session', 'shown_panel', 'tab_of', 'open_tab'):
 			setattr(self.debugger, name, types.MethodType(debugger_method(name, {'dap': dap}), self.debugger))
 
 	def pause(self, session):
 		session.state = PAUSED
 		self.debugger._on_session_updated(session)
+
+	def resume(self, session):
+		session.state = RUNNING
+		self.debugger._on_session_updated(session)
+
+	def panel(self):
+		"""A panel of the debugger, not showing until `show`"""
+		panel = Mock()
+		panel.is_open.return_value = False
+		self.debugger.output_panels.append(panel)
+		return panel
+
+	def show(self, panel):
+		for other in self.debugger.output_panels:
+			other.is_open.return_value = other is panel
+
+	def consoles(self):
+		"""A console for gateway and one for backend, as the session panels keep them"""
+		gateway, backend = self.panel(), self.panel()
+		owners = {id(gateway): 'gateway', id(backend): 'backend'}
+		self.debugger.session_panels = types.SimpleNamespace(
+			panels_for_console=lambda console: owners.get(id(console)),
+			visible_console_for=lambda session: {'gateway': gateway, 'backend': backend}.get(session.configuration.name))
+		return gateway, backend
+
+	def test_on_the_console_a_breakpoint_and_a_continue_leave_the_console_showing(self):
+		gateway, _ = self.consoles()
+		self.show(gateway)
+		self.pause(self.gateway)
+		self.debugger.callstack.open.assert_not_called()
+		gateway.open.assert_not_called()
+		# the many updates of a session at a breakpoint do not take it either
+		self.debugger._on_session_updated(self.gateway)
+		self.debugger.callstack.open.assert_not_called()
+		self.resume(self.gateway)
+		self.debugger.open_session_output.assert_not_called()
+		self.debugger.callstack.open.assert_not_called()
+		# and the next breakpoint
+		self.pause(self.gateway)
+		self.debugger.callstack.open.assert_not_called()
+
+	def test_on_the_call_stack_it_stays_the_call_stack(self):
+		self.show(self.debugger.callstack)
+		self.pause(self.gateway)
+		self.resume(self.gateway)
+		self.debugger.callstack.open.assert_not_called()
+		self.debugger.open_session_output.assert_not_called()
+
+	def test_with_no_panel_showing_a_breakpoint_opens_the_call_stack_once(self):
+		self.pause(self.gateway)
+		self.debugger._on_session_updated(self.gateway)
+		self.debugger.callstack.open.assert_called_once()
+		self.resume(self.gateway)
+		self.debugger.open_session_output.assert_called_once_with(self.gateway)
+
+	def test_a_breakpoint_in_another_configuration_shows_its_console_when_a_console_was_showing(self):
+		gateway, backend = self.consoles()
+		self.show(gateway)
+		self.pause(self.backend)
+		self.project.load_configuration.assert_called_once_with('backend')
+		self.assertIs(self.debugger.session, self.backend)
+		backend.open.assert_called_once()
+		self.debugger.callstack.open.assert_not_called()
+
+	def test_a_breakpoint_in_another_configuration_shows_its_terminal_when_a_terminal_was_showing(self):
+		gateway, backend = self.panel(), self.panel()
+		self.debugger.panel_terminals = {self.gateway: [gateway], self.backend: [backend]}
+		self.show(gateway)
+		self.pause(self.backend)
+		backend.open.assert_called_once()
+		self.debugger.callstack.open.assert_not_called()
 
 	def test_a_breakpoint_in_another_configuration_selects_it_and_opens_its_call_stack(self):
 		self.pause(self.backend)
@@ -116,6 +190,30 @@ class BreakpointFocusTests(unittest.TestCase):
 		self.project.load_configuration.assert_not_called()
 		self.assertIs(self.debugger.session, self.backend)
 		self.debugger.callstack.open.assert_called_once()
+
+	def test_a_breakpoint_shows_the_configuration_on_the_tab_it_was_last_looked_at_on(self):
+		gateway, backend = self.consoles()
+		# backend was last looked at on its console, gateway is being read on the call stack
+		self.debugger.session_tabs['backend'] = 'console'
+		self.show(self.debugger.callstack)
+		self.pause(self.backend)
+		backend.open.assert_called_once()
+		self.assertEqual(self.debugger.session_tabs['gateway'], 'debugger')
+		# and back: gateway was left on the call stack
+		self.show(backend)
+		self.backend.state = RUNNING
+		self.debugger._on_session_updated(self.backend)
+		self.pause(self.gateway)
+		self.assertEqual(self.debugger.session_tabs['backend'], 'console')
+		self.debugger.callstack.open.assert_called_once()
+		gateway.open.assert_not_called()
+
+	def test_a_remembered_console_tab_of_a_configuration_with_no_console_leaves_the_tab_as_it_is(self):
+		self.debugger.session_panels = types.SimpleNamespace(panels_for_console=lambda console: None, visible_console_for=lambda session: None)
+		self.debugger.session_tabs['backend'] = 'console'
+		self.show(self.debugger.callstack)
+		self.pause(self.backend)
+		self.debugger.callstack.open.assert_not_called()
 
 
 if __name__ == '__main__':

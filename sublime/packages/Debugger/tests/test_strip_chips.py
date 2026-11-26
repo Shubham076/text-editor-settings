@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import types
 import unittest
-from unittest.mock import Mock
+from unittest.mock import AsyncMock, Mock
 
 import test_live_ui as fixtures
 
@@ -38,7 +38,8 @@ class StripChipsTests(unittest.TestCase):
 		for part in html.split('<a href="')[1:]:
 			head = part.split('>', 1)[0]
 			css = head.split('class="', 1)[1].split('"', 1)[0]
-			if css.startswith('cfg'):
+			if css.startswith('cfg') and css != 'cfg-cross':
+				css = css.replace('cfg-name', 'cfg')
 				chips.append((css, head.split('title="', 1)[1].split('"', 1)[0]))
 		return chips
 
@@ -156,6 +157,136 @@ class StripChipsTests(unittest.TestCase):
 		self.assertEqual(short_names(['api', 'api-worker']), ['api', 'api-worker'])
 		self.assertEqual(short_names(['only-one']), ['only-one'])
 		self.assertEqual(short_names([]), [])
+
+	def press(self, html, title):
+		"""Presses the link titled `title` and runs what it starts"""
+		key = html.split('title="{}"'.format(title))[0].rsplit('<a href="', 1)[1].split('"', 1)[0]
+		result = self.ui.handlers[key]()
+		if result is not None:
+			self.asyncio.run(result)
+
+	def stoppable(self):
+		async def stop(session):
+			self.backend.sessions.remove(session)
+		self.backend.stop = AsyncMock(side_effect=stop)
+
+	def test_every_chip_has_its_cross_inside_it_the_selected_one_too(self):
+		self.configure(['ps-api-gateway', 'ps-backend'], 'ps-backend', running=('ps-api-gateway',))
+		html = self.strip_html()
+		self.assertEqual(html.count('from the bar'), 2)
+		# the name and its cross are two links inside the one box of the chip
+		for name, css in (('ps-api-gateway', 'cfg'), ('ps-backend', 'cfg active')):
+			chip = html.split('<span class="{}">'.format(css.replace('cfg', 'cfg boxed')), 1)[1].split('"></span></span>', 1)[0]
+			self.assertIn('title="{} · '.format(name), chip)
+			self.assertIn('title="Remove {} from the bar"'.format(name), chip)
+
+	def test_one_that_stops_keeps_its_chip_until_its_cross_is_pressed(self):
+		names = ['ps-api-gateway', 'ps-backend', 'ps-agentic']
+		self.configure(names, 'ps-agentic', running=('ps-api-gateway', 'ps-backend'))
+		self.strip_html()
+
+		# ps-backend is stopped: still a chip
+		self.configure(names, 'ps-agentic', running=('ps-api-gateway',))
+		html = self.strip_html()
+		self.assertEqual(self.chips(html), [
+			('cfg', 'ps-api-gateway · Running'), ('cfg', 'ps-backend · Stopped'), ('cfg active', 'ps-agentic · Stopped'),
+			('cfg more', 'Select run configuration')])
+
+		# its cross takes it off without asking: nothing of it is running
+		self.sublime.ok_cancel_dialog = Mock(return_value=False)
+		self.press(html, 'Remove ps-backend from the bar')
+		self.sublime.ok_cancel_dialog.assert_not_called()
+		html = self.strip_html()
+		self.assertEqual(self.chips(html), [
+			('cfg', 'ps-api-gateway · Running'), ('cfg active', 'ps-agentic · Stopped'), ('cfg more', 'Select run configuration')])
+
+		# and running it again puts it back
+		self.configure(names, 'ps-agentic', running=('ps-api-gateway', 'ps-backend'))
+		self.assertIn(('cfg', 'ps-backend · Running'), self.chips(self.strip_html()))
+
+	def test_the_cross_of_a_running_chip_asks_and_cancel_leaves_it_running(self):
+		self.configure(['ps-api-gateway', 'ps-backend'], 'ps-backend', running=('ps-api-gateway', 'ps-backend'))
+		self.stoppable()
+		html = self.strip_html()
+		self.sublime.ok_cancel_dialog = Mock(return_value=False)
+		self.press(html, 'Remove ps-api-gateway from the bar')
+		self.sublime.ok_cancel_dialog.assert_called_once()
+		self.assertIn('ps-api-gateway is running', self.sublime.ok_cancel_dialog.call_args.args[0])
+		self.backend.stop.assert_not_awaited()
+		self.assertIn(('cfg', 'ps-api-gateway · Running'), self.chips(self.strip_html()))
+
+	def test_the_cross_of_a_running_chip_stops_it_and_takes_it_off_once_confirmed(self):
+		self.configure(['ps-api-gateway', 'ps-backend'], 'ps-backend', running=('ps-api-gateway', 'ps-backend'))
+		self.stoppable()
+		html = self.strip_html()
+		self.sublime.ok_cancel_dialog = Mock(return_value=True)
+		self.press(html, 'Remove ps-api-gateway from the bar')
+		self.assertEqual(self.backend.stop.await_count, 1)
+		self.assertEqual([session.configuration.name for session in self.backend.sessions], ['ps-backend'])
+		self.assertEqual(self.chips(self.strip_html()), [('cfg active', 'ps-backend · Running'), ('cfg more', 'Select run configuration')])
+
+	def test_removing_the_selected_chip_selects_the_next_one_or_nothing(self):
+		names = ['ps-api-gateway', 'ps-backend', 'ps-agentic']
+		items = self.configure(names, 'ps-backend', running=('ps-api-gateway', 'ps-backend', 'ps-agentic'))
+		self.stoppable()
+		self.sublime.ok_cancel_dialog = Mock(return_value=True)
+		self.backend.open_session_output = Mock()
+		self.panel.enable_input_mode = self.panel.scroll_to_end = Mock()
+		loaded = []
+
+		def load_configuration(name, id_ish=''):
+			loaded.append(name)
+			self.backend.project.configuration_or_compound = next((item for item in items if item.name == name), None)
+			self.backend.project.name = name
+		self.backend.project.load_configuration = load_configuration
+
+		# the one after it
+		self.press(self.strip_html(), 'Remove ps-backend from the bar')
+		self.assertEqual(loaded, ['ps-agentic'])
+		# at the end of the row, the one before it
+		self.press(self.strip_html(), 'Remove ps-agentic from the bar')
+		self.assertEqual(loaded, ['ps-agentic', 'ps-api-gateway'])
+		# the last one: nothing selected, and the bar offers the list
+		self.press(self.strip_html(), 'Remove ps-api-gateway from the bar')
+		self.assertEqual(loaded, ['ps-agentic', 'ps-api-gateway', ''])
+		self.assertEqual(self.backend.sessions, [])
+		self.assertEqual(self.chips(self.strip_html()), [('cfg more', 'Select run configuration')])
+
+	def test_picking_a_configuration_shows_it_on_the_tab_it_was_last_looked_at_on(self):
+		items = self.configure(['ps-api-gateway', 'ps-backend'], 'ps-api-gateway')
+
+		def load_configuration(name, id_ish=''):
+			self.backend.project.configuration_or_compound = next(item for item in items if item.name == name)
+			self.backend.project.name = name
+		self.backend.project.load_configuration = load_configuration
+		self.strip_html()
+		self.ui.toolbar.select_tab = Mock()
+
+		# never looked at: the tab that is open stays
+		self.ui.state.tab = 'watch'
+		self.ui.toolbar.picker.select('ps-backend')
+		self.ui.toolbar.select_tab.assert_called_once_with('watch')
+		# backend is left on its console, and gateway comes back on the watch
+		self.ui.state.tab = 'console'
+		self.ui.toolbar.picker.select('ps-api-gateway')
+		self.assertEqual(self.ui.toolbar.select_tab.call_args.args, ('watch',))
+		self.ui.state.tab = 'debugger'
+		self.ui.toolbar.picker.select('ps-backend')
+		self.assertEqual(self.ui.toolbar.select_tab.call_args.args, ('console',))
+
+	def test_the_red_of_stop_is_the_theme_s_on_a_terminal_too(self):
+		# a terminal's view has the Terminus scheme, whose red is the terminal's pure red
+		self.view.style.return_value = dict(self.view.style.return_value, redish='#cd0000', bluish='#0000ee')
+		reference = Mock()
+		reference.is_valid.return_value = True
+		reference.style.return_value = {'background': '#2d353b', 'foreground': '#d3c6aa', 'redish': '#e67e80', 'bluish': '#7fbbb3'}
+		self.backend.callstack.view = reference
+		self.configure(['ps-api-gateway'], 'ps-api-gateway', running=('ps-api-gateway',))
+		self.strip_html()
+		self.assertEqual(self.ui.palette['redish'], '#e67e80')
+		self.assertEqual(self.ui.palette['bluish'], '#7fbbb3')
+		# what the icons are blended against stays the view's own
+		self.assertEqual(self.ui.palette['background'], '#fafafa')
 
 
 if __name__ == '__main__':
