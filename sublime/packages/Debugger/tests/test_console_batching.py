@@ -320,7 +320,7 @@ class ConsoleBatchingTests(unittest.TestCase):
 		self.console.log('stderr', 'the program failed\n')
 		self.assertEqual(written, [
 			('✗ no adapter\nsecond line', 'red'), ('✗ quiet', 'red'), ('⚠ careful', 'yellow'), ('✓ done', 'green'),
-			('just saying', 'comment'), ('● has a mark already', 'red'), ('the program failed\n', 'red')])
+			('just saying', 'blue'), ('● has a mark already', 'red'), ('the program failed\n', 'red')])
 
 
 if __name__ == '__main__':

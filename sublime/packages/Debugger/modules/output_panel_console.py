@@ -35,6 +35,12 @@ PROGRESS_FAILED = '✗'
 # What the debugger says itself (not what the program prints) starts with a mark for what kind of
 # message it is, in the colour of the line: one plain character, so a console of them is not a
 # row of pictures. A message that already starts with a mark of its own keeps that one.
+# The colour of what the debugger says that is neither an error nor a warning: `Building main.go`,
+# what an adapter reports. It was the colour of a comment, which a colour scheme makes faint on
+# purpose, and on a light one such a line was hard to read. A console cannot have a colour of its
+# own, only the ones the scheme gives its scopes, so it is the scheme's blue: readable, and still
+# not the plain text a program prints in.
+INFO_COLOR = 'blue'
 MARKS = {'error': '✗', 'error-no-open': '✗', 'warn': '⚠', 'success': '✓'}
 MARKED = '✓✗⚠●◆◯◇⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
 
@@ -717,7 +723,7 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 		elif type == 'success':
 			self.write(marked(type, str(value).rstrip('\n')), 'green', ensure_new_line=True)
 		else:
-			self.write(str(value).rstrip('\n'), 'comment', ensure_new_line=True)
+			self.write(str(value).rstrip('\n'), INFO_COLOR, ensure_new_line=True)
 
 		if source:
 			self.phantoms.append(RegionAnnotation(self.view, sublime.Region(self.at() - 1), self.on_navigate, source=source))
@@ -736,7 +742,7 @@ class ConsoleOutputPanel(OutputPanel, dap.Console):
 		self._progress_count = count = getattr(self, '_progress_count', 0) + 1
 		key = f'debugger.progress.{count}'
 		line = PROGRESS_FRAMES[0] + ' ' + text.strip('\n')
-		self.write(line, 'comment', ensure_new_line=True)
+		self.write(line, INFO_COLOR, ensure_new_line=True)
 		# the text was put in where `at` was and ends where it is now
 		start = self.at() - len(line)
 		self.view.add_regions(key, [sublime.Region(start, start + 1)])
