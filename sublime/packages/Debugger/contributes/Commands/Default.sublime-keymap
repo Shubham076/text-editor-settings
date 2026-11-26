@@ -58,6 +58,8 @@
 	},
 	// Switch to input mode when hitting enter with the console in focus. Not while the completion
 	// popup is open: then enter commits the highlighted item, as it does in the editor
+	// Nor while a list is open over the panel (the configurations, the settings): the panel still has
+	// these bindings then, and enter is the lists, to choose the row that is highlighted
 	{
 		"keys": [
 			"enter"
@@ -72,6 +74,11 @@
 			},
 			{
 				"key": "auto_complete_visible",
+				"operator": "equal",
+				"operand": false
+			},
+			{
+				"key": "overlay_visible",
 				"operator": "equal",
 				"operand": false
 			}
@@ -94,6 +101,11 @@
 				"key": "auto_complete_visible",
 				"operator": "equal",
 				"operand": false
+			},
+			{
+				"key": "overlay_visible",
+				"operator": "equal",
+				"operand": false
 			}
 		]
 	},
@@ -112,6 +124,11 @@
 			},
 			{
 				"key": "auto_complete_visible",
+				"operator": "equal",
+				"operand": false
+			},
+			{
+				"key": "overlay_visible",
 				"operator": "equal",
 				"operand": false
 			}
@@ -133,6 +150,11 @@
 			},
 			{
 				"key": "auto_complete_visible",
+				"operator": "equal",
+				"operand": false
+			},
+			{
+				"key": "overlay_visible",
 				"operator": "equal",
 				"operand": false
 			}
