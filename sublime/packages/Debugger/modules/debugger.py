@@ -285,6 +285,11 @@ class Debugger(core.Dispose, dap.Debugger):
 	@core.run
 	async def start(self, no_debug: bool = False, args: dict[str, Any] | None = None):
 		try:
+			# What is started is what the project says now. The configurations are otherwise the ones
+			# of the last time the project was read, and Sublime does not always say that a project
+			# file was saved: an `env` that was just changed was started with its old value.
+			self.project.reload(self.console)
+
 			if args and 'configuration' in args:
 				configuration = args['configuration']
 				if isinstance(configuration, str):

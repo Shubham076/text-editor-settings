@@ -77,3 +77,42 @@ class NativeRestartTests(unittest.TestCase):
 
 	def test_a_request_that_fails_falls_back(self):
 		self.assertFalse(run([Session('Server', fails=True)], ['Server']))
+
+
+def as_written():
+	'''`configurations._as_written`, compiled on its own'''
+	module = ast.parse((ROOT / 'modules/configurations.py').read_text())
+	function = next(node for node in module.body if isinstance(node, ast.FunctionDef) and node.name == '_as_written')
+	tree = ast.Module(body=[ast.ImportFrom(module='__future__', names=[ast.alias(name='annotations')], level=0), function], type_ignores=[])
+	namespace = {}
+	exec(compile(ast.fix_missing_locations(tree), 'configurations.py', 'exec'), namespace)
+	return namespace['_as_written']
+
+
+class Written(dict):
+	def __init__(self, name, **values):
+		super().__init__(name=name, **values)
+		self.name = name
+
+
+class EditedConfigurationTests(unittest.TestCase):
+	'''A configuration that was edited is started again as it is now, not as the session has it'''
+
+	def session(self, name, **values):
+		return types.SimpleNamespace(configuration=types.SimpleNamespace(name=name, written=dict(name=name, **values)))
+
+	def debugger(self, *configurations):
+		return types.SimpleNamespace(project=types.SimpleNamespace(configurations=list(configurations)))
+
+	def test_one_that_is_as_it_was_started_can_be_restarted_in_place(self):
+		debugger = self.debugger(Written('api', env={'KEY': 'a'}), Written('web'))
+		self.assertTrue(as_written()(debugger, [self.session('api', env={'KEY': 'a'}), self.session('web')]))
+
+	def test_one_whose_env_was_changed_is_a_new_launch(self):
+		debugger = self.debugger(Written('api', env={'KEY': 'b'}), Written('web'))
+		self.assertFalse(as_written()(debugger, [self.session('api', env={'KEY': 'a'}), self.session('web')]))
+
+	def test_one_that_is_no_longer_in_the_project_or_was_not_from_it_is_a_new_launch(self):
+		self.assertFalse(as_written()(self.debugger(), [self.session('api')]))
+		session = types.SimpleNamespace(configuration=types.SimpleNamespace(name='api'))
+		self.assertFalse(as_written()(self.debugger(Written('api')), [session]))

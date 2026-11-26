@@ -198,7 +198,12 @@ async def restart(debugger: Debugger, name: str, no_debug: bool | None = None) -
 		if no_debug is None:
 			no_debug = bool(sessions) and all(getattr(session, 'no_debug', False) for session in sessions)
 
-		if await _restart_natively(debugger, sessions, names, no_debug):
+		# What is started again is what the project says now. The `restart` request of an adapter
+		# starts the program with what the session was started with, so it is only for a
+		# configuration that was not edited since: an `env` that was changed is a new launch.
+		debugger.project.reload(debugger.console)
+
+		if _as_written(debugger, sessions) and await _restart_natively(debugger, sessions, names, no_debug):
 			return
 
 		for session in sessions:
@@ -215,6 +220,18 @@ async def restart(debugger: Debugger, name: str, no_debug: bool | None = None) -
 
 	except dap.Error as e:
 		debugger.console.error(f'Unable to restart {name}: {e}')
+
+
+def _as_written(debugger: Debugger, sessions: list[dap.Session]) -> bool:
+	'''Whether every session runs its configuration as the project has it now'''
+	written = {configuration.name: dict(configuration) for configuration in debugger.project.configurations}
+
+	for session in sessions:
+		started_with = getattr(session.configuration, 'written', None)
+		if started_with is None or written.get(session.configuration.name) != started_with:
+			return False
+
+	return True
 
 
 async def _restart_natively(debugger: Debugger, sessions: list[dap.Session], names: list[str], no_debug: bool) -> bool:

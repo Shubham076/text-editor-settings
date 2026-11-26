@@ -52,6 +52,9 @@ class ConfigurationExpanded(Configuration):
 		super().__init__(configuration.name, -1, configuration.type, configuration.request, json, configuration.source)
 		self.id_ish = configuration.id_ish
 
+		# as it was written in the project, before the variables were filled in: what tells a
+		# configuration that was edited since from one that was not (`configurations.restart`)
+		self.written: dict[str, Any] = dict(configuration)
 		self.variables = variables
 		# the tasks named by `pre_debug_task` and `post_debug_task`, in the order they are run
 		self.pre_debug_tasks: list[TaskExpanded] = []

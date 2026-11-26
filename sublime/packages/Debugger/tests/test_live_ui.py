@@ -187,7 +187,7 @@ class LiveTests(unittest.TestCase):
 		self.addCleanup(self.patch.stop)
 		self.module = self.loaded['_live_test.modules.live_ui']
 		self.configuration = types.SimpleNamespace(name='Real service', id_ish='config-1')
-		self.backend = types.SimpleNamespace(project=types.SimpleNamespace(name='Real service', compounds=[], configurations=[],
+		self.backend = types.SimpleNamespace(project=types.SimpleNamespace(name='Real service', compounds=[], configurations=[], reload=lambda console: None,
 			configuration_or_compound=self.configuration, on_updated=Event()), sessions=[], session=None,
 			output_panels=[], session_panels=None, watch=types.SimpleNamespace(expressions=[], on_updated=Event()),
 			breakpoints=types.SimpleNamespace(**{name: Collection() for name in ('source', 'filters', 'function', 'data')}))
