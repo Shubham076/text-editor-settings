@@ -993,6 +993,11 @@ class ToggleTerminusPanelCommand(sublime_plugin.WindowCommand):
                         next_index = (current_index + 1) % len(panels)
                         panel_name = panels[next_index]
                 except (ValueError, IndexError):
+                    # a terminal that is not in the row (one the debugger runs a task in) is not
+                    # part of the round, so it stays where it is
+                    current_view = window.find_output_panel(current_name) if current_name else None
+                    if current_view and current_view.settings().get("terminus_view"):
+                        return
                     # Current panel not in list or error - just use first panel
                     panel_name = panels[0] if panels else None
 
@@ -1032,7 +1037,13 @@ class ToggleTerminusPanelCommand(sublime_plugin.WindowCommand):
             if view and view.settings().get("terminus_view"):
                 panels.append(panel_name)
 
-        # ctrl+tab goes along the tabs as they are drawn
+        # ctrl+tab goes along the tabs as they are drawn, and only along them: a terminal with no
+        # tab is one the debugger runs a task or a session in, which is shown in the debugger and
+        # was the stop after the last tab
+        tabbed = [name for name, _ in tabs.panels(window)]
+        if tabbed:
+            return tabbed
+
         panels.sort(key=lambda name: tabs.order_of(window, name))
         return panels
 
