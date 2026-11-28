@@ -14,6 +14,7 @@ sidebar = true
 sidebar_width = 240
 agents_panel = false
 agents_width = 378
+panel_full_width = true
 tooltips = true
 auto_hide_scrollbars = true
 decorations = server
@@ -70,6 +71,32 @@ claude = false
 codex = true
 grok = false
 opencode = true
+idle_stop_minutes = 10
+font_size = 0
+ctrl_enter_sends = false
+scroll_on_send = true
+timestamps = true
+focus_view = false
+archive_after_days = 14
+attach_selection = true
+attach_open_file = true
+respect_gitignore = true
+autosave = true
+location = panel
+continue_after_restart = true
+
+[claude]
+chat = true
+executable = 
+wrapper = 
+initial_mode = 
+allow_bypass_permissions = false
+prompt_suggestions = true
+use_terminal = false
+ide = true
+disable_login_prompt = false
+python_env = true
+spinner_verbs = append
 
 [terminal]
 shell = 
@@ -77,7 +104,7 @@ font_size = 14
 font = 
 line_height = 1.4
 scrollback = 10000
-height = 341
+height = 328
 
 [git]
 enabled = true
@@ -93,6 +120,10 @@ extensions = install
 
 [debug]
 show_on_start = true
+layout = toolwindow
+inline_values = true
+inline_values_lines = 50
+frames_width = 27
 keys_in_terminal = true
 console_lines = 10000
 
@@ -105,7 +136,19 @@ gutter = true
 [keys]
 # ctrl+shift+d = duplicate_line
 ctrl+t = select_theme
-ctrl+\ = toggle_sidebar
+ctrl+\ = toggle_agents
+ctrl+shift+k = agents_insert_mention
+alt+d = debug_show
+F8 = debug_step_over when inDebugMode
+F7 = debug_step_into when inDebugMode
+shift+F8 = debug_step_out when inDebugMode
+F9 = debug_continue when inDebugMode
+ctrl+alt+r = debug_continue when inDebugMode
+ctrl+F2 = debug_stop when inDebugMode
+ctrl+F8 = debug_toggle_breakpoint
+alt+F8 = debug_evaluate when inDebugMode
+alt+F9 = debug_run_to_cursor when inDebugMode
+ctrl+shift+F8 = debug_view_breakpoints
 ctrl+Backspace = delete_line
 ctrl+r = replace
 ctrl+shift+f = find_in_files
